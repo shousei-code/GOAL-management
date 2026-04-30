@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ゴールマネジメント</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E" />
+<style>
+  :root {
+    --bg: #f5f7fa;
+    --panel: #ffffff;
+    --panel-2: #f8fafc;
+    --text: #0f172a;
+    --muted: #64748b;
+    --accent: #2563eb;
+    --accent-soft: #dbeafe;
+    --success: #16a34a;
+    --warn: #d97706;
+    --danger: #dc2626;
+    --border: #e2e8f0;
+    --kgi: #7c3aed;
+    --kgi-soft: #ede9fe;
+    --kpi1: #0ea5e9;
+    --kpi1-soft: #e0f2fe;
+    --kpi2: #10b981;
+    --kpi2-soft: #d1fae5;
+    --kpi3: #f59e0b;
+    --kpi3-soft: #fef3c7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+  }
+  header {
+    padding: 20px;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #fff;
+    text-align: center;
+  }
+  header h1 { margin: 0; font-size: 22px; letter-spacing: 0.05em; }
+  header p { margin: 4px 0 0; font-size: 12px; opacity: 0.85; }
+  .toolbar {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .toolbar input { padding: 6px 10px; }
+  .toolbar button {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text);
+  }
+  .toolbar button:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .toolbar button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+  section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .sec-head {
+    padding: 14px 18px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .sec-head h2 { margin: 0; font-size: 15px; font-weight: 700; }
+  .sec-head .sub { color: var(--muted); font-size: 12px; }
+  .sec-body { padding: 16px 18px; }
+  textarea, input[type="text"], input[type="number"] {
+    font: inherit; color: var(--text);
+  }
+  textarea:focus, input:focus { outline: none; }
+
+  /* ===== KGI Hero ===== */
+  .kgi-hero {
+    background: linear-gradient(135deg, #6d28d9 0%, #9333ea 50%, #c026d3 100%);
+    border-radius: 14px;
+    padding: 22px 24px;
+    color: #fff;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.4);
+    position: relative;
+  }
+  .kgi-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at top right, rgba(255,255,255,0.15), transparent 60%);
+    border-radius: 14px;
+    pointer-events: none;
+  }
+  .kgi-label {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    opacity: 0.85;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .kgi-target-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .kgi-target-wrap .icon { font-size: 30px; }
+  .kgi-target-input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    border-bottom: 2px dashed rgba(255,255,255,0.4);
+    color: #fff;
+    font-size: 26px;
+    font-weight: 800;
+    padding: 4px 2px;
+    line-height: 1.3;
+    width: 100%;
+    font-family: inherit;
+    resize: none;
+    overflow: hidden;
+    word-break: break-word;
+  }
+  .kgi-target-input::placeholder { color: rgba(255,255,255,0.55); font-weight: 600; }
+  .kgi-target-input:focus { border-bottom-color: #fff; }
+  .kgi-current-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 10px 14px;
+    backdrop-filter: blur(4px);
+  }
+  .kgi-current-wrap .clabel {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    opacity: 0.85;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .kgi-current-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    padding: 2px;
+    resize: vertical;
+    min-height: 22px;
+    font-family: inherit;
+  }
+  .kgi-current-input::placeholder { color: rgba(255,255,255,0.6); }
+
+  /* ===== KPI Cards ===== */
+  .kpi-card {
+    border: 2px solid;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    background: var(--panel);
+  }
+  .kpi-card[data-kpi="1"] { border-color: var(--kpi1); }
+  .kpi-card[data-kpi="2"] { border-color: var(--kpi2); }
+  .kpi-card[data-kpi="3"] { border-color: var(--kpi3); }
+  .kpi-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    color: #fff;
+    font-weight: 700;
+  }
+  .kpi-card[data-kpi="1"] .kpi-card-head { background: var(--kpi1); }
+  .kpi-card[data-kpi="2"] .kpi-card-head { background: var(--kpi2); }
+  .kpi-card[data-kpi="3"] .kpi-card-head { background: var(--kpi3); }
+  .kpi-num {
+    background: rgba(255,255,255,0.25);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .kpi-target-input2 {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed rgba(255,255,255,0.5);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 2px 4px;
+    width: 100%;
+    font-family: inherit;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+  .kpi-target-input2::placeholder { color: rgba(255,255,255,0.7); font-weight: 500; }
+  .kpi-target-input2:focus { border-bottom-color: #fff; outline: none; }
+  .kpi-card-body { padding: 12px 14px; }
+  .kpi-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 10px;
+    align-items: stretch;
+    margin-bottom: 8px;
+  }
+  .kpi-row:last-child { margin-bottom: 0; }
+  .kpi-row > .lbl {
+    background: var(--panel-2);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+  }
+  .kpi-card[data-kpi="1"] .kpi-row > .lbl { background: var(--kpi1-soft); color: var(--kpi1); }
+  .kpi-card[data-kpi="2"] .kpi-row > .lbl { background: var(--kpi2-soft); color: var(--kpi2); }
+  .kpi-card[data-kpi="3"] .kpi-row > .lbl { background: var(--kpi3-soft); color: var(--kpi3); }
+  .kpi-row textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: #fff;
+    resize: vertical;
+    min-height: 36px;
+    font-family: inherit;
+  }
+  .kpi-row textarea:focus { border-color: var(--accent); }
+  .kpi-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* ===== Todo ===== */
+  .todo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .todo-col {
+    border: 2px solid;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .todo-col[data-kpi="1"] { border-color: var(--kpi1); }
+  .todo-col[data-kpi="2"] { border-color: var(--kpi2); }
+  .todo-col[data-kpi="3"] { border-color: var(--kpi3); }
+  .todo-col-head {
+    padding: 10px 12px;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .todo-col[data-kpi="1"] .todo-col-head { background: var(--kpi1); }
+  .todo-col[data-kpi="2"] .todo-col-head { background: var(--kpi2); }
+  .todo-col[data-kpi="3"] .todo-col-head { background: var(--kpi3); }
+  .todo-col-head .num {
+    font-weight: 800;
+    font-size: 13px;
+    margin-right: 6px;
+  }
+  .todo-col-head .name {
+    font-weight: 600;
+    word-break: break-word;
+  }
+  .todo-col-head .name:empty::before {
+    content: '（KPIの目標を入力してください）';
+    opacity: 0.7;
+    font-weight: 400;
+  }
+  .todo-list { padding: 6px; max-height: 420px; overflow-y: auto; flex: 1; }
+  .todo-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 4px;
+  }
+  .todo-item:hover { background: var(--panel-2); }
+  .todo-item input[type="checkbox"] { flex-shrink: 0; cursor: pointer; }
+  .todo-item input[type="text"],
+  .todo-item textarea.todo-text {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    padding: 4px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.4;
+    word-break: break-word;
+    color: var(--text);
+  }
+  .todo-item input[type="text"]:focus,
+  .todo-item textarea.todo-text:focus {
+    outline: 1px solid var(--accent);
+    background: #fff;
+    border-radius: 4px;
+  }
+  .todo-item.done input[type="text"],
+  .todo-item.done textarea.todo-text {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+  .todo-add {
+    width: calc(100% - 12px);
+    margin: 4px 6px 8px;
+    border: 1px dashed var(--border);
+    background: transparent;
+    padding: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .todo-add:hover { color: var(--accent); border-color: var(--accent); }
+  .todo-progress {
+    padding: 6px 10px;
+    background: var(--panel-2);
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ===== 週次（アコーディオン式） ===== */
+  .week-controls {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .week-ctrl-btn {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text);
+  }
+  .week-ctrl-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .week-uncheck-btn {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  .week-uncheck-btn:hover {
+    background: #fef3c7;
+    border-color: var(--warn);
+    color: var(--warn);
+  }
+  .weeks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .week-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel);
+    overflow: hidden;
+  }
+  .week-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    background: var(--panel-2);
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .week-card-head:hover { background: var(--accent-soft); }
+  .week-card.open .week-card-head {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #fff;
+  }
+  .week-card.open .week-card-head:hover {
+    background: linear-gradient(135deg, #1e40af, #1d4ed8);
+  }
+  .week-card-toggle {
+    font-size: 10px;
+    color: var(--muted);
+    transition: transform 0.2s;
+    display: inline-block;
+    width: 12px;
+  }
+  .week-card.open .week-card-toggle {
+    transform: rotate(90deg);
+    color: rgba(255,255,255,0.85);
+  }
+  .week-card-title {
+    font-weight: 700;
+    font-size: 14px;
+    flex: 1;
+  }
+  .week-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    flex-shrink: 0;
+  }
+  .week-card.open .week-dot { background: #fde047; }
+  .week-card-summary {
+    color: var(--muted);
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .week-card.open .week-card-summary { color: rgba(255,255,255,0.8); }
+  .week-card-body {
+    padding: 14px;
+    border-top: 1px solid var(--border);
+    display: none;
+    background: #fff;
+  }
+  .week-card.open .week-card-body { display: block; }
+  .week-field { margin-bottom: 14px; }
+  .week-field:last-child { margin-bottom: 0; }
+  .week-field-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 6px;
+    letter-spacing: 0.03em;
+  }
+  .week-field textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    background: #fff;
+    resize: none;
+    overflow: hidden;
+    min-height: 60px;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .week-field textarea.note { min-height: 50px; font-size: 13px; }
+  .week-field textarea:focus { border-color: var(--accent); outline: none; }
+
+  /* Auto-resize textareas everywhere */
+  textarea.autosize {
+    resize: none;
+    overflow: hidden;
+  }
+  /* Make all KPI/Goal textareas auto-grow too */
+  .kpi-row textarea, .cell-input {
+    resize: none;
+    overflow: hidden;
+  }
+
+  /* Legacy week-table (unused; kept just in case) */
+  .week-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .week-table th, .week-table td {
+    border: 1px solid var(--border);
+    padding: 8px;
+    vertical-align: top;
+    text-align: left;
+  }
+  .week-table th {
+    background: var(--panel-2);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .week-table .week-label {
+    width: 110px;
+    background: var(--panel-2);
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .week-table .plan-cell { min-width: 240px; }
+  .plan-chips {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .plan-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    border-left: 3px solid;
+    background: var(--panel-2);
+  }
+  .plan-chip[data-kpi="1"] { border-color: var(--kpi1); background: var(--kpi1-soft); }
+  .plan-chip[data-kpi="2"] { border-color: var(--kpi2); background: var(--kpi2-soft); }
+  .plan-chip[data-kpi="3"] { border-color: var(--kpi3); background: var(--kpi3-soft); }
+  .plan-chip.done .chip-text { text-decoration: line-through; opacity: 0.6; }
+  .plan-chip .chip-num {
+    font-weight: 700;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+  .plan-chip[data-kpi="1"] .chip-num { color: var(--kpi1); }
+  .plan-chip[data-kpi="2"] .chip-num { color: var(--kpi2); }
+  .plan-chip[data-kpi="3"] .chip-num { color: var(--kpi3); }
+  .plan-chip .chip-check {
+    flex-shrink: 0;
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+  }
+  .plan-chip .chip-text { flex: 1; word-break: break-word; }
+  .plan-chip .chip-x {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0 4px;
+    font-size: 14px;
+  }
+  .plan-chip .chip-x:hover { color: var(--danger); }
+  .plan-pick-btn {
+    width: 100%;
+    border: 1px dashed var(--border);
+    background: transparent;
+    padding: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .plan-pick-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .week-table textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 6px;
+    background: #fff;
+    resize: vertical;
+    min-height: 50px;
+    font-family: inherit;
+  }
+  .week-table textarea.note {
+    min-height: 40px;
+    font-size: 12px;
+  }
+  .week-table textarea:focus { border-color: var(--accent); }
+
+  /* ===== Modal ===== */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+  .modal-head {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-head h3 { margin: 0; font-size: 15px; }
+  .modal-close {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 0 4px;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 14px 18px; overflow-y: auto; flex: 1; }
+  .pick-group { margin-bottom: 16px; }
+  .pick-group:last-child { margin-bottom: 0; }
+  .pick-group-head {
+    font-weight: 700;
+    font-size: 13px;
+    padding: 6px 10px;
+    color: #fff;
+    border-radius: 6px;
+    margin-bottom: 6px;
+  }
+  .pick-group[data-kpi="1"] .pick-group-head { background: var(--kpi1); }
+  .pick-group[data-kpi="2"] .pick-group-head { background: var(--kpi2); }
+  .pick-group[data-kpi="3"] .pick-group-head { background: var(--kpi3); }
+  .pick-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .pick-item:hover { background: var(--panel-2); }
+  .pick-item input { cursor: pointer; }
+  .pick-empty {
+    color: var(--muted);
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  .modal-foot {
+    padding: 10px 18px;
+    border-top: 1px solid var(--border);
+    text-align: right;
+  }
+  .modal-foot button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  /* ===== 結果 ===== */
+  .result-table { width: 100%; border-collapse: collapse; }
+  .result-table th, .result-table td {
+    border: 1px solid var(--border);
+    padding: 8px;
+    text-align: center;
+  }
+  .result-table th {
+    background: var(--panel-2);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .result-table .label-cell { text-align: left; font-weight: 600; }
+  .result-table input {
+    width: 90px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 6px;
+    text-align: right;
+  }
+  .result-table input:focus { border-color: var(--accent); }
+  .calc { font-weight: 700; }
+  .calc-good { color: var(--success); }
+  .calc-mid { color: var(--warn); }
+  .calc-bad { color: var(--danger); }
+  .note { color: var(--muted); font-size: 11px; margin: 6px 0 0; }
+
+  @media (max-width: 720px) {
+    .todo-grid { grid-template-columns: 1fr; }
+    .kpi-grid-2 { grid-template-columns: 1fr; }
+    .kpi-row { grid-template-columns: 70px 1fr; }
+    main { padding: 12px; }
+
+    /* KGI ヒーロー: スマホでは小さめのフォント */
+    .kgi-hero { padding: 18px 16px; }
+    .kgi-label { font-size: 10px; letter-spacing: 0.18em; }
+    .kgi-target-wrap { gap: 8px; }
+    .kgi-target-wrap .icon { font-size: 22px; }
+    .kgi-target-input { font-size: 18px; font-weight: 700; }
+    .kgi-current-wrap { padding: 8px 10px; }
+    .kgi-current-wrap .clabel { font-size: 10px; letter-spacing: 0.15em; }
+    .kgi-current-input { font-size: 13px; }
+
+    /* KPI カードヘッダ: スマホでフォント縮小＋折り返し可 */
+    .kpi-card-head { padding: 10px 12px; gap: 8px; }
+    .kpi-num { font-size: 11px; padding: 2px 8px; }
+    .kpi-target-input2 { font-size: 14px; }
+
+    /* セクションヘッダの折り返し対応 */
+    .sec-head { flex-wrap: wrap; padding: 12px 14px; }
+    .sec-head .sub { font-size: 11px; }
+
+    /* 結果テーブルをスマホでカード型に */
+    .result-table thead { display: none; }
+    .result-table, .result-table tbody, .result-table tr, .result-table td {
+      display: block;
+      width: 100%;
+    }
+    .result-table tr {
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: var(--panel-2);
+    }
+    .result-table td {
+      border: none;
+      padding: 6px 0;
+      text-align: left;
+    }
+    .result-table .label-cell {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: #fff !important;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .result-table .content-cell {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .result-table td[data-label]:not(.label-cell)::before {
+      content: attr(data-label);
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+    }
+    .result-table input {
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 14px;
+    }
+    .result-table .calc {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 16px;
+      text-align: center;
+      margin-top: 4px;
+    }
+    /* Treat consecutive 達成率/成長率 visually grouped */
+  }
+  @media print {
+    .toolbar, .todo-add, .plan-pick-btn, .modal-backdrop, #login-overlay, #user-bar,
+    .week-controls, .week-uncheck-btn, #todo-uncheck-all, .chip-x, .chip-check, .todo-item button[data-act="del"] {
+      display: none !important;
+    }
+    body { background: #fff; }
+    section, .kgi-hero, .kpi-card, .week-card { break-inside: avoid; }
+    .kgi-hero { color: #000 !important; background: #ede9fe !important; box-shadow: none; }
+    .kgi-target-input, .kgi-current-input { color: #000; }
+    .week-card-body { display: block !important; }
+    .week-card { border: 1px solid #ccc !important; }
+    .week-card-head { background: #f3f4f6 !important; color: #000 !important; }
+    .week-card.open .week-card-head { background: #e5e7eb !important; color: #000 !important; }
+  }
+
+  /* ===== ログイン画面 ===== */
+  #login-overlay {
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb, #6d28d9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  #login-overlay.hidden { display: none; }
+  .login-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 28px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+  .login-box h2 { margin: 0 0 8px; font-size: 24px; }
+  .login-box .lead { color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+  .login-box input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+  .login-box input:focus { outline: none; border-color: var(--accent); }
+  .login-box button {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .login-box button:hover { background: #1d4ed8; }
+  .login-box button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .login-box button.btn-google {
+    background: #fff;
+    color: #1f2937;
+    border: 1px solid #d1d5db;
+    margin-bottom: 4px;
+  }
+  .login-box button.btn-google:hover {
+    background: #f9fafb;
+    border-color: var(--accent);
+  }
+  .login-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0 12px;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .login-divider::before,
+  .login-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .login-msg {
+    margin-top: 14px;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: none;
+  }
+  .login-msg.show { display: block; }
+  .login-msg.success { background: #d1fae5; color: #065f46; }
+  .login-msg.error { background: #fee2e2; color: #991b1b; }
+  .login-help {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+
+  /* ===== ユーザーバー ===== */
+  #user-bar {
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  #user-bar .info {
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  #user-bar .badge {
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 11px;
+  }
+  #user-bar .badge.admin {
+    background: #fef3c7;
+    color: #b45309;
+  }
+  #user-bar button {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text);
+  }
+  #user-bar button:hover { background: var(--panel-2); }
+  #user-bar .actions { display: flex; gap: 6px; }
+  #user-bar .ub-name {
+    font-weight: 700;
+    color: var(--text);
+    font-size: 13px;
+  }
+  #user-bar .ub-name:empty::before {
+    content: '名前未設定';
+    color: var(--muted);
+    font-weight: 400;
+    font-style: italic;
+  }
+  #user-bar .sync-status {
+    color: var(--success);
+    font-size: 11px;
+  }
+  #user-bar .sync-status.saving { color: var(--warn); }
+  #user-bar .sync-status.error { color: var(--danger); }
+
+  /* ===== Admin Modal ===== */
+  #admin-modal .modal { max-width: 700px; }
+  .admin-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .admin-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .admin-row:hover { background: var(--panel-2); border-color: var(--accent); }
+  .admin-row .email { font-weight: 600; font-size: 13px; }
+  .admin-row .meta { color: var(--muted); font-size: 11px; }
+  .admin-row.self { background: var(--accent-soft); }
+
+  /* ===== Read-only banner (admin viewing another user) ===== */
+  #ro-banner {
+    display: none;
+    background: linear-gradient(90deg, #fef3c7, #fde68a);
+    border-bottom: 2px solid #d97706;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: #92400e;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 26;
+  }
+  #ro-banner.show { display: block; }
+  #ro-banner button {
+    margin-left: 12px;
+    background: #d97706;
+    color: #fff;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  body.readonly input,
+  body.readonly textarea,
+  body.readonly select { pointer-events: none; opacity: 0.85; }
+  body.readonly button:not(#ro-banner button):not(.modal-close):not(#picker-done) { pointer-events: none; opacity: 0.5; }
+</style>
+</head>
+<body>
+<!-- ログイン画面 -->
+<div id="login-overlay">
+  <div class="login-box">
+    <h2>🎯 ゴールマネジメント</h2>
+    <p class="lead">ログイン方法を選んでください</p>
+    <button id="login-google" class="btn-google">
+      <svg width="18" height="18" viewBox="0 0 18 18" style="vertical-align:middle;margin-right:8px;">
+        <path fill="#4285F4" d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+        <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
+        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+      </svg>
+      Googleでログイン
+    </button>
+    <div class="login-divider"><span>または</span></div>
+    <input id="login-email" type="email" placeholder="メールアドレスを入力" autocomplete="email" />
+    <button id="login-send">メールアドレスだけで開始</button>
+    <div class="login-msg" id="login-msg"></div>
+    <p class="login-help">※ Googleログインは認証付き（推奨）。メールアドレス入力は確認なしで即開始できます。<br>
+    入力した情報はこのブラウザに保存され、次回から自動で開きます。複数の端末で同じ方法でログインすれば同期されます。</p>
+  </div>
+</div>
+
+<!-- 管理者が他人を閲覧中の警告バナー -->
+<div id="ro-banner">
+  📖 <span id="ro-email"></span> さんのデータを閲覧中（読み取り専用）
+  <button id="ro-back">自分のデータに戻る</button>
+</div>
+
+<!-- ユーザーバー -->
+<div id="user-bar" style="display:none;">
+  <div class="info">
+    <span id="ub-name" class="ub-name" title="クリックで名前を編集"></span>
+    <span id="ub-email">—</span>
+    <span class="badge" id="ub-badge" style="display:none;">管理者</span>
+    <span class="sync-status" id="ub-sync">✅ 同期済み</span>
+  </div>
+  <div class="actions">
+    <button id="ub-edit-name">✏️ 名前</button>
+    <button id="ub-admin" style="display:none;">👥 受講生一覧</button>
+    <button id="ub-logout">ログアウト</button>
+  </div>
+</div>
+
+<header>
+  <h1>🎯 ゴールマネジメント</h1>
+  <p><span id="header-period">2026年4-6月</span> ／ 年間目標からGOALを考える</p>
+</header>
+
+<div class="toolbar">
+  <input type="text" id="period" placeholder="期間（例: 2026年4-6月）" />
+  <button id="pdf-btn" class="primary">📄 PDFで保存</button>
+  <button id="reset-btn">🗑 全リセット</button>
+</div>
+
+<main>
+  <!-- 年間目標 -->
+  <section>
+    <div class="sec-head">
+      <h2>📌 年間目標</h2>
+      <span class="sub">※具体的な質問のみFB（全体のFBはなし）／未来戦略の年間目標からGOALを考える</span>
+    </div>
+    <div class="sec-body">
+      <!-- KGI Hero -->
+      <div class="kgi-hero">
+        <div class="kgi-label">⭐ KGI — KEY GOAL INDICATOR</div>
+        <div class="kgi-target-wrap">
+          <span class="icon">🏆</span>
+          <textarea class="kgi-target-input autosize" data-goal="kgi" data-field="target" placeholder="達成したい最重要目標を入力" rows="1"></textarea>
+        </div>
+        <div class="kgi-current-wrap">
+          <span class="clabel">現状</span>
+          <textarea class="kgi-current-input" data-goal="kgi" data-field="current" placeholder="今の状態・数値"></textarea>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div id="kpi-cards"></div>
+    </div>
+  </section>
+
+  <!-- Todo -->
+  <section>
+    <div class="sec-head">
+      <h2>✅ KPIをTodoに落とし込む</h2>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span class="sub" id="todo-summary">—</span>
+        <button id="todo-uncheck-all" class="week-ctrl-btn" title="全てのチェックを外す">☐ 全てのレ点を外す</button>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="todo-grid">
+        <div class="todo-col" data-kpi="1">
+          <div class="todo-col-head">
+            <div><span class="num">KPI①</span></div>
+            <div class="name" id="kpi1-name"></div>
+          </div>
+          <div class="todo-list" id="todo-1"></div>
+          <button class="todo-add" data-kpi="1" data-act="add">＋ Todo追加</button>
+          <div class="todo-progress" id="todo-1-prog">0 / 0 完了</div>
+        </div>
+        <div class="todo-col" data-kpi="2">
+          <div class="todo-col-head">
+            <div><span class="num">KPI②</span></div>
+            <div class="name" id="kpi2-name"></div>
+          </div>
+          <div class="todo-list" id="todo-2"></div>
+          <button class="todo-add" data-kpi="2" data-act="add">＋ Todo追加</button>
+          <div class="todo-progress" id="todo-2-prog">0 / 0 完了</div>
+        </div>
+        <div class="todo-col" data-kpi="3">
+          <div class="todo-col-head">
+            <div><span class="num">KPI③</span></div>
+            <div class="name" id="kpi3-name"></div>
+          </div>
+          <div class="todo-list" id="todo-3"></div>
+          <button class="todo-add" data-kpi="3" data-act="add">＋ Todo追加</button>
+          <div class="todo-progress" id="todo-3-prog">0 / 0 完了</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 週次 -->
+  <section>
+    <div class="sec-head">
+      <h2>🗓 週次行動目標</h2>
+      <span class="sub">「+ Todoから選ぶ」でTodoを紐付け／自由メモも追加可能</span>
+    </div>
+    <div class="sec-body">
+      <div class="week-controls">
+        <button class="week-ctrl-btn" id="week-expand-all">全て開く</button>
+        <button class="week-ctrl-btn" id="week-collapse-all">全て閉じる</button>
+      </div>
+      <div class="weeks-list" id="week-body"></div>
+    </div>
+  </section>
+
+  <!-- 結果 -->
+  <section>
+    <div class="sec-head">
+      <h2>📊 結果</h2>
+      <span class="sub">※半角の数字で記入</span>
+    </div>
+    <div class="sec-body">
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th></th><th>内容</th><th>現状</th><th>目標</th><th>実績</th><th>達成率</th><th>成長率</th>
+          </tr>
+        </thead>
+        <tbody id="result-body"></tbody>
+      </table>
+      <p class="note">達成率 = 実績 ÷ 目標 ／ 成長率 = 実績 ÷ 現状</p>
+    </div>
+  </section>
+</main>
+
+<!-- Admin Modal -->
+<div class="modal-backdrop" id="admin-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>👥 受講生一覧</h3>
+      <button class="modal-close" id="admin-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="admin-list" id="admin-list">読み込み中...</div>
+    </div>
+    <div class="modal-foot">
+      <button id="admin-done">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- Picker Modal -->
+<div class="modal-backdrop" id="picker">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="picker-title">Todoを選択</h3>
+      <button class="modal-close" id="picker-close">×</button>
+    </div>
+    <div class="modal-body" id="picker-body"></div>
+    <div class="modal-foot">
+      <button id="picker-done">完了</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // ===== Firebase Setup =====
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js';
+  import {
+    getAuth, signInAnonymously, onAuthStateChanged,
+    GoogleAuthProvider, signInWithPopup, signOut
+  } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js';
+  import {
+    getFirestore, doc, setDoc, getDoc, onSnapshot, collection, getDocs
+  } from 'https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCbD8FFbaZtEX2I5MTmJRP3NmWqeGtEt_w",
+    authDomain: "goal-management-ssa.firebaseapp.com",
+    projectId: "goal-management-ssa",
+    storageBucket: "goal-management-ssa.firebasestorage.app",
+    messagingSenderId: "244056895883",
+    appId: "1:244056895883:web:7635098e300312a8dfbf8e",
+    measurementId: "G-RHPDQXFLQJ"
+  };
+  const ADMIN_EMAIL = 'info@keep-j.com';
+  const EMAIL_KEY = 'goal-mgmt-email';  // saved email in localStorage
+
+  const fbApp = initializeApp(firebaseConfig);
+  const auth = getAuth(fbApp);
+  const db = getFirestore(fbApp);
+
+  // Convert email to safe Firestore document ID
+  function emailToDocId(email) {
+    return email.trim().toLowerCase().replace(/[^a-z0-9@._-]/g, '_').replace(/\./g, '_');
+  }
+
+  const STORAGE_KEY = 'goal-mgmt-h1-v3';
+  const KPI_KEYS = ['kgi', 'kpi1', 'kpi2', 'kpi3'];
+  const KPI_LABELS = { kgi: 'KGI', kpi1: 'KPI①', kpi2: 'KPI②', kpi3: 'KPI③' };
+
+  function parsePeriod(s) {
+    if (!s) return null;
+    const t = String(s);
+    // Range form: "2026年4-6月" / "2026年4月-6月" / "2026年4月〜6月" / "2026年4月から6月"
+    let m = t.match(/(\d{4})\s*年\s*(\d{1,2})\s*月?\s*[-－〜～~ー]+\s*(\d{1,2})\s*月/);
+    if (!m) m = t.match(/(\d{4})\s*年\s*(\d{1,2})\s*月?\s*から\s*(\d{1,2})\s*月/);
+    if (m) {
+      const year = +m[1], start = +m[2], end = +m[3];
+      if (start >= 1 && start <= 12 && end >= start && end <= 12) {
+        const months = []; for (let i = start; i <= end; i++) months.push(i);
+        return { year, months };
+      }
+    }
+    // Single month: "2026年4月"
+    const m2 = t.match(/(\d{4})\s*年\s*(\d{1,2})\s*月/);
+    if (m2) {
+      const mo = +m2[2];
+      if (mo >= 1 && mo <= 12) return { year: +m2[1], months: [mo] };
+    }
+    return null;
+  }
+
+  function generateWeekLabels(year, months) {
+    const labels = [];
+    for (const mo of months) {
+      for (let w = 1; w <= 4; w++) labels.push(`${year}年${mo}月${w}週`);
+    }
+    return labels;
+  }
+
+  const DEFAULT_WEEKS = generateWeekLabels(2026, [4,5,6]);
+
+  const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  const defaultState = () => ({
+    period: '2026年4-6月',
+    goals: {
+      kgi:  { target: '', current: '' },
+      kpi1: { target: '', current: '', issue: '', solution: '' },
+      kpi2: { target: '', current: '', issue: '', solution: '' },
+      kpi3: { target: '', current: '', issue: '', solution: '' },
+    },
+    todos: { 1: [], 2: [], 3: [] },
+    weeks: DEFAULT_WEEKS.map(w => ({ week: w, planTodoIds: [], planNote: '', done: '', review: '' })),
+    results: {
+      kgi:  { name: '', current: '', target: '', actual: '' },
+      kpi1: { name: '', current: '', target: '', actual: '' },
+      kpi2: { name: '', current: '', target: '', actual: '' },
+      kpi3: { name: '', current: '', target: '', actual: '' },
+    },
+  });
+
+  function migrateOld() {
+    // try old v2 storage
+    try {
+      const old = JSON.parse(localStorage.getItem('goal-mgmt-h1-v2'));
+      if (!old) return null;
+      const d = defaultState();
+      d.period = old.period || d.period;
+      if (old.goals) {
+        d.goals.kgi = { target: old.goals.kgi?.target || '', current: old.goals.kgi?.current || '' };
+        ['kpi1','kpi2','kpi3'].forEach(k => {
+          d.goals[k] = {
+            target: old.goals[k]?.target || '',
+            current: old.goals[k]?.current || '',
+            issue: old.goals[k]?.issue || '',
+            solution: old.goals[k]?.solution || '',
+          };
+        });
+      }
+      if (old.todos) {
+        [1,2,3].forEach(k => {
+          d.todos[k] = (old.todos[k] || []).map(t => ({ id: newId(), text: t.text || '', done: !!t.done }));
+        });
+      }
+      if (old.weeks) {
+        d.weeks = DEFAULT_WEEKS.map((w, i) => ({
+          week: w,
+          planTodoIds: [],
+          planNote: old.weeks[i]?.plan || '',
+          done: old.weeks[i]?.done || '',
+          review: old.weeks[i]?.review || '',
+        }));
+      }
+      if (old.results) d.results = { ...d.results, ...old.results };
+      return d;
+    } catch { return null; }
+  }
+
+  function load() {
+    try {
+      const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (s) {
+        const d = defaultState();
+        const merged = {
+          ...d, ...s,
+          goals: { ...d.goals, ...(s.goals || {}) },
+          todos: { ...d.todos, ...(s.todos || {}) },
+          weeks: Array.isArray(s.weeks) && s.weeks.length > 0 ? s.weeks : d.weeks,
+          results: { ...d.results, ...(s.results || {}) },
+        };
+        // ensure todo ids
+        [1,2,3].forEach(k => {
+          merged.todos[k] = (merged.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done }));
+        });
+        // ensure week shape
+        merged.weeks = merged.weeks.map((w, i) => ({
+          week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
+          planTodoIds: w.planTodoIds || [],
+          planNote: w.planNote ?? (w.plan || ''),
+          done: w.done || '',
+          review: w.review || '',
+        }));
+        return merged;
+      }
+      const migrated = migrateOld();
+      if (migrated) return migrated;
+    } catch {}
+    return defaultState();
+  }
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    saveToCloud();
+  }
+
+  let state = load();
+  const $ = (id) => document.getElementById(id);
+
+  function findTodoById(id) {
+    for (const k of [1,2,3]) {
+      const t = state.todos[k].find(x => x.id === id);
+      if (t) return { todo: t, kpi: k };
+    }
+    return null;
+  }
+
+  // ===== render KPI cards =====
+  function renderKpiCards() {
+    const html = [1,2,3].map(n => {
+      const k = 'kpi' + n;
+      const g = state.goals[k];
+      return `
+      <div class="kpi-card" data-kpi="${n}">
+        <div class="kpi-card-head">
+          <span class="kpi-num">KPI${['①','②','③'][n-1]}</span>
+          <textarea class="kpi-target-input2 autosize" data-goal="${k}" data-field="target" placeholder="KPI${n}の目標を入力" rows="1">${esc(g.target)}</textarea>
+        </div>
+        <div class="kpi-card-body">
+          <div class="kpi-row">
+            <div class="lbl">現状</div>
+            <textarea data-goal="${k}" data-field="current" placeholder="今の数値・状態">${esc(g.current)}</textarea>
+          </div>
+          <div class="kpi-row">
+            <div class="lbl">課題</div>
+            <textarea data-goal="${k}" data-field="issue" placeholder="目標達成を阻む課題">${esc(g.issue)}</textarea>
+          </div>
+          <div class="kpi-row">
+            <div class="lbl">解決策</div>
+            <textarea data-goal="${k}" data-field="solution" placeholder="課題を解決する方法・アクション">${esc(g.solution)}</textarea>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    $('kpi-cards').innerHTML = html;
+    updateKpiNames();
+  }
+
+  function updateKpiNames() {
+    [1,2,3].forEach(n => {
+      const target = state.goals['kpi' + n].target || '';
+      $(`kpi${n}-name`).textContent = target;
+    });
+  }
+
+  // ===== Todos =====
+  function renderTodos() {
+    let totalDone = 0, totalAll = 0;
+    [1,2,3].forEach(k => {
+      const list = state.todos[k] || [];
+      const done = list.filter(t => t.done).length;
+      totalDone += done; totalAll += list.length;
+      $(`todo-${k}`).innerHTML = list.map((t, i) => `
+        <div class="todo-item ${t.done ? 'done' : ''}">
+          <input type="checkbox" data-id="${t.id}" data-act="check" ${t.done ? 'checked' : ''} />
+          <textarea class="autosize todo-text" data-id="${t.id}" data-act="text" placeholder="Todoを入力" rows="1">${esc(t.text)}</textarea>
+          <button data-id="${t.id}" data-act="del" title="削除"
+            style="border:none;background:transparent;cursor:pointer;color:var(--muted);font-size:14px;">×</button>
+        </div>
+      `).join('');
+      $(`todo-${k}-prog`).textContent = `${done} / ${list.length} 完了`;
+    });
+    $('todo-summary').textContent = totalAll ? `全体 ${totalDone} / ${totalAll} 完了` : '—';
+  }
+
+  // ===== Weeks =====
+  // Track which weeks are open (in-memory only)
+  const openWeeks = new Set();
+
+  function weekHasContent(w) {
+    return (w.planTodoIds && w.planTodoIds.length > 0) ||
+           !!w.planNote || !!w.done || !!w.review;
+  }
+
+  function renderWeeks() {
+    const html = state.weeks.map((w, wi) => {
+      const chips = (w.planTodoIds || []).map(id => {
+        const found = findTodoById(id);
+        if (!found) return '';
+        const { todo, kpi } = found;
+        return `
+          <div class="plan-chip ${todo.done ? 'done' : ''}" data-kpi="${kpi}">
+            <input type="checkbox" class="chip-check" data-todoid="${todo.id}" data-act="chip-check" ${todo.done ? 'checked' : ''} title="完了/未完了を切り替え" />
+            <span class="chip-num">KPI${['①','②','③'][kpi-1]}</span>
+            <span class="chip-text">${esc(todo.text || '(未入力)')}</span>
+            <button class="chip-x" data-week="${wi}" data-todoid="${todo.id}" data-act="unpick" title="この週から外す">×</button>
+          </div>
+        `;
+      }).join('');
+      const isOpen = openWeeks.has(wi);
+      const todoCount = (w.planTodoIds || []).length;
+      const summaryParts = [];
+      if (todoCount) summaryParts.push(`Todo ${todoCount}`);
+      if (w.done) summaryParts.push('実行済');
+      if (w.review) summaryParts.push('振り返り済');
+      const summary = summaryParts.length ? summaryParts.join(' · ') : '未記入';
+      const dot = weekHasContent(w) ? '<span class="week-dot"></span>' : '';
+      return `
+        <div class="week-card ${isOpen ? 'open' : ''}" data-wi="${wi}">
+          <div class="week-card-head" data-act="toggle-week">
+            <span class="week-card-toggle">▶</span>
+            <span class="week-card-title">${esc(w.week)}</span>
+            ${dot}
+            <span class="week-card-summary">${esc(summary)}</span>
+          </div>
+          <div class="week-card-body">
+            <div class="week-field">
+              <div class="week-field-label" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <span>📋 アクションプラン（計画）</span>
+                ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="uncheck-week" title="この週のTodoのチェックを外す">☐ レ点を外す</button>` : ''}
+              </div>
+              <div class="plan-chips">${chips}</div>
+              <button class="plan-pick-btn" data-week="${wi}" data-act="pick">＋ Todoから選ぶ</button>
+              <textarea class="note autosize" data-week="${wi}" data-field="planNote" placeholder="自由メモ（任意）">${esc(w.planNote)}</textarea>
+            </div>
+            <div class="week-field">
+              <div class="week-field-label">✅ 実際実行できたこと</div>
+              <textarea class="autosize" data-week="${wi}" data-field="done" placeholder="実際にできたこと">${esc(w.done)}</textarea>
+            </div>
+            <div class="week-field">
+              <div class="week-field-label">💭 振り返り（理由・改善案・気付き）</div>
+              <textarea class="autosize" data-week="${wi}" data-field="review" placeholder="振り返り">${esc(w.review)}</textarea>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    $('week-body').innerHTML = html;
+    autoResizeAll();
+  }
+
+  // ===== Results =====
+  function calcAch(r) {
+    const tgt = parseFloat(r.target), act = parseFloat(r.actual);
+    return (!isNaN(act) && !isNaN(tgt) && tgt !== 0) ? (act / tgt * 100) : null;
+  }
+  function calcGrw(r) {
+    const cur = parseFloat(r.current), act = parseFloat(r.actual);
+    return (!isNaN(act) && !isNaN(cur) && cur !== 0) ? (act / cur * 100) : null;
+  }
+  function calcCls(v) {
+    return v === null ? '' : (v >= 100 ? 'calc-good' : v >= 70 ? 'calc-mid' : 'calc-bad');
+  }
+  function calcFmt(v) { return v === null ? '—' : v.toFixed(1) + '%'; }
+
+  // Update only the calc cells for a row (preserves input focus while typing).
+  function updateResultCalcs(k) {
+    const idx = KPI_KEYS.indexOf(k);
+    if (idx < 0) return;
+    const row = document.querySelectorAll('#result-body tr')[idx];
+    if (!row) return;
+    const r = state.results[k];
+    const ach = calcAch(r), grw = calcGrw(r);
+    const cells = row.querySelectorAll('.calc');
+    if (cells[0]) { cells[0].textContent = calcFmt(ach); cells[0].className = 'calc ' + calcCls(ach); }
+    if (cells[1]) { cells[1].textContent = calcFmt(grw); cells[1].className = 'calc ' + calcCls(grw); }
+  }
+
+  function renderResults() {
+    const rows = KPI_KEYS.map(k => {
+      const r = state.results[k];
+      const goalTarget = state.goals[k]?.target || '';
+      const ach = calcAch(r), grw = calcGrw(r);
+      const contentDisplay = goalTarget
+        ? esc(goalTarget)
+        : '<span style="color:var(--muted);font-size:12px;">（年間目標で入力）</span>';
+      return `
+        <tr>
+          <td class="label-cell" style="color:var(--${k});">${KPI_LABELS[k]}</td>
+          <td class="content-cell" data-label="📌 内容" style="text-align:left;">${contentDisplay}</td>
+          <td data-label="現状"><input type="text" inputmode="decimal" data-result="${k}" data-field="current" value="${escAttr(r.current)}" placeholder="0" /></td>
+          <td data-label="目標"><input type="text" inputmode="decimal" data-result="${k}" data-field="target" value="${escAttr(r.target)}" placeholder="0" /></td>
+          <td data-label="実績"><input type="text" inputmode="decimal" data-result="${k}" data-field="actual" value="${escAttr(r.actual)}" placeholder="0" /></td>
+          <td class="calc ${calcCls(ach)}" data-label="達成率">${calcFmt(ach)}</td>
+          <td class="calc ${calcCls(grw)}" data-label="成長率">${calcFmt(grw)}</td>
+        </tr>
+      `;
+    }).join('');
+    $('result-body').innerHTML = rows;
+  }
+
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  }
+  function escAttr(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function updateHeaderPeriod() {
+    $('header-period').textContent = state.period || '期間未設定';
+  }
+
+  // Regenerate week labels from period input. Returns true if labels changed.
+  function syncWeeksWithPeriod() {
+    const parsed = parsePeriod(state.period);
+    if (!parsed) return false;
+    const labels = generateWeekLabels(parsed.year, parsed.months);
+    const newCount = labels.length;
+    let changed = false;
+    // grow
+    while (state.weeks.length < newCount) {
+      state.weeks.push({ week: '', planTodoIds: [], planNote: '', done: '', review: '' });
+      changed = true;
+    }
+    // shrink only if extra rows are empty
+    if (state.weeks.length > newCount) {
+      const extras = state.weeks.slice(newCount);
+      const hasData = extras.some(w => (w.planTodoIds && w.planTodoIds.length) || w.planNote || w.done || w.review);
+      if (!hasData) {
+        state.weeks = state.weeks.slice(0, newCount);
+        changed = true;
+      }
+    }
+    // relabel within parsed range
+    for (let i = 0; i < Math.min(state.weeks.length, newCount); i++) {
+      if (state.weeks[i].week !== labels[i]) {
+        state.weeks[i].week = labels[i];
+        changed = true;
+      }
+    }
+    return changed;
+  }
+
+  function renderAll() {
+    $('period').value = state.period || '';
+    updateHeaderPeriod();
+    // KGI hero (in static HTML, not generated by renderKpiCards)
+    const kgiT = document.querySelector('[data-goal="kgi"][data-field="target"]');
+    const kgiC = document.querySelector('[data-goal="kgi"][data-field="current"]');
+    if (kgiT) kgiT.value = state.goals.kgi.target || '';
+    if (kgiC) kgiC.value = state.goals.kgi.current || '';
+    renderKpiCards();
+    renderTodos();
+    renderWeeks();
+    renderResults();
+    autoResizeAll();
+  }
+
+  // Auto-resize textareas to fit content
+  function autoResize(el) {
+    if (!el || el.tagName !== 'TEXTAREA') return;
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight + 2) + 'px';
+  }
+  function autoResizeAll() {
+    document.querySelectorAll('textarea').forEach(autoResize);
+  }
+
+  // ===== Events =====
+  document.addEventListener('input', (e) => {
+    const t = e.target;
+    if (t.tagName === 'TEXTAREA') autoResize(t);
+    if (t.dataset.goal) {
+      state.goals[t.dataset.goal][t.dataset.field] = t.value;
+      save();
+      if (t.dataset.field === 'target') {
+        if (t.dataset.goal !== 'kgi') updateKpiNames();
+        renderWeeks();
+        renderResults();
+      }
+    } else if (t.dataset.week !== undefined && t.dataset.field) {
+      const i = +t.dataset.week;
+      state.weeks[i][t.dataset.field] = t.value;
+      save();
+    } else if (t.dataset.result) {
+      state.results[t.dataset.result][t.dataset.field] = t.value;
+      save();
+      updateResultCalcs(t.dataset.result);
+    } else if (t.dataset.act === 'text' && t.dataset.id) {
+      const f = findTodoById(t.dataset.id);
+      if (f) { f.todo.text = t.value; save(); renderWeeks(); }
+    } else if (t.id === 'period') {
+      state.period = t.value;
+      updateHeaderPeriod();
+      if (syncWeeksWithPeriod()) renderWeeks();
+      save();
+    }
+  });
+
+  document.addEventListener('change', (e) => {
+    const t = e.target;
+    if (t.dataset.act === 'check' && t.dataset.id) {
+      const f = findTodoById(t.dataset.id);
+      if (f) { f.todo.done = t.checked; save(); renderTodos(); renderWeeks(); }
+    } else if (t.dataset.act === 'chip-check' && t.dataset.todoid) {
+      // Chip checkbox toggles the underlying Todo (synced with upper Todo list)
+      const f = findTodoById(t.dataset.todoid);
+      if (f) { f.todo.done = t.checked; save(); renderTodos(); renderWeeks(); }
+    } else if (t.dataset.act === 'pick-check') {
+      const id = t.dataset.id;
+      const wi = +t.dataset.week;
+      const list = state.weeks[wi].planTodoIds;
+      if (t.checked && !list.includes(id)) list.push(id);
+      else if (!t.checked) state.weeks[wi].planTodoIds = list.filter(x => x !== id);
+      save();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+    if (t.dataset.act === 'add' && t.dataset.kpi) {
+      const k = +t.dataset.kpi;
+      state.todos[k].push({ id: newId(), text: '', done: false });
+      save(); renderTodos();
+      setTimeout(() => {
+        const items = document.querySelectorAll(`#todo-${k} textarea.todo-text`);
+        if (items.length) items[items.length - 1].focus();
+      }, 10);
+    } else if (t.dataset.act === 'del' && t.dataset.id) {
+      const id = t.dataset.id;
+      [1,2,3].forEach(k => { state.todos[k] = state.todos[k].filter(x => x.id !== id); });
+      // also remove from weekly references
+      state.weeks.forEach(w => { w.planTodoIds = (w.planTodoIds || []).filter(x => x !== id); });
+      save(); renderTodos(); renderWeeks();
+    } else if (t.dataset.act === 'pick') {
+      openPicker(+t.dataset.week);
+    } else if (t.dataset.act === 'unpick') {
+      const wi = +t.dataset.week;
+      const id = t.dataset.todoid;
+      state.weeks[wi].planTodoIds = state.weeks[wi].planTodoIds.filter(x => x !== id);
+      save(); renderWeeks();
+    } else if (t.dataset.act === 'uncheck-week') {
+      e.stopPropagation();
+      const wi = +t.dataset.week;
+      const ids = state.weeks[wi].planTodoIds || [];
+      let count = 0;
+      ids.forEach(id => {
+        const found = findTodoById(id);
+        if (found && found.todo.done) {
+          found.todo.done = false;
+          count++;
+        }
+      });
+      if (count === 0) {
+        alert('この週で外せるチェックがありません');
+        return;
+      }
+      save();
+      renderTodos();
+      renderWeeks();
+    } else {
+      // Accordion: click on week-card-head toggles open/close
+      const head = e.target.closest('.week-card-head');
+      if (head) {
+        const card = head.parentElement;
+        const wi = +card.dataset.wi;
+        if (openWeeks.has(wi)) openWeeks.delete(wi);
+        else openWeeks.add(wi);
+        card.classList.toggle('open');
+        // resize textareas inside if just opened
+        if (card.classList.contains('open')) {
+          card.querySelectorAll('textarea').forEach(autoResize);
+        }
+      }
+    }
+  });
+
+  // Uncheck all todos (preserve text)
+  $('todo-uncheck-all').addEventListener('click', () => {
+    const total = [1,2,3].reduce((s, k) => s + state.todos[k].filter(t => t.done).length, 0);
+    if (total === 0) {
+      alert('外せるチェックがありません');
+      return;
+    }
+    if (!confirm(`${total}件のTodoのチェックを外します。\n（Todoの内容は消えません）`)) return;
+    [1,2,3].forEach(k => {
+      state.todos[k].forEach(t => { t.done = false; });
+    });
+    save();
+    renderTodos();
+    renderWeeks();
+  });
+
+  // Expand / collapse all weeks
+  $('week-expand-all').addEventListener('click', () => {
+    state.weeks.forEach((_, i) => openWeeks.add(i));
+    document.querySelectorAll('.week-card').forEach(c => c.classList.add('open'));
+    document.querySelectorAll('.week-card textarea').forEach(autoResize);
+  });
+  $('week-collapse-all').addEventListener('click', () => {
+    openWeeks.clear();
+    document.querySelectorAll('.week-card').forEach(c => c.classList.remove('open'));
+  });
+
+  // ===== Picker Modal =====
+  let pickerWeek = -1;
+  function openPicker(wi) {
+    pickerWeek = wi;
+    const w = state.weeks[wi];
+    $('picker-title').textContent = `${w.week} の Todo を選ぶ`;
+    const html = [1,2,3].map(k => {
+      const targetName = state.goals['kpi'+k].target || '(目標未入力)';
+      const list = state.todos[k] || [];
+      const items = list.length ? list.map(t => `
+        <label class="pick-item">
+          <input type="checkbox" data-act="pick-check" data-week="${wi}" data-id="${t.id}" ${w.planTodoIds.includes(t.id) ? 'checked' : ''} />
+          <span>${esc(t.text || '(未入力)')}</span>
+        </label>
+      `).join('') : '<div class="pick-empty">Todoがありません</div>';
+      return `
+        <div class="pick-group" data-kpi="${k}">
+          <div class="pick-group-head">KPI${['①','②','③'][k-1]}: ${esc(targetName)}</div>
+          ${items}
+        </div>
+      `;
+    }).join('');
+    $('picker-body').innerHTML = html;
+    $('picker').classList.add('show');
+  }
+  function closePicker() {
+    $('picker').classList.remove('show');
+    renderWeeks();
+  }
+  $('picker-close').addEventListener('click', closePicker);
+  $('picker-done').addEventListener('click', closePicker);
+  $('picker').addEventListener('click', (e) => {
+    if (e.target.id === 'picker') closePicker();
+  });
+
+  // ===== Toolbar =====
+  $('reset-btn').addEventListener('click', () => {
+    if (confirm('すべての入力内容を削除します。よろしいですか？')) {
+      state = defaultState(); save(); renderAll();
+    }
+  });
+  $('pdf-btn').addEventListener('click', () => {
+    // Open all weeks before printing so contents are visible in the PDF
+    const wasOpen = new Set(openWeeks);
+    state.weeks.forEach((_, i) => openWeeks.add(i));
+    document.querySelectorAll('.week-card').forEach(c => c.classList.add('open'));
+    document.querySelectorAll('.week-card textarea').forEach(autoResize);
+    setTimeout(() => {
+      window.print();
+      // Restore previous open state after print dialog closes
+      setTimeout(() => {
+        openWeeks.clear();
+        wasOpen.forEach(i => openWeeks.add(i));
+        document.querySelectorAll('.week-card').forEach((c, i) => {
+          c.classList.toggle('open', wasOpen.has(+c.dataset.wi));
+        });
+      }, 500);
+    }, 100);
+  });
+
+  // ========================================
+  // ===== Firebase Auth + Firestore Sync =====
+  // ========================================
+
+  let currentEmail = null;     // email of logged-in user
+  let currentDocId = null;     // doc ID derived from email (own data)
+  let viewingDocId = null;     // who's data we're displaying (own or another for admin)
+  let viewingEmail = null;
+  let isReadOnly = false;
+  let firestoreUnsub = null;
+  let cloudSaveTimer = null;
+  let suppressCloudSave = false;
+
+  function setSyncStatus(text, cls = '') {
+    const el = $('ub-sync');
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'sync-status' + (cls ? ' ' + cls : '');
+  }
+
+  function showLogin(msg, cls) {
+    $('login-overlay').classList.remove('hidden');
+    $('user-bar').style.display = 'none';
+    if (msg) {
+      const m = $('login-msg');
+      m.textContent = msg;
+      m.className = 'login-msg show ' + (cls || '');
+    }
+  }
+
+  function hideLogin() {
+    $('login-overlay').classList.add('hidden');
+    $('user-bar').style.display = 'flex';
+  }
+
+  async function loginWithEmail() {
+    const email = $('login-email').value.trim().toLowerCase();
+    if (!email || !/.+@.+\..+/.test(email)) {
+      const m = $('login-msg');
+      m.textContent = '正しいメールアドレスを入力してください';
+      m.className = 'login-msg show error';
+      return;
+    }
+    const btn = $('login-send');
+    btn.disabled = true;
+    btn.textContent = 'ログイン中...';
+    try {
+      // Ensure anonymous auth
+      if (!auth.currentUser) {
+        await signInAnonymously(auth);
+      }
+      // Save email for future auto-login
+      localStorage.setItem(EMAIL_KEY, email);
+      // Switch to this user's data
+      await switchToEmail(email);
+    } catch (err) {
+      const m = $('login-msg');
+      m.textContent = 'エラー: ' + (err.message || err);
+      m.className = 'login-msg show error';
+      btn.disabled = false;
+      btn.textContent = '開始する';
+    }
+  }
+
+  $('login-send').addEventListener('click', loginWithEmail);
+  $('login-email').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') loginWithEmail();
+  });
+
+  async function loginWithGoogle() {
+    const btn = $('login-google');
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const email = result.user.email;
+      if (!email) throw new Error('Googleアカウントからメールアドレスを取得できませんでした');
+      localStorage.setItem(EMAIL_KEY, email);
+      localStorage.setItem('goal-mgmt-google', '1');
+      await switchToEmail(email);
+    } catch (err) {
+      const m = $('login-msg');
+      m.textContent = 'Googleログインエラー: ' + (err.message || err);
+      m.className = 'login-msg show error';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+  $('login-google').addEventListener('click', loginWithGoogle);
+
+  let currentDisplayName = '';
+  function userBarUpdate(email) {
+    $('ub-email').textContent = email || '(unknown)';
+    $('ub-name').textContent = currentDisplayName || '';
+    const isAdmin = email === ADMIN_EMAIL;
+    $('ub-badge').style.display = isAdmin ? 'inline-block' : 'none';
+    $('ub-badge').className = 'badge ' + (isAdmin ? 'admin' : '');
+    $('ub-admin').style.display = isAdmin ? 'inline-block' : 'none';
+  }
+
+  async function promptDisplayName() {
+    const next = window.prompt('表示名（受講生一覧などに表示されます）', currentDisplayName || '');
+    if (next === null) return;
+    const name = next.trim().slice(0, 50);
+    currentDisplayName = name;
+    userBarUpdate(currentEmail);
+    // save to firestore directly
+    if (currentEmail && currentDocId && !isReadOnly) {
+      try {
+        const ref = doc(db, 'users', currentDocId);
+        await setDoc(ref, {
+          ...sanitizeForFirestore(state),
+          _email: currentEmail,
+          _displayName: currentDisplayName,
+          _updatedAt: Date.now(),
+        });
+      } catch (err) {
+        console.error('save displayName error', err);
+      }
+    }
+  }
+
+  async function switchToEmail(email) {
+    currentEmail = email;
+    currentDocId = emailToDocId(email);
+    viewingEmail = email;
+    viewingDocId = currentDocId;
+    isReadOnly = false;
+    document.body.classList.remove('readonly');
+    $('ro-banner').classList.remove('show');
+    userBarUpdate(email);
+    hideLogin();
+    await loadFromCloud(currentDocId);
+    renderAll();
+    setupCloudSubscription(currentDocId);
+    // First-time prompt for display name
+    if (!currentDisplayName && email !== ADMIN_EMAIL) {
+      setTimeout(() => {
+        if (!currentDisplayName) {
+          const name = window.prompt('お名前を入力してください（受講生一覧などに表示されます）', '');
+          if (name && name.trim()) {
+            currentDisplayName = name.trim().slice(0, 50);
+            userBarUpdate(currentEmail);
+            saveToCloud();
+          }
+        }
+      }, 500);
+    }
+  }
+
+  // ===== Cloud sync =====
+  function sanitizeForFirestore(s) {
+    return JSON.parse(JSON.stringify(s));
+  }
+
+  async function loadFromCloud(docId) {
+    setSyncStatus('☁️ 読み込み中...', 'saving');
+    try {
+      const ref = doc(db, 'users', docId);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        const data = snap.data();
+        currentDisplayName = data._displayName || '';
+        userBarUpdate(currentEmail);
+        state = {
+          ...defaultState(), ...data,
+          goals: { ...defaultState().goals, ...(data.goals || {}) },
+          todos: { ...defaultState().todos, ...(data.todos || {}) },
+          weeks: Array.isArray(data.weeks) && data.weeks.length ? data.weeks : defaultState().weeks,
+          results: { ...defaultState().results, ...(data.results || {}) },
+        };
+        // normalize todos / weeks
+        [1,2,3].forEach(k => {
+          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done }));
+        });
+        state.weeks = state.weeks.map((w, i) => ({
+          week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
+          planTodoIds: w.planTodoIds || [],
+          planNote: w.planNote ?? (w.plan || ''),
+          done: w.done || '',
+          review: w.review || '',
+        }));
+        suppressCloudSave = true;
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+        suppressCloudSave = false;
+      } else if (docId === currentDocId && currentEmail) {
+        // first time for this email: create empty doc
+        state = defaultState();
+        currentDisplayName = '';
+        userBarUpdate(currentEmail);
+        await setDoc(ref, {
+          ...sanitizeForFirestore(state),
+          _email: currentEmail,
+          _displayName: '',
+          _updatedAt: Date.now(),
+        });
+      }
+      setSyncStatus('✅ 同期済み');
+    } catch (err) {
+      console.error('loadFromCloud error', err);
+      setSyncStatus('⚠️ 同期エラー', 'error');
+    }
+  }
+
+  function setupCloudSubscription(docId) {
+    if (firestoreUnsub) { firestoreUnsub(); firestoreUnsub = null; }
+    const ref = doc(db, 'users', docId);
+    firestoreUnsub = onSnapshot(ref, (snap) => {
+      if (snap.metadata.hasPendingWrites) return;
+      if (!snap.exists()) return;
+      const data = snap.data();
+      // Update only if different (avoid loops)
+      const newState = {
+        ...defaultState(), ...data,
+        goals: { ...defaultState().goals, ...(data.goals || {}) },
+        todos: { ...defaultState().todos, ...(data.todos || {}) },
+        weeks: Array.isArray(data.weeks) && data.weeks.length ? data.weeks : defaultState().weeks,
+        results: { ...defaultState().results, ...(data.results || {}) },
+      };
+      [1,2,3].forEach(k => {
+        newState.todos[k] = (newState.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done }));
+      });
+      newState.weeks = newState.weeks.map((w, i) => ({
+        week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
+        planTodoIds: w.planTodoIds || [],
+        planNote: w.planNote ?? (w.plan || ''),
+        done: w.done || '',
+        review: w.review || '',
+      }));
+      // Only re-render if focus is not on an input (to avoid disrupting typing)
+      const active = document.activeElement;
+      const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
+      state = newState;
+      if (!isTyping) {
+        suppressCloudSave = true;
+        renderAll();
+        suppressCloudSave = false;
+      }
+    }, (err) => {
+      console.error('snapshot error', err);
+      setSyncStatus('⚠️ 同期エラー', 'error');
+    });
+  }
+
+  function saveToCloud() {
+    if (!currentEmail || isReadOnly || suppressCloudSave) return;
+    if (!viewingDocId || viewingDocId !== currentDocId) return;
+    setSyncStatus('💾 保存中...', 'saving');
+    if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
+    cloudSaveTimer = setTimeout(async () => {
+      try {
+        const ref = doc(db, 'users', currentDocId);
+        await setDoc(ref, {
+          ...sanitizeForFirestore(state),
+          _email: currentEmail,
+          _displayName: currentDisplayName || '',
+          _updatedAt: Date.now(),
+        });
+        setSyncStatus('✅ 同期済み');
+      } catch (err) {
+        console.error('saveToCloud error', err);
+        setSyncStatus('⚠️ 同期エラー', 'error');
+      }
+    }, 800);
+  }
+
+  // ===== Admin =====
+  $('ub-admin').addEventListener('click', async () => {
+    $('admin-modal').classList.add('show');
+    $('admin-list').textContent = '読み込み中...';
+    try {
+      const snap = await getDocs(collection(db, 'users'));
+      const rows = [];
+      snap.forEach(d => {
+        const data = d.data();
+        rows.push({
+          uid: d.id,
+          email: data._email || '(unknown)',
+          displayName: data._displayName || '',
+          updatedAt: data._updatedAt || 0,
+        });
+      });
+      rows.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      if (!rows.length) {
+        $('admin-list').innerHTML = '<div class="pick-empty">受講生がまだいません</div>';
+        return;
+      }
+      $('admin-list').innerHTML = rows.map(r => {
+        const isSelf = r.uid === currentDocId;
+        const dt = r.updatedAt ? new Date(r.updatedAt).toLocaleString('ja-JP') : '—';
+        const nameDisplay = r.displayName
+          ? `<div class="email">${esc(r.displayName)} ${isSelf ? '（あなた）' : ''}</div>
+             <div class="meta">${esc(r.email)}</div>`
+          : `<div class="email" style="color:var(--muted);font-style:italic;">名前未設定 ${isSelf ? '（あなた）' : ''}</div>
+             <div class="meta">${esc(r.email)}</div>`;
+        return `
+          <div class="admin-row ${isSelf ? 'self' : ''}" data-uid="${r.uid}" data-email="${escAttr(r.email)}" data-displayname="${escAttr(r.displayName)}">
+            <div>${nameDisplay}</div>
+            <div class="meta">最終更新: ${dt}</div>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      $('admin-list').innerHTML = '<div class="pick-empty">読み込みエラー: ' + esc(err.message || String(err)) + '</div>';
+    }
+  });
+
+  $('admin-list').addEventListener('click', async (e) => {
+    const row = e.target.closest('.admin-row');
+    if (!row) return;
+    const uid = row.dataset.uid;
+    const email = row.dataset.email;
+    const displayName = row.dataset.displayname || '';
+    $('admin-modal').classList.remove('show');
+    if (uid === currentDocId) {
+      // viewing self - normal mode
+      enterOwnMode();
+    } else {
+      enterReadOnlyMode(uid, email, displayName);
+    }
+  });
+
+  $('admin-close').addEventListener('click', () => $('admin-modal').classList.remove('show'));
+  $('admin-done').addEventListener('click', () => $('admin-modal').classList.remove('show'));
+
+  async function enterReadOnlyMode(docId, email, displayName) {
+    isReadOnly = true;
+    viewingDocId = docId;
+    viewingEmail = email;
+    document.body.classList.add('readonly');
+    $('ro-email').textContent = displayName ? `${displayName}（${email}）` : email;
+    $('ro-banner').classList.add('show');
+    if (firestoreUnsub) { firestoreUnsub(); firestoreUnsub = null; }
+    try {
+      const snap = await getDoc(doc(db, 'users', docId));
+      if (snap.exists()) {
+        const data = snap.data();
+        state = {
+          ...defaultState(), ...data,
+          goals: { ...defaultState().goals, ...(data.goals || {}) },
+          todos: { ...defaultState().todos, ...(data.todos || {}) },
+          weeks: Array.isArray(data.weeks) && data.weeks.length ? data.weeks : defaultState().weeks,
+          results: { ...defaultState().results, ...(data.results || {}) },
+        };
+        [1,2,3].forEach(k => {
+          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done }));
+        });
+        state.weeks = state.weeks.map((w, i) => ({
+          week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
+          planTodoIds: w.planTodoIds || [],
+          planNote: w.planNote ?? (w.plan || ''),
+          done: w.done || '',
+          review: w.review || '',
+        }));
+        renderAll();
+      }
+    } catch (err) {
+      alert('データ取得エラー: ' + (err.message || err));
+      enterOwnMode();
+    }
+  }
+
+  function enterOwnMode() {
+    if (!currentEmail) return;
+    isReadOnly = false;
+    viewingDocId = currentDocId;
+    viewingEmail = currentEmail;
+    document.body.classList.remove('readonly');
+    $('ro-banner').classList.remove('show');
+    // Reload own data
+    state = load();
+    renderAll();
+    setupCloudSubscription(currentDocId);
+    loadFromCloud(currentDocId);
+  }
+
+  $('ro-back').addEventListener('click', enterOwnMode);
+
+  $('ub-edit-name').addEventListener('click', promptDisplayName);
+  $('ub-name').addEventListener('click', promptDisplayName);
+
+  // ===== ログアウト / メアド変更 =====
+  $('ub-logout').addEventListener('click', async () => {
+    if (!confirm('ログアウトしますか？\n（クラウドのデータは残ります。次回ログイン時に復元されます）')) return;
+    if (firestoreUnsub) { firestoreUnsub(); firestoreUnsub = null; }
+    localStorage.removeItem(EMAIL_KEY);
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('goal-mgmt-google');
+    try {
+      // sign out from Firebase Auth (Google session etc.)
+      await signOut(auth);
+    } catch {}
+    location.reload();
+  });
+
+  // ===== Init =====
+  renderAll();
+
+  // Wait for Firebase auth to settle (Google session may auto-restore)
+  onAuthStateChanged(auth, async (user) => {
+    if (user && !user.isAnonymous && user.email) {
+      // Google session restored
+      localStorage.setItem(EMAIL_KEY, user.email);
+      localStorage.setItem('goal-mgmt-google', '1');
+      if (currentEmail !== user.email) {
+        await switchToEmail(user.email);
+      }
+      return;
+    }
+    // not Google or no user yet
+    const savedEmail = localStorage.getItem(EMAIL_KEY);
+    const wasGoogle = localStorage.getItem('goal-mgmt-google') === '1';
+    if (savedEmail && !wasGoogle) {
+      // saved email login: ensure anonymous auth then switch
+      if (!user) {
+        try { await signInAnonymously(auth); } catch (err) {
+          console.error('Anonymous auth error', err);
+          showLogin('認証エラー: ' + (err.message || err), 'error');
+          return;
+        }
+        return; // onAuthStateChanged will fire again with anonymous user
+      }
+      // user is anonymous now
+      if (currentEmail !== savedEmail) {
+        await switchToEmail(savedEmail);
+      }
+    } else if (!savedEmail) {
+      // no saved login, show login screen
+      showLogin();
+    }
+  });
+</script>
+</body>
+</html>
