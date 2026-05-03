@@ -638,6 +638,79 @@
     font-size: 14px;
   }
   .plan-chip .chip-x:hover { color: var(--danger); }
+  .plan-chip .chip-drag {
+    cursor: grab;
+    color: var(--muted);
+    font-size: 11px;
+    user-select: none;
+    flex-shrink: 0;
+    letter-spacing: -2px;
+  }
+  .plan-chip .chip-drag:active { cursor: grabbing; }
+  .plan-chip.priority-high { background: #fef2f2; }
+  .plan-chip.priority-medium { background: #fffbeb; }
+  .plan-chip.priority-low { background: #f0fdf4; }
+  .plan-chip .chip-prio {
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    color: var(--muted);
+    font-family: inherit;
+    line-height: 1.4;
+  }
+  .plan-chip .chip-prio.priority-high { background: #fef2f2; border-color: #dc2626; color: #dc2626; }
+  .plan-chip .chip-prio.priority-medium { background: #fffbeb; border-color: #f59e0b; color: #d97706; }
+  .plan-chip .chip-prio.priority-low { background: #f0fdf4; border-color: #16a34a; color: #16a34a; }
+  .plan-chip.dragging { opacity: 0.4; }
+  .plan-chip.drop-target { box-shadow: 0 -2px 0 var(--accent); }
+  .plan-kpi-group {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .plan-kpi-group[data-kpi="1"] { border-color: var(--kpi1); background: var(--kpi1-soft); }
+  .plan-kpi-group[data-kpi="2"] { border-color: var(--kpi2); background: var(--kpi2-soft); }
+  .plan-kpi-group[data-kpi="3"] { border-color: var(--kpi3); background: var(--kpi3-soft); }
+  .plan-kpi-group-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: grab;
+    user-select: none;
+  }
+  .plan-kpi-group-head:active { cursor: grabbing; }
+  .plan-kpi-group[data-kpi="1"] .plan-kpi-group-head { background: var(--kpi1); }
+  .plan-kpi-group[data-kpi="2"] .plan-kpi-group-head { background: var(--kpi2); }
+  .plan-kpi-group[data-kpi="3"] .plan-kpi-group-head { background: var(--kpi3); }
+  .plan-kpi-group-head .group-drag {
+    font-size: 10px;
+    letter-spacing: -2px;
+    opacity: 0.85;
+  }
+  .plan-kpi-group-head .group-label {
+    flex: 1;
+    word-break: break-word;
+    line-height: 1.3;
+  }
+  .plan-kpi-group-body {
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .plan-kpi-group.dragging { opacity: 0.4; }
+  .plan-kpi-group.drop-target { box-shadow: 0 -3px 0 var(--accent); }
   .plan-pick-btn {
     width: 100%;
     border: 1px dashed var(--border);
@@ -1388,7 +1461,7 @@
       kpi3: { target: '', current: '', issue: '', solution: '' },
     },
     todos: { 1: [], 2: [], 3: [] },
-    weeks: DEFAULT_WEEKS.map(w => ({ week: w, planTodoIds: [], planNote: '', done: '', review: '' })),
+    weeks: DEFAULT_WEEKS.map(w => ({ week: w, planTodoIds: [], kpiOrder: [1,2,3], planNote: '', done: '', review: '' })),
     results: {
       kgi:  { name: '', current: '', target: '', actual: '' },
       kpi1: { name: '', current: '', target: '', actual: '' },
@@ -1454,6 +1527,7 @@
         merged.weeks = merged.weeks.map((w, i) => ({
           week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
           planTodoIds: w.planTodoIds || [],
+          kpiOrder: Array.isArray(w.kpiOrder) && w.kpiOrder.length === 3 ? w.kpiOrder : [1,2,3],
           planNote: w.planNote ?? (w.plan || ''),
           done: w.done || '',
           review: w.review || '',
@@ -1558,16 +1632,39 @@
 
   function renderWeeks() {
     const html = state.weeks.map((w, wi) => {
-      const chips = (w.planTodoIds || []).map(id => {
+      // Group todos by KPI in order they appear in planTodoIds
+      const groupedByKpi = { 1: [], 2: [], 3: [] };
+      (w.planTodoIds || []).forEach(id => {
         const found = findTodoById(id);
-        if (!found) return '';
-        const { todo, kpi } = found;
+        if (!found) return;
+        groupedByKpi[found.kpi].push(found.todo);
+      });
+      const kpiOrder = (Array.isArray(w.kpiOrder) && w.kpiOrder.length === 3) ? w.kpiOrder : [1,2,3];
+      const chips = kpiOrder.map(kpi => {
+        const items = groupedByKpi[kpi] || [];
+        if (items.length === 0) return '';
+        const targetText = state.goals['kpi' + kpi].target || '';
+        const truncated = targetText ? (targetText.length > 30 ? targetText.slice(0, 30) + '…' : targetText) : '';
+        const chipsHTML = items.map(todo => {
+          const p = todo.priority || 'none';
+          const priClass = p === 'none' ? '' : `priority-${p}`;
+          return `
+            <div class="plan-chip ${todo.done ? 'done' : ''} ${priClass}" data-kpi="${kpi}" data-todoid="${todo.id}" data-week="${wi}" draggable="true">
+              <span class="chip-drag" title="ドラッグでKPI内の順番を変更">⋮⋮</span>
+              <input type="checkbox" class="chip-check" data-todoid="${todo.id}" data-act="chip-check" ${todo.done ? 'checked' : ''} title="完了/未完了を切り替え" />
+              <span class="chip-text">${esc(todo.text || '(未入力)')}</span>
+              <button class="chip-prio ${priClass}" data-todoid="${todo.id}" data-act="cycle-chip-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
+              <button class="chip-x" data-week="${wi}" data-todoid="${todo.id}" data-act="unpick" title="この週から外す">×</button>
+            </div>
+          `;
+        }).join('');
         return `
-          <div class="plan-chip ${todo.done ? 'done' : ''}" data-kpi="${kpi}">
-            <input type="checkbox" class="chip-check" data-todoid="${todo.id}" data-act="chip-check" ${todo.done ? 'checked' : ''} title="完了/未完了を切り替え" />
-            <span class="chip-num">KPI${['①','②','③'][kpi-1]}</span>
-            <span class="chip-text">${esc(todo.text || '(未入力)')}</span>
-            <button class="chip-x" data-week="${wi}" data-todoid="${todo.id}" data-act="unpick" title="この週から外す">×</button>
+          <div class="plan-kpi-group" data-kpi="${kpi}" data-week="${wi}" draggable="true">
+            <div class="plan-kpi-group-head">
+              <span class="group-drag" title="グループをドラッグでKPIの優先順位を変更">⋮⋮</span>
+              <span class="group-label">KPI${['①','②','③'][kpi-1]}${truncated ? ': ' + esc(truncated) : ''}</span>
+            </div>
+            <div class="plan-kpi-group-body">${chipsHTML}</div>
           </div>
         `;
       }).join('');
@@ -1686,7 +1783,7 @@
     let changed = false;
     // grow
     while (state.weeks.length < newCount) {
-      state.weeks.push({ week: '', planTodoIds: [], planNote: '', done: '', review: '' });
+      state.weeks.push({ week: '', planTodoIds: [], kpiOrder: [1,2,3], planNote: '', done: '', review: '' });
       changed = true;
     }
     // shrink only if extra rows are empty
@@ -1783,56 +1880,144 @@
     }
   });
 
-  // ===== Drag & Drop for Todo reordering =====
+  // ===== Drag & Drop =====
+  // Mode: 'todo' (Todo list reorder), 'chip' (week plan chip reorder), 'group' (week KPI group reorder)
+  let dragMode = null;
   let dragSrcId = null;
   let dragSrcKpi = null;
+  let dragSrcWeek = null;
+
   document.addEventListener('dragstart', (e) => {
-    const item = e.target.closest('.todo-item');
-    if (!item) return;
-    dragSrcId = item.dataset.id;
-    dragSrcKpi = +item.dataset.kpi;
-    item.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    try { e.dataTransfer.setData('text/plain', dragSrcId); } catch {}
+    const tgt = e.target;
+    if (tgt.classList && tgt.classList.contains('plan-chip')) {
+      dragMode = 'chip';
+      dragSrcId = tgt.dataset.todoid;
+      dragSrcKpi = +tgt.dataset.kpi;
+      dragSrcWeek = +tgt.dataset.week;
+      tgt.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', dragSrcId); } catch {}
+      e.stopPropagation();
+      return;
+    }
+    if (tgt.classList && tgt.classList.contains('plan-kpi-group')) {
+      dragMode = 'group';
+      dragSrcKpi = +tgt.dataset.kpi;
+      dragSrcWeek = +tgt.dataset.week;
+      tgt.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', 'group-' + dragSrcKpi); } catch {}
+      return;
+    }
+    const item = tgt.closest && tgt.closest('.todo-item');
+    if (item) {
+      dragMode = 'todo';
+      dragSrcId = item.dataset.id;
+      dragSrcKpi = +item.dataset.kpi;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', dragSrcId); } catch {}
+    }
   });
+
   document.addEventListener('dragend', (e) => {
-    const item = e.target.closest('.todo-item');
-    if (item) item.classList.remove('dragging');
-    document.querySelectorAll('.todo-item.drag-over').forEach(el => el.classList.remove('drag-over'));
+    document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+    document.querySelectorAll('.drag-over, .drop-target').forEach(el => el.classList.remove('drag-over', 'drop-target'));
+    dragMode = null;
     dragSrcId = null;
     dragSrcKpi = null;
+    dragSrcWeek = null;
   });
+
   document.addEventListener('dragover', (e) => {
-    const item = e.target.closest('.todo-item');
-    if (!item || !dragSrcId) return;
-    if (+item.dataset.kpi !== dragSrcKpi) return;  // restrict to same KPI column
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    document.querySelectorAll('.todo-item.drag-over').forEach(el => {
-      if (el !== item) el.classList.remove('drag-over');
-    });
-    if (item.dataset.id !== dragSrcId) item.classList.add('drag-over');
+    if (!dragMode) return;
+    if (dragMode === 'todo') {
+      const item = e.target.closest('.todo-item');
+      if (!item) return;
+      if (+item.dataset.kpi !== dragSrcKpi) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('.todo-item.drag-over').forEach(el => { if (el !== item) el.classList.remove('drag-over'); });
+      if (item.dataset.id !== dragSrcId) item.classList.add('drag-over');
+    } else if (dragMode === 'chip') {
+      const chip = e.target.closest('.plan-chip');
+      if (!chip) return;
+      if (+chip.dataset.week !== dragSrcWeek) return;
+      if (+chip.dataset.kpi !== dragSrcKpi) return;  // same KPI only
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('.plan-chip.drop-target').forEach(el => { if (el !== chip) el.classList.remove('drop-target'); });
+      if (chip.dataset.todoid !== dragSrcId) chip.classList.add('drop-target');
+    } else if (dragMode === 'group') {
+      const group = e.target.closest('.plan-kpi-group');
+      if (!group) return;
+      if (+group.dataset.week !== dragSrcWeek) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      document.querySelectorAll('.plan-kpi-group.drop-target').forEach(el => { if (el !== group) el.classList.remove('drop-target'); });
+      if (+group.dataset.kpi !== dragSrcKpi) group.classList.add('drop-target');
+    }
   });
+
   document.addEventListener('dragleave', (e) => {
-    const item = e.target.closest('.todo-item');
-    if (item) item.classList.remove('drag-over');
+    const el = e.target.closest('.todo-item, .plan-chip, .plan-kpi-group');
+    if (el) el.classList.remove('drag-over', 'drop-target');
   });
+
   document.addEventListener('drop', (e) => {
-    const item = e.target.closest('.todo-item');
-    if (!item || !dragSrcId) return;
-    e.preventDefault();
-    const targetKpi = +item.dataset.kpi;
-    if (targetKpi !== dragSrcKpi) return;  // safety
-    const targetId = item.dataset.id;
-    if (targetId === dragSrcId) return;
-    const list = state.todos[targetKpi];
-    const fromIdx = list.findIndex(t => t.id === dragSrcId);
-    const toIdx = list.findIndex(t => t.id === targetId);
-    if (fromIdx < 0 || toIdx < 0) return;
-    const [moved] = list.splice(fromIdx, 1);
-    list.splice(toIdx, 0, moved);
-    save();
-    renderTodos();
+    if (!dragMode) return;
+    if (dragMode === 'todo') {
+      const item = e.target.closest('.todo-item');
+      if (!item) return;
+      e.preventDefault();
+      const targetKpi = +item.dataset.kpi;
+      if (targetKpi !== dragSrcKpi) return;
+      const targetId = item.dataset.id;
+      if (targetId === dragSrcId) return;
+      const list = state.todos[targetKpi];
+      const fromIdx = list.findIndex(t => t.id === dragSrcId);
+      const toIdx = list.findIndex(t => t.id === targetId);
+      if (fromIdx < 0 || toIdx < 0) return;
+      const [moved] = list.splice(fromIdx, 1);
+      list.splice(toIdx, 0, moved);
+      save();
+      renderTodos();
+    } else if (dragMode === 'chip') {
+      const chip = e.target.closest('.plan-chip');
+      if (!chip) return;
+      e.preventDefault();
+      if (+chip.dataset.week !== dragSrcWeek) return;
+      if (+chip.dataset.kpi !== dragSrcKpi) return;
+      const targetId = chip.dataset.todoid;
+      if (targetId === dragSrcId) return;
+      const ids = state.weeks[dragSrcWeek].planTodoIds || [];
+      const fromIdx = ids.indexOf(dragSrcId);
+      const toIdx = ids.indexOf(targetId);
+      if (fromIdx < 0 || toIdx < 0) return;
+      const [moved] = ids.splice(fromIdx, 1);
+      const newToIdx = ids.indexOf(targetId);
+      ids.splice(newToIdx, 0, moved);
+      save();
+      renderWeeks();
+    } else if (dragMode === 'group') {
+      const group = e.target.closest('.plan-kpi-group');
+      if (!group) return;
+      e.preventDefault();
+      if (+group.dataset.week !== dragSrcWeek) return;
+      const targetKpi = +group.dataset.kpi;
+      if (targetKpi === dragSrcKpi) return;
+      const w = state.weeks[dragSrcWeek];
+      const order = (Array.isArray(w.kpiOrder) && w.kpiOrder.length === 3) ? [...w.kpiOrder] : [1,2,3];
+      const fromIdx = order.indexOf(dragSrcKpi);
+      const toIdx = order.indexOf(targetKpi);
+      if (fromIdx < 0 || toIdx < 0) return;
+      const [moved] = order.splice(fromIdx, 1);
+      const newToIdx = order.indexOf(targetKpi);
+      order.splice(newToIdx, 0, moved);
+      w.kpiOrder = order;
+      save();
+      renderWeeks();
+    }
   });
 
   document.addEventListener('click', (e) => {
@@ -1853,6 +2038,14 @@
       save(); renderTodos(); renderWeeks();
     } else if (t.dataset.act === 'cycle-priority' && t.dataset.id) {
       const found = findTodoById(t.dataset.id);
+      if (found) {
+        const cur = found.todo.priority || 'none';
+        found.todo.priority = PRIORITY_NEXT[cur];
+        save(); renderTodos(); renderWeeks();
+      }
+    } else if (t.dataset.act === 'cycle-chip-priority' && t.dataset.todoid) {
+      e.stopPropagation();
+      const found = findTodoById(t.dataset.todoid);
       if (found) {
         const cur = found.todo.priority || 'none';
         found.todo.priority = PRIORITY_NEXT[cur];
@@ -2231,6 +2424,7 @@
         state.weeks = state.weeks.map((w, i) => ({
           week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
           planTodoIds: w.planTodoIds || [],
+          kpiOrder: Array.isArray(w.kpiOrder) && w.kpiOrder.length === 3 ? w.kpiOrder : [1,2,3],
           planNote: w.planNote ?? (w.plan || ''),
           done: w.done || '',
           review: w.review || '',
@@ -2282,6 +2476,7 @@
       newState.weeks = newState.weeks.map((w, i) => ({
         week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
         planTodoIds: w.planTodoIds || [],
+        kpiOrder: Array.isArray(w.kpiOrder) && w.kpiOrder.length === 3 ? w.kpiOrder : [1,2,3],
         planNote: w.planNote ?? (w.plan || ''),
         done: w.done || '',
         review: w.review || '',
@@ -2450,6 +2645,7 @@
         state.weeks = state.weeks.map((w, i) => ({
           week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
           planTodoIds: w.planTodoIds || [],
+          kpiOrder: Array.isArray(w.kpiOrder) && w.kpiOrder.length === 3 ? w.kpiOrder : [1,2,3],
           planNote: w.planNote ?? (w.plan || ''),
           done: w.done || '',
           review: w.review || '',
