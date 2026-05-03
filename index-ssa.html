@@ -389,6 +389,22 @@
     border-color: var(--warn);
     color: var(--warn);
   }
+  .week-carry-btn {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  .week-carry-btn:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
   .weeks-list {
     display: flex;
     flex-direction: column;
@@ -787,7 +803,7 @@
   }
   @media print {
     .toolbar, .todo-add, .plan-pick-btn, .modal-backdrop, #login-overlay, #user-bar,
-    .week-controls, .week-uncheck-btn, #todo-uncheck-all, .chip-x, .chip-check, .todo-item button[data-act="del"] {
+    .week-controls, .week-uncheck-btn, .week-carry-btn, #todo-uncheck-all, .chip-x, .chip-check, .todo-item button[data-act="del"] {
       display: none !important;
     }
     body { background: #fff; }
@@ -970,6 +986,43 @@
   .admin-row .email { font-weight: 600; font-size: 13px; }
   .admin-row .meta { color: var(--muted); font-size: 11px; }
   .admin-row.self { background: var(--accent-soft); }
+  .admin-tag {
+    display: inline-block;
+    background: #fef3c7;
+    color: #b45309;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 999px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .admin-tag.primary {
+    background: #fde68a;
+    color: #92400e;
+  }
+  .admin-toggle-btn {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--muted);
+    font-weight: 500;
+    margin-top: 4px;
+    white-space: nowrap;
+  }
+  .admin-toggle-btn:hover {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .admin-toggle-btn.demote:hover {
+    background: #fee2e2;
+    border-color: var(--danger);
+    color: var(--danger);
+  }
 
   /* ===== Read-only banner (admin viewing another user) ===== */
   #ro-banner {
@@ -1041,6 +1094,7 @@
   </div>
   <div class="actions">
     <button id="ub-edit-name">✏️ 名前</button>
+    <button id="ub-email-toggle" title="毎週日曜に応援メールを受信するか切り替え">📧 メール</button>
     <button id="ub-admin" style="display:none;">👥 受講生一覧</button>
     <button id="ub-logout">ログアウト</button>
   </div>
@@ -1462,9 +1516,12 @@
           </div>
           <div class="week-card-body">
             <div class="week-field">
-              <div class="week-field-label" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <div class="week-field-label" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
                 <span>📋 アクションプラン（計画）</span>
-                ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="uncheck-week" title="この週のTodoのチェックを外す">☐ レ点を外す</button>` : ''}
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  ${wi > 0 ? `<button class="week-carry-btn" data-week="${wi}" data-act="carry-over" title="前の週のTodoをこの週にコピー">📋 先週分を引き継ぐ</button>` : ''}
+                  ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="uncheck-week" title="この週のTodoのチェックを外す">☐ レ点を外す</button>` : ''}
+                </div>
               </div>
               <div class="plan-chips">${chips}</div>
               <button class="plan-pick-btn" data-week="${wi}" data-act="pick">＋ Todoから選ぶ</button>
@@ -1695,6 +1752,25 @@
       save();
       renderTodos();
       renderWeeks();
+    } else if (t.dataset.act === 'carry-over') {
+      e.stopPropagation();
+      const wi = +t.dataset.week;
+      if (wi === 0) return;
+      const prevIds = (state.weeks[wi - 1].planTodoIds || []).filter(id => findTodoById(id));
+      if (prevIds.length === 0) {
+        alert('前の週にTodoが設定されていません');
+        return;
+      }
+      const currentIds = state.weeks[wi].planTodoIds || [];
+      const newIds = prevIds.filter(id => !currentIds.includes(id));
+      if (newIds.length === 0) {
+        alert('前の週のTodoはすべて引き継ぎ済みです');
+        return;
+      }
+      if (!confirm(`前の週から ${newIds.length} 件のTodoを引き継ぎます。よろしいですか？`)) return;
+      state.weeks[wi].planTodoIds = [...currentIds, ...newIds];
+      save();
+      renderWeeks();
     } else {
       // Accordion: click on week-card-head toggles open/close
       const head = e.target.closest('.week-card-head');
@@ -1891,13 +1967,52 @@
   $('login-google').addEventListener('click', loginWithGoogle);
 
   let currentDisplayName = '';
+  let currentEmailNotifications = true;  // default: subscribed
+  let isAdminUser = false;  // true if hardcoded ADMIN_EMAIL OR _isAdmin flag in Firestore
   function userBarUpdate(email) {
     $('ub-email').textContent = email || '(unknown)';
     $('ub-name').textContent = currentDisplayName || '';
-    const isAdmin = email === ADMIN_EMAIL;
-    $('ub-badge').style.display = isAdmin ? 'inline-block' : 'none';
-    $('ub-badge').className = 'badge ' + (isAdmin ? 'admin' : '');
-    $('ub-admin').style.display = isAdmin ? 'inline-block' : 'none';
+    $('ub-badge').style.display = isAdminUser ? 'inline-block' : 'none';
+    $('ub-badge').className = 'badge ' + (isAdminUser ? 'admin' : '');
+    $('ub-admin').style.display = isAdminUser ? 'inline-block' : 'none';
+    // Email subscription button label
+    const emailBtn = $('ub-email-toggle');
+    if (emailBtn) {
+      emailBtn.textContent = currentEmailNotifications ? '📧 メールON' : '🔕 メールOFF';
+      emailBtn.title = currentEmailNotifications
+        ? '毎週日曜に応援メール配信中（クリックで停止）'
+        : 'メール配信停止中（クリックで再開）';
+    }
+  }
+
+  async function toggleEmailNotifications() {
+    if (!currentEmail || !currentDocId || isReadOnly) return;
+    const next = !currentEmailNotifications;
+    const message = next
+      ? '毎週日曜に応援メールを受信しますか？'
+      : 'メール配信を停止します。よろしいですか？\n（いつでも再開できます）';
+    if (!confirm(message)) return;
+    currentEmailNotifications = next;
+    userBarUpdate(currentEmail);
+    try {
+      const ref = doc(db, 'users', currentDocId);
+      await setDoc(ref, {
+        ...sanitizeForFirestore(state),
+        _email: currentEmail,
+        _displayName: currentDisplayName || '',
+        _emailNotifications: currentEmailNotifications,
+        _isAdmin: isAdminUser,
+        _updatedAt: Date.now(),
+      });
+      setSyncStatus(next ? '✅ メール配信ON' : '✅ メール配信OFF');
+      setTimeout(() => setSyncStatus('✅ 同期済み'), 2000);
+    } catch (err) {
+      console.error('toggle email error', err);
+      alert('設定の保存に失敗しました: ' + (err.message || err));
+      // revert
+      currentEmailNotifications = !next;
+      userBarUpdate(currentEmail);
+    }
   }
 
   async function promptDisplayName() {
@@ -1914,6 +2029,8 @@
           ...sanitizeForFirestore(state),
           _email: currentEmail,
           _displayName: currentDisplayName,
+          _emailNotifications: currentEmailNotifications,
+          _isAdmin: isAdminUser,
           _updatedAt: Date.now(),
         });
       } catch (err) {
@@ -1963,6 +2080,10 @@
       if (snap.exists()) {
         const data = snap.data();
         currentDisplayName = data._displayName || '';
+        // default true if undefined (existing users)
+        currentEmailNotifications = data._emailNotifications !== false;
+        // Admin: hardcoded ADMIN_EMAIL OR _isAdmin flag
+        isAdminUser = (currentEmail === ADMIN_EMAIL) || (data._isAdmin === true);
         userBarUpdate(currentEmail);
         state = {
           ...defaultState(), ...data,
@@ -1989,11 +2110,15 @@
         // first time for this email: create empty doc
         state = defaultState();
         currentDisplayName = '';
+        currentEmailNotifications = true;
+        isAdminUser = (currentEmail === ADMIN_EMAIL);  // primary admin auto-flagged
         userBarUpdate(currentEmail);
         await setDoc(ref, {
           ...sanitizeForFirestore(state),
           _email: currentEmail,
           _displayName: '',
+          _emailNotifications: true,
+          _isAdmin: isAdminUser,
           _updatedAt: Date.now(),
         });
       }
@@ -2056,6 +2181,8 @@
           ...sanitizeForFirestore(state),
           _email: currentEmail,
           _displayName: currentDisplayName || '',
+          _emailNotifications: currentEmailNotifications,
+          _isAdmin: isAdminUser,
           _updatedAt: Date.now(),
         });
         setSyncStatus('✅ 同期済み');
@@ -2067,7 +2194,7 @@
   }
 
   // ===== Admin =====
-  $('ub-admin').addEventListener('click', async () => {
+  async function loadAdminList() {
     $('admin-modal').classList.add('show');
     $('admin-list').textContent = '読み込み中...';
     try {
@@ -2075,11 +2202,14 @@
       const rows = [];
       snap.forEach(d => {
         const data = d.data();
+        const email = data._email || '(unknown)';
         rows.push({
           uid: d.id,
-          email: data._email || '(unknown)',
+          email,
           displayName: data._displayName || '',
           updatedAt: data._updatedAt || 0,
+          isAdmin: (email === ADMIN_EMAIL) || (data._isAdmin === true),
+          isPrimary: email === ADMIN_EMAIL,
         });
       });
       rows.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
@@ -2090,24 +2220,62 @@
       $('admin-list').innerHTML = rows.map(r => {
         const isSelf = r.uid === currentDocId;
         const dt = r.updatedAt ? new Date(r.updatedAt).toLocaleString('ja-JP') : '—';
+        const adminTag = r.isPrimary
+          ? '<span class="admin-tag primary">👑 主管理者</span>'
+          : (r.isAdmin ? '<span class="admin-tag">管理者</span>' : '');
         const nameDisplay = r.displayName
-          ? `<div class="email">${esc(r.displayName)} ${isSelf ? '（あなた）' : ''}</div>
+          ? `<div class="email">${esc(r.displayName)} ${isSelf ? '（あなた）' : ''}${adminTag}</div>
              <div class="meta">${esc(r.email)}</div>`
-          : `<div class="email" style="color:var(--muted);font-style:italic;">名前未設定 ${isSelf ? '（あなた）' : ''}</div>
+          : `<div class="email" style="color:var(--muted);font-style:italic;">名前未設定 ${isSelf ? '（あなた）' : ''}${adminTag}</div>
              <div class="meta">${esc(r.email)}</div>`;
+        // Toggle admin button: only if current user is admin, target is not primary, target is not self
+        const canToggle = isAdminUser && !r.isPrimary && !isSelf;
+        const toggleBtn = canToggle
+          ? `<button class="admin-toggle-btn ${r.isAdmin ? 'demote' : ''}" data-act="toggle-admin" data-uid="${r.uid}" data-email="${escAttr(r.email)}" data-isadmin="${r.isAdmin}">${r.isAdmin ? '✕ 管理者解除' : '＋ 管理者にする'}</button>`
+          : '';
         return `
           <div class="admin-row ${isSelf ? 'self' : ''}" data-uid="${r.uid}" data-email="${escAttr(r.email)}" data-displayname="${escAttr(r.displayName)}">
-            <div>${nameDisplay}</div>
-            <div class="meta">最終更新: ${dt}</div>
+            <div style="flex:1;min-width:0;">${nameDisplay}</div>
+            <div class="meta" style="text-align:right;flex-shrink:0;">
+              最終更新: ${dt}
+              ${toggleBtn ? '<br>' + toggleBtn : ''}
+            </div>
           </div>
         `;
       }).join('');
     } catch (err) {
       $('admin-list').innerHTML = '<div class="pick-empty">読み込みエラー: ' + esc(err.message || String(err)) + '</div>';
     }
-  });
+  }
+  $('ub-admin').addEventListener('click', loadAdminList);
 
   $('admin-list').addEventListener('click', async (e) => {
+    // Toggle admin button (must check before row click)
+    const toggleBtn = e.target.closest('[data-act="toggle-admin"]');
+    if (toggleBtn) {
+      e.stopPropagation();
+      if (!isAdminUser) { alert('権限がありません'); return; }
+      const targetUid = toggleBtn.dataset.uid;
+      const targetEmail = toggleBtn.dataset.email;
+      const wasAdmin = toggleBtn.dataset.isadmin === 'true';
+      const next = !wasAdmin;
+      const msg = next
+        ? `${targetEmail} を管理者に追加しますか？\n\n管理者は受講生一覧の閲覧、他のユーザーの管理者権限の付与・解除ができます。`
+        : `${targetEmail} の管理者権限を解除しますか？`;
+      if (!confirm(msg)) return;
+      try {
+        const ref = doc(db, 'users', targetUid);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) { alert('ユーザー情報が取得できませんでした'); return; }
+        await setDoc(ref, { ...snap.data(), _isAdmin: next, _updatedAt: Date.now() });
+        alert(next ? '✅ 管理者に追加しました' : '✅ 管理者権限を解除しました');
+        await loadAdminList();  // refresh
+      } catch (err) {
+        console.error('toggle admin error', err);
+        alert('エラー: ' + (err.message || err));
+      }
+      return;
+    }
     const row = e.target.closest('.admin-row');
     if (!row) return;
     const uid = row.dataset.uid;
@@ -2180,6 +2348,7 @@
 
   $('ub-edit-name').addEventListener('click', promptDisplayName);
   $('ub-name').addEventListener('click', promptDisplayName);
+  $('ub-email-toggle').addEventListener('click', toggleEmailNotifications);
 
   // ===== ログアウト / メアド変更 =====
   $('ub-logout').addEventListener('click', async () => {
