@@ -94,6 +94,33 @@
   }
   textarea:focus, input:focus { outline: none; }
 
+  /* ===== ゴール定義ブロック ===== */
+  .goal-definition {
+    background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
+    border-left: 4px solid #7c3aed;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    color: #4c1d95;
+  }
+  .goal-definition-title {
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    letter-spacing: 0.05em;
+  }
+  .goal-definition-body {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+  .goal-definition-footer {
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+
   /* ===== KGI Hero ===== */
   .kgi-hero {
     background: linear-gradient(135deg, #6d28d9 0%, #9333ea 50%, #c026d3 100%);
@@ -173,6 +200,140 @@
     font-family: inherit;
   }
   .kgi-current-input::placeholder { color: rgba(255,255,255,0.6); }
+
+  /* ===== Metric Block (numeric) ===== */
+  .metric-block {
+    background: rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    backdrop-filter: blur(4px);
+  }
+  .metric-block .mlabel {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    opacity: 0.85;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .metric-block .lower-flag {
+    font-size: 10px;
+    cursor: pointer;
+    user-select: none;
+    opacity: 0.95;
+  }
+  .metric-block .lower-flag input { vertical-align: middle; cursor: pointer; }
+  .metric-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .metric-row select,
+  .metric-row input {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: #fff;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .metric-row select option { color: #1f2937; }
+  .metric-row input::placeholder { color: rgba(255,255,255,0.6); }
+  .metric-row input:focus,
+  .metric-row select:focus { outline: 2px solid rgba(255,255,255,0.5); }
+  .metric-row .field {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    flex: 1;
+    min-width: 0;
+  }
+  .metric-row .field-label {
+    opacity: 0.85;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .metric-row .num-input {
+    width: 100%;
+    min-width: 60px;
+    text-align: right;
+  }
+  .metric-row .unit-select { min-width: 90px; }
+
+  /* Metric block for KPI cards (light theme) */
+  .kpi-card .metric-block {
+    background: var(--panel-2);
+    backdrop-filter: none;
+    border: 1px solid var(--border);
+  }
+  .kpi-card[data-kpi="1"] .metric-block { background: var(--kpi1-soft); border-color: var(--kpi1); }
+  .kpi-card[data-kpi="2"] .metric-block { background: var(--kpi2-soft); border-color: var(--kpi2); }
+  .kpi-card[data-kpi="3"] .metric-block { background: var(--kpi3-soft); border-color: var(--kpi3); }
+  .kpi-card .metric-block .mlabel { color: var(--muted); }
+  .kpi-card[data-kpi="1"] .metric-block .mlabel { color: var(--kpi1); }
+  .kpi-card[data-kpi="2"] .metric-block .mlabel { color: var(--kpi2); }
+  .kpi-card[data-kpi="3"] .metric-block .mlabel { color: var(--kpi3); }
+  .kpi-card .metric-block .lower-flag { color: var(--text); opacity: 0.75; }
+  .kpi-card .metric-row select,
+  .kpi-card .metric-row input {
+    background: #fff;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .kpi-card .metric-row input::placeholder { color: var(--muted); }
+  .kpi-card .metric-row .field-label { color: var(--text); }
+
+  /* Period auto-display in KGI hero */
+  .kgi-period-display {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    opacity: 0.85;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  /* ===== Archive UI ===== */
+  .archive-select {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: inherit;
+  }
+  #archive-banner {
+    display: none;
+    background: linear-gradient(90deg, #ddd6fe, #c4b5fd);
+    border-bottom: 2px solid #7c3aed;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: #5b21b6;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 26;
+  }
+  #archive-banner.show { display: block; }
+  #archive-banner button {
+    margin-left: 12px;
+    background: #7c3aed;
+    color: #fff;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
 
   /* ===== KPI Cards ===== */
   .kpi-card {
@@ -868,6 +1029,30 @@
     .kgi-current-wrap .clabel { font-size: 10px; letter-spacing: 0.15em; }
     .kgi-current-input { font-size: 13px; }
 
+    /* メトリクスブロック: スマホでは縦積み（数字が見切れないように） */
+    .metric-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+    }
+    .metric-row .field {
+      flex: none;
+      width: 100%;
+    }
+    .metric-row .num-input {
+      width: 100%;
+      min-width: 0;
+      font-size: 14px;
+      padding: 6px 10px;
+    }
+    .metric-row .unit-select {
+      width: 100%;
+      font-size: 13px;
+    }
+    .metric-row .field-label {
+      min-width: 36px;
+    }
+
     /* KPI カードヘッダ: スマホでフォント縮小＋折り返し可 */
     .kpi-card-head { padding: 10px 12px; gap: 8px; }
     .kpi-num { font-size: 11px; padding: 2px 8px; }
@@ -1222,6 +1407,12 @@
   <button id="ro-back">自分のデータに戻る</button>
 </div>
 
+<!-- 過去の期を閲覧中のバナー -->
+<div id="archive-banner">
+  📂 過去の期「<span id="archive-period-label"></span>」を閲覧中（読み取り専用）
+  <button id="archive-exit">現在の期に戻る</button>
+</div>
+
 <!-- ユーザーバー -->
 <div id="user-bar" style="display:none;">
   <div class="info">
@@ -1245,6 +1436,8 @@
 
 <div class="toolbar">
   <input type="text" id="period" placeholder="期間（例: 2026年4-6月）" />
+  <button id="archive-save" title="現在の期のデータをスナップショット保存">📦 今期を保存して新期へ</button>
+  <select id="archive-select" class="archive-select" title="過去の期を選んで閲覧"><option value="">📂 過去の期を見る…</option></select>
   <button id="pdf-btn" class="primary">📄 PDFで保存</button>
   <button id="reset-btn">🗑 全リセット</button>
 </div>
@@ -1254,19 +1447,39 @@
   <section>
     <div class="sec-head">
       <h2>📌 年間目標</h2>
-      <span class="sub">※具体的な質問のみFB（全体のFBはなし）／未来戦略の年間目標からGOALを考える</span>
     </div>
     <div class="sec-body">
+      <!-- ゴール定義の説明 -->
+      <div class="goal-definition">
+        <div class="goal-definition-title">ゴールの定義</div>
+        <div class="goal-definition-body">いつまで（期限）にどんな状態（定量）か</div>
+        <div class="goal-definition-footer">これがKGIゴールの定義</div>
+      </div>
       <!-- KGI Hero -->
       <div class="kgi-hero">
         <div class="kgi-label">⭐ KGI — KEY GOAL INDICATOR</div>
+        <div class="kgi-period-display" id="kgi-period-display">期間：—</div>
         <div class="kgi-target-wrap">
           <span class="icon">🏆</span>
-          <textarea class="kgi-target-input autosize" data-goal="kgi" data-field="target" placeholder="達成したい最重要目標を入力" rows="1"></textarea>
+          <textarea class="kgi-target-input autosize" data-goal="kgi" data-field="target" placeholder="達成したい最重要目標を入力（文章）" rows="1"></textarea>
         </div>
         <div class="kgi-current-wrap">
           <span class="clabel">現状</span>
-          <textarea class="kgi-current-input" data-goal="kgi" data-field="current" placeholder="今の状態・数値"></textarea>
+          <textarea class="kgi-current-input" data-goal="kgi" data-field="current" placeholder="今の状態（文章）"></textarea>
+        </div>
+        <div class="metric-block" id="kgi-metric-block">
+          <div class="mlabel">
+            <span>📊 数値で測る</span>
+            <label class="lower-flag">
+              <input type="checkbox" data-goal="kgi" data-field="lowerIsBetter" />
+              下げたい指標（原価率など）
+            </label>
+          </div>
+          <div class="metric-row">
+            <select class="unit-select" data-goal="kgi" data-field="unit"></select>
+            <div class="field"><span class="field-label">現状:</span><input type="text" class="num-input" data-goal="kgi" data-field="currentValue" placeholder="0" inputmode="decimal" /></div>
+            <div class="field"><span class="field-label">目標:</span><input type="text" class="num-input" data-goal="kgi" data-field="targetValue" placeholder="0" inputmode="decimal" /></div>
+          </div>
         </div>
       </div>
 
@@ -1418,6 +1631,93 @@
   const KPI_KEYS = ['kgi', 'kpi1', 'kpi2', 'kpi3'];
   const KPI_LABELS = { kgi: 'KGI', kpi1: 'KPI①', kpi2: 'KPI②', kpi3: 'KPI③' };
 
+  // Unit options for numeric metrics
+  const UNIT_OPTIONS = [
+    { value: 'none',    label: '—（単位なし）',    suffix: '' },
+    { value: 'yen',     label: '円（売上・金額）',  suffix: '円' },
+    { value: 'percent', label: '%（率）',           suffix: '%' },
+    { value: 'people',  label: '人（人数）',        suffix: '人' },
+    { value: 'count',   label: '回（実行回数）',    suffix: '回' },
+    { value: 'item',    label: '個（個数）',        suffix: '個' },
+    { value: 'case',    label: '件（件数）',        suffix: '件' },
+    { value: 'hour',    label: '時間',              suffix: '時間' },
+  ];
+  const UNIT_SUFFIX_MAP = Object.fromEntries(UNIT_OPTIONS.map(u => [u.value, u.suffix]));
+
+  // Convert full-width digits to half-width
+  function toHalfWidth(s) {
+    return String(s ?? '').replace(/[０-９．，]/g, ch => {
+      if (ch === '．') return '.';
+      if (ch === '，') return ',';
+      return String.fromCharCode(ch.charCodeAt(0) - 0xFEE0);
+    });
+  }
+  // Normalize numeric input: half-width + remove non-numeric (allow . and -)
+  function normalizeNumericInput(s) {
+    return toHalfWidth(s).replace(/[^0-9.\-]/g, '');
+  }
+  // Format number with unit suffix for display
+  function formatWithUnit(value, unit) {
+    if (value === '' || value === null || value === undefined) return '';
+    const n = parseFloat(value);
+    if (isNaN(n)) return String(value);
+    const suffix = UNIT_SUFFIX_MAP[unit] || '';
+    const formatted = unit === 'yen'
+      ? n.toLocaleString('ja-JP')
+      : (Math.abs(n) >= 1000 ? n.toLocaleString('ja-JP') : String(n));
+    return formatted + suffix;
+  }
+  // Format value for live display in input (commas for thousands + unit suffix)
+  // Used when the input is NOT focused. On focus, raw value is shown for editing.
+  function formatLiveValue(rawValue, unit) {
+    if (rawValue === '' || rawValue === null || rawValue === undefined) return '';
+    const n = parseFloat(rawValue);
+    if (isNaN(n)) return String(rawValue);
+    const suffix = UNIT_SUFFIX_MAP[unit] || '';
+    // Always use commas for yen, or for any number >= 1000
+    const formatted = (unit === 'yen' || Math.abs(n) >= 1000)
+      ? n.toLocaleString('ja-JP')
+      : String(n);
+    return formatted + suffix;
+  }
+  // Get raw value from state for an input element
+  function getRawValueForInput(t) {
+    if (t.dataset.goal && (t.dataset.field === 'currentValue' || t.dataset.field === 'targetValue')) {
+      return (state.goals[t.dataset.goal] && state.goals[t.dataset.goal][t.dataset.field]) ?? '';
+    }
+    if (t.dataset.result && t.dataset.field === 'actual') {
+      return (state.results[t.dataset.result] && state.results[t.dataset.result].actual) ?? '';
+    }
+    return '';
+  }
+  // Get unit for an input element (from related goal)
+  function getUnitForInput(t) {
+    if (t.dataset.goal) {
+      return (state.goals[t.dataset.goal] && state.goals[t.dataset.goal].unit) || 'none';
+    }
+    if (t.dataset.result) {
+      return (state.goals[t.dataset.result] && state.goals[t.dataset.result].unit) || 'none';
+    }
+    return 'none';
+  }
+  // Refresh all numeric input displays to formatted version (skip focused input)
+  function refreshNumericDisplays() {
+    const active = document.activeElement;
+    document.querySelectorAll('input[data-goal][data-field="currentValue"], input[data-goal][data-field="targetValue"], input[data-result][data-field="actual"]').forEach(inp => {
+      if (inp === active) return;  // don't disturb the input being typed in
+      const raw = getRawValueForInput(inp);
+      const unit = getUnitForInput(inp);
+      inp.value = formatLiveValue(raw, unit);
+    });
+  }
+  // Format period for display "2026年4月〜6月"
+  function formatPeriodDisplay(period) {
+    const p = parsePeriod(period);
+    if (!p) return period || '';
+    if (p.months.length === 1) return `${p.year}年${p.months[0]}月`;
+    return `${p.year}年${p.months[0]}月〜${p.months[p.months.length-1]}月`;
+  }
+
   function parsePeriod(s) {
     if (!s) return null;
     const t = String(s);
@@ -1452,22 +1752,32 @@
 
   const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 
+  const defaultGoal = (extra = {}) => ({
+    target: '',
+    current: '',
+    unit: 'none',
+    targetValue: '',
+    currentValue: '',
+    lowerIsBetter: false,
+    ...extra,
+  });
   const defaultState = () => ({
     period: '2026年4-6月',
     goals: {
-      kgi:  { target: '', current: '' },
-      kpi1: { target: '', current: '', issue: '', solution: '' },
-      kpi2: { target: '', current: '', issue: '', solution: '' },
-      kpi3: { target: '', current: '', issue: '', solution: '' },
+      kgi:  defaultGoal(),
+      kpi1: defaultGoal({ issue: '', solution: '' }),
+      kpi2: defaultGoal({ issue: '', solution: '' }),
+      kpi3: defaultGoal({ issue: '', solution: '' }),
     },
     todos: { 1: [], 2: [], 3: [] },
     weeks: DEFAULT_WEEKS.map(w => ({ week: w, planTodoIds: [], kpiOrder: [1,2,3], planNote: '', done: '', review: '' })),
     results: {
-      kgi:  { name: '', current: '', target: '', actual: '' },
-      kpi1: { name: '', current: '', target: '', actual: '' },
-      kpi2: { name: '', current: '', target: '', actual: '' },
-      kpi3: { name: '', current: '', target: '', actual: '' },
+      kgi:  { actual: '' },
+      kpi1: { actual: '' },
+      kpi2: { actual: '' },
+      kpi3: { actual: '' },
     },
+    archives: [],
   });
 
   function migrateOld() {
@@ -1507,6 +1817,40 @@
     } catch { return null; }
   }
 
+  // Normalize a goal object: ensure all numeric fields exist
+  function normalizeGoal(g, isKgi) {
+    g = g || {};
+    const base = isKgi ? defaultGoal() : defaultGoal({ issue: '', solution: '' });
+    return {
+      ...base,
+      target: g.target || '',
+      current: g.current || '',
+      unit: g.unit || 'none',
+      targetValue: g.targetValue ?? '',
+      currentValue: g.currentValue ?? '',
+      lowerIsBetter: !!g.lowerIsBetter,
+      ...(isKgi ? {} : { issue: g.issue || '', solution: g.solution || '' }),
+    };
+  }
+  function normalizeAllGoals(goals) {
+    const d = defaultState().goals;
+    const out = { ...d, ...(goals || {}) };
+    out.kgi = normalizeGoal(out.kgi, true);
+    out.kpi1 = normalizeGoal(out.kpi1, false);
+    out.kpi2 = normalizeGoal(out.kpi2, false);
+    out.kpi3 = normalizeGoal(out.kpi3, false);
+    return out;
+  }
+  // Normalize results: only "actual" is needed now; preserve old shape just in case
+  function normalizeResults(results) {
+    const d = defaultState().results;
+    const out = { ...d, ...(results || {}) };
+    KPI_KEYS.forEach(k => {
+      out[k] = { actual: (out[k] && out[k].actual) || '' };
+    });
+    return out;
+  }
+
   function load() {
     try {
       const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -1514,10 +1858,11 @@
         const d = defaultState();
         const merged = {
           ...d, ...s,
-          goals: { ...d.goals, ...(s.goals || {}) },
+          goals: normalizeAllGoals(s.goals),
           todos: { ...d.todos, ...(s.todos || {}) },
           weeks: Array.isArray(s.weeks) && s.weeks.length > 0 ? s.weeks : d.weeks,
-          results: { ...d.results, ...(s.results || {}) },
+          results: normalizeResults(s.results),
+          archives: Array.isArray(s.archives) ? s.archives : [],
         };
         // ensure todo ids
         [1,2,3].forEach(k => {
@@ -1555,6 +1900,11 @@
     return null;
   }
 
+  // Generate <option> tags for unit dropdown
+  function unitOptionsHTML(selected) {
+    return UNIT_OPTIONS.map(u => `<option value="${u.value}" ${u.value === selected ? 'selected' : ''}>${esc(u.label)}</option>`).join('');
+  }
+
   // ===== render KPI cards =====
   function renderKpiCards() {
     const html = [1,2,3].map(n => {
@@ -1564,12 +1914,12 @@
       <div class="kpi-card" data-kpi="${n}">
         <div class="kpi-card-head">
           <span class="kpi-num">KPI${['①','②','③'][n-1]}</span>
-          <textarea class="kpi-target-input2 autosize" data-goal="${k}" data-field="target" placeholder="KPI${n}の目標を入力" rows="1">${esc(g.target)}</textarea>
+          <textarea class="kpi-target-input2 autosize" data-goal="${k}" data-field="target" placeholder="KPI${n}の目標を入力（文章）" rows="1">${esc(g.target)}</textarea>
         </div>
         <div class="kpi-card-body">
           <div class="kpi-row">
             <div class="lbl">現状</div>
-            <textarea data-goal="${k}" data-field="current" placeholder="今の数値・状態">${esc(g.current)}</textarea>
+            <textarea data-goal="${k}" data-field="current" placeholder="今の状態（文章）">${esc(g.current)}</textarea>
           </div>
           <div class="kpi-row">
             <div class="lbl">課題</div>
@@ -1578,6 +1928,20 @@
           <div class="kpi-row">
             <div class="lbl">解決策</div>
             <textarea data-goal="${k}" data-field="solution" placeholder="課題を解決する方法・アクション">${esc(g.solution)}</textarea>
+          </div>
+          <div class="metric-block">
+            <div class="mlabel">
+              <span>📊 数値で測る</span>
+              <label class="lower-flag">
+                <input type="checkbox" data-goal="${k}" data-field="lowerIsBetter" ${g.lowerIsBetter ? 'checked' : ''} />
+                下げたい指標
+              </label>
+            </div>
+            <div class="metric-row">
+              <select class="unit-select" data-goal="${k}" data-field="unit">${unitOptionsHTML(g.unit || 'none')}</select>
+              <div class="field"><span class="field-label">現状:</span><input type="text" class="num-input" data-goal="${k}" data-field="currentValue" value="${escAttr(formatLiveValue(g.currentValue, g.unit || 'none'))}" placeholder="0" inputmode="decimal" /></div>
+              <div class="field"><span class="field-label">目標:</span><input type="text" class="num-input" data-goal="${k}" data-field="targetValue" value="${escAttr(formatLiveValue(g.targetValue, g.unit || 'none'))}" placeholder="0" inputmode="decimal" /></div>
+            </div>
           </div>
         </div>
       </div>`;
@@ -1714,13 +2078,37 @@
   }
 
   // ===== Results =====
+  // Build "result row" data: pull current/target from goals, actual from results
+  function buildResultRow(k) {
+    const goal = state.goals[k] || {};
+    const result = state.results[k] || {};
+    return {
+      current: goal.currentValue,
+      target: goal.targetValue,
+      actual: result.actual,
+      unit: goal.unit || 'none',
+      lowerIsBetter: !!goal.lowerIsBetter,
+    };
+  }
   function calcAch(r) {
     const tgt = parseFloat(r.target), act = parseFloat(r.actual);
-    return (!isNaN(act) && !isNaN(tgt) && tgt !== 0) ? (act / tgt * 100) : null;
+    if (isNaN(act) || isNaN(tgt) || tgt === 0) return null;
+    if (r.lowerIsBetter) {
+      // Lower is better: target/actual (e.g., target=30, actual=30 -> 100%; actual=20 -> 150%)
+      if (act === 0) return null;
+      return tgt / act * 100;
+    }
+    return act / tgt * 100;
   }
   function calcGrw(r) {
     const cur = parseFloat(r.current), act = parseFloat(r.actual);
-    return (!isNaN(act) && !isNaN(cur) && cur !== 0) ? (act / cur * 100) : null;
+    if (isNaN(act) || isNaN(cur) || cur === 0) return null;
+    if (r.lowerIsBetter) {
+      // Lower is better growth: current/actual (e.g., reduced from 40 to 30 -> 133%, improved)
+      if (act === 0) return null;
+      return cur / act * 100;
+    }
+    return act / cur * 100;
   }
   function calcCls(v) {
     return v === null ? '' : (v >= 100 ? 'calc-good' : v >= 70 ? 'calc-mid' : 'calc-bad');
@@ -1733,7 +2121,7 @@
     if (idx < 0) return;
     const row = document.querySelectorAll('#result-body tr')[idx];
     if (!row) return;
-    const r = state.results[k];
+    const r = buildResultRow(k);
     const ach = calcAch(r), grw = calcGrw(r);
     const cells = row.querySelectorAll('.calc');
     if (cells[0]) { cells[0].textContent = calcFmt(ach); cells[0].className = 'calc ' + calcCls(ach); }
@@ -1742,19 +2130,27 @@
 
   function renderResults() {
     const rows = KPI_KEYS.map(k => {
-      const r = state.results[k];
-      const goalTarget = state.goals[k]?.target || '';
+      const r = buildResultRow(k);
+      const goal = state.goals[k] || {};
+      const goalTarget = goal.target || '';
       const ach = calcAch(r), grw = calcGrw(r);
       const contentDisplay = goalTarget
         ? esc(goalTarget)
         : '<span style="color:var(--muted);font-size:12px;">（年間目標で入力）</span>';
+      const lowerTag = r.lowerIsBetter ? '<span style="color:var(--warn);font-size:10px;font-weight:600;margin-left:4px;">↓低い方が良い</span>' : '';
+      const curDisp = r.current === '' || r.current === undefined || r.current === null
+        ? '<span style="color:var(--muted);font-size:11px;">（KGI/KPIで入力）</span>'
+        : esc(formatWithUnit(r.current, r.unit));
+      const tgtDisp = r.target === '' || r.target === undefined || r.target === null
+        ? '<span style="color:var(--muted);font-size:11px;">（KGI/KPIで入力）</span>'
+        : esc(formatWithUnit(r.target, r.unit));
       return `
         <tr>
-          <td class="label-cell" style="color:var(--${k});">${KPI_LABELS[k]}</td>
+          <td class="label-cell" style="color:var(--${k});">${KPI_LABELS[k]}${lowerTag}</td>
           <td class="content-cell" data-label="📌 内容" style="text-align:left;">${contentDisplay}</td>
-          <td data-label="現状"><input type="text" inputmode="decimal" data-result="${k}" data-field="current" value="${escAttr(r.current)}" placeholder="0" /></td>
-          <td data-label="目標"><input type="text" inputmode="decimal" data-result="${k}" data-field="target" value="${escAttr(r.target)}" placeholder="0" /></td>
-          <td data-label="実績"><input type="text" inputmode="decimal" data-result="${k}" data-field="actual" value="${escAttr(r.actual)}" placeholder="0" /></td>
+          <td data-label="現状" style="font-weight:600;">${curDisp}</td>
+          <td data-label="目標" style="font-weight:600;">${tgtDisp}</td>
+          <td data-label="実績"><input type="text" inputmode="decimal" data-result="${k}" data-field="actual" value="${escAttr(formatLiveValue(r.actual, r.unit))}" placeholder="0" /></td>
           <td class="calc ${calcCls(ach)}" data-label="達成率">${calcFmt(ach)}</td>
           <td class="calc ${calcCls(grw)}" data-label="成長率">${calcFmt(grw)}</td>
         </tr>
@@ -1809,14 +2205,28 @@
     $('period').value = state.period || '';
     updateHeaderPeriod();
     // KGI hero (in static HTML, not generated by renderKpiCards)
+    const g = state.goals.kgi;
     const kgiT = document.querySelector('[data-goal="kgi"][data-field="target"]');
     const kgiC = document.querySelector('[data-goal="kgi"][data-field="current"]');
-    if (kgiT) kgiT.value = state.goals.kgi.target || '';
-    if (kgiC) kgiC.value = state.goals.kgi.current || '';
+    if (kgiT) kgiT.value = g.target || '';
+    if (kgiC) kgiC.value = g.current || '';
+    // KGI numeric block
+    const kgiUnit = document.querySelector('[data-goal="kgi"][data-field="unit"]');
+    const kgiCV = document.querySelector('[data-goal="kgi"][data-field="currentValue"]');
+    const kgiTV = document.querySelector('[data-goal="kgi"][data-field="targetValue"]');
+    const kgiLB = document.querySelector('[data-goal="kgi"][data-field="lowerIsBetter"]');
+    if (kgiUnit) kgiUnit.innerHTML = unitOptionsHTML(g.unit || 'none');
+    if (kgiCV) kgiCV.value = formatLiveValue(g.currentValue, g.unit || 'none');
+    if (kgiTV) kgiTV.value = formatLiveValue(g.targetValue, g.unit || 'none');
+    if (kgiLB) kgiLB.checked = !!g.lowerIsBetter;
+    // Period auto-display
+    const periodDisp = $('kgi-period-display');
+    if (periodDisp) periodDisp.textContent = '期間：' + (formatPeriodDisplay(state.period) || '—');
     renderKpiCards();
     renderTodos();
     renderWeeks();
     renderResults();
+    updateArchiveSelect();
     autoResizeAll();
   }
 
@@ -1831,15 +2241,31 @@
   }
 
   // ===== Events =====
+  // Numeric fields that need half-width conversion
+  const NUMERIC_GOAL_FIELDS = ['currentValue', 'targetValue'];
   document.addEventListener('input', (e) => {
     const t = e.target;
     if (t.tagName === 'TEXTAREA') autoResize(t);
     if (t.dataset.goal) {
-      state.goals[t.dataset.goal][t.dataset.field] = t.value;
+      const f = t.dataset.field;
+      let val = t.value;
+      if (NUMERIC_GOAL_FIELDS.includes(f)) {
+        const normalized = normalizeNumericInput(val);
+        if (normalized !== val) {
+          // restore caret position roughly
+          const start = t.selectionStart;
+          t.value = normalized;
+          try { t.setSelectionRange(start, start); } catch {}
+          val = normalized;
+        }
+      }
+      state.goals[t.dataset.goal][f] = val;
       save();
-      if (t.dataset.field === 'target') {
+      if (f === 'target') {
         if (t.dataset.goal !== 'kgi') updateKpiNames();
         renderWeeks();
+        renderResults();
+      } else if (NUMERIC_GOAL_FIELDS.includes(f) || f === 'unit') {
         renderResults();
       }
     } else if (t.dataset.week !== undefined && t.dataset.field) {
@@ -1847,7 +2273,16 @@
       state.weeks[i][t.dataset.field] = t.value;
       save();
     } else if (t.dataset.result) {
-      state.results[t.dataset.result][t.dataset.field] = t.value;
+      // 'actual' is the only manual input now; auto half-width
+      let val = t.value;
+      const normalized = normalizeNumericInput(val);
+      if (normalized !== val) {
+        const start = t.selectionStart;
+        t.value = normalized;
+        try { t.setSelectionRange(start, start); } catch {}
+        val = normalized;
+      }
+      state.results[t.dataset.result][t.dataset.field] = val;
       save();
       updateResultCalcs(t.dataset.result);
     } else if (t.dataset.act === 'text' && t.dataset.id) {
@@ -1856,8 +2291,47 @@
     } else if (t.id === 'period') {
       state.period = t.value;
       updateHeaderPeriod();
+      // Update KGI period display
+      const periodDisp = $('kgi-period-display');
+      if (periodDisp) periodDisp.textContent = '期間：' + (formatPeriodDisplay(state.period) || '—');
       if (syncWeeksWithPeriod()) renderWeeks();
       save();
+    }
+  });
+
+  // Handle unit dropdown change & lowerIsBetter checkbox
+  document.addEventListener('change', (e) => {
+    const t = e.target;
+    if (t.dataset.goal && t.dataset.field === 'unit') {
+      state.goals[t.dataset.goal].unit = t.value;
+      save();
+      renderResults();
+      refreshNumericDisplays();  // re-format all numeric inputs with new unit
+    } else if (t.dataset.goal && t.dataset.field === 'lowerIsBetter') {
+      state.goals[t.dataset.goal].lowerIsBetter = !!t.checked;
+      save();
+      renderResults();
+    }
+  }, true);  // capture phase to handle before other change listeners
+
+  // Focus: revert input to raw numeric value for editing
+  // Blur: re-format with commas + unit suffix
+  document.addEventListener('focusin', (e) => {
+    const t = e.target;
+    if (t.tagName !== 'INPUT') return;
+    const isGoalNumeric = t.dataset.goal && (t.dataset.field === 'currentValue' || t.dataset.field === 'targetValue');
+    const isResultActual = t.dataset.result && t.dataset.field === 'actual';
+    if (isGoalNumeric || isResultActual) {
+      t.value = String(getRawValueForInput(t) ?? '');
+    }
+  });
+  document.addEventListener('focusout', (e) => {
+    const t = e.target;
+    if (t.tagName !== 'INPUT') return;
+    const isGoalNumeric = t.dataset.goal && (t.dataset.field === 'currentValue' || t.dataset.field === 'targetValue');
+    const isResultActual = t.dataset.result && t.dataset.field === 'actual';
+    if (isGoalNumeric || isResultActual) {
+      t.value = formatLiveValue(getRawValueForInput(t), getUnitForInput(t));
     }
   });
 
@@ -2181,6 +2655,89 @@
       state = defaultState(); save(); renderAll();
     }
   });
+
+  // ===== Archive system =====
+  let viewingArchiveId = null;  // archive being viewed (or null = current period)
+  let savedStateBeforeArchive = null;  // backup when entering archive view
+
+  function updateArchiveSelect() {
+    const sel = $('archive-select');
+    if (!sel) return;
+    const archives = (state.archives || []).slice().sort((a, b) => (b.archivedAt || 0) - (a.archivedAt || 0));
+    const opts = ['<option value="">📂 過去の期を見る…</option>'];
+    archives.forEach(a => {
+      const dt = a.archivedAt ? new Date(a.archivedAt).toLocaleDateString('ja-JP') : '';
+      opts.push(`<option value="${esc(a.id)}">${esc(a.period || '(期間不明)')}（${dt}保存）</option>`);
+    });
+    sel.innerHTML = opts.join('');
+    sel.disabled = !!viewingArchiveId;
+  }
+
+  $('archive-save').addEventListener('click', () => {
+    if (isReadOnly || viewingArchiveId) {
+      alert('閲覧モード中は保存できません');
+      return;
+    }
+    const periodLabel = state.period || '期間未設定';
+    if (!confirm(`現在の期「${periodLabel}」をアーカイブとして保存します。\n\n・KGI/KPI、Todo、週次、結果のスナップショットが保存されます\n・保存後は同じ画面で次の期の内容に書き換え可能です\n（保存したデータは「📂過去の期を見る」から閲覧できます）\n\nよろしいですか？`)) return;
+    const id = 'arc-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const snapshot = {
+      period: state.period,
+      goals: JSON.parse(JSON.stringify(state.goals)),
+      todos: JSON.parse(JSON.stringify(state.todos)),
+      weeks: JSON.parse(JSON.stringify(state.weeks)),
+      results: JSON.parse(JSON.stringify(state.results)),
+    };
+    state.archives = state.archives || [];
+    state.archives.push({ id, period: state.period, archivedAt: Date.now(), snapshot });
+    save();
+    updateArchiveSelect();
+    alert('✅ 今期を保存しました。\n期間欄を新しい期（例: 2026年7-9月）に書き換えて、新しい期を始めてください。');
+  });
+
+  $('archive-select').addEventListener('change', (e) => {
+    const id = e.target.value;
+    if (!id) return;
+    const arc = (state.archives || []).find(a => a.id === id);
+    if (!arc) { alert('アーカイブが見つかりませんでした'); e.target.value = ''; return; }
+    enterArchiveView(arc);
+    e.target.value = '';  // reset dropdown
+  });
+
+  function enterArchiveView(archive) {
+    viewingArchiveId = archive.id;
+    savedStateBeforeArchive = state;
+    // Build temporary state from snapshot for rendering
+    const snap = archive.snapshot || {};
+    const archiveState = {
+      ...defaultState(),
+      period: snap.period || archive.period || '',
+      goals: { ...defaultState().goals, ...(snap.goals || {}) },
+      todos: { ...defaultState().todos, ...(snap.todos || {}) },
+      weeks: Array.isArray(snap.weeks) && snap.weeks.length ? snap.weeks : defaultState().weeks,
+      results: { ...defaultState().results, ...(snap.results || {}) },
+      archives: state.archives || [],
+    };
+    state = archiveState;
+    document.body.classList.add('readonly');
+    $('archive-period-label').textContent = archive.period || '(期間不明)';
+    $('archive-banner').classList.add('show');
+    renderAll();
+  }
+
+  function exitArchiveView() {
+    if (!viewingArchiveId) return;
+    viewingArchiveId = null;
+    if (savedStateBeforeArchive) {
+      state = savedStateBeforeArchive;
+      savedStateBeforeArchive = null;
+    }
+    document.body.classList.remove('readonly');
+    $('archive-banner').classList.remove('show');
+    renderAll();
+  }
+  $('archive-exit').addEventListener('click', exitArchiveView);
+
   $('pdf-btn').addEventListener('click', () => {
     // Open all weeks before printing so contents are visible in the PDF
     const wasOpen = new Set(openWeeks);
@@ -2412,10 +2969,11 @@
         userBarUpdate(currentEmail);
         state = {
           ...defaultState(), ...data,
-          goals: { ...defaultState().goals, ...(data.goals || {}) },
+          goals: normalizeAllGoals(data.goals),
           todos: { ...defaultState().todos, ...(data.todos || {}) },
           weeks: Array.isArray(data.weeks) && data.weeks.length ? data.weeks : defaultState().weeks,
-          results: { ...defaultState().results, ...(data.results || {}) },
+          results: normalizeResults(data.results),
+          archives: Array.isArray(data.archives) ? data.archives : [],
         };
         // normalize todos / weeks
         [1,2,3].forEach(k => {
@@ -2465,10 +3023,11 @@
       // Update only if different (avoid loops)
       const newState = {
         ...defaultState(), ...data,
-        goals: { ...defaultState().goals, ...(data.goals || {}) },
+        goals: normalizeAllGoals(data.goals),
         todos: { ...defaultState().todos, ...(data.todos || {}) },
         weeks: Array.isArray(data.weeks) && data.weeks.length ? data.weeks : defaultState().weeks,
-        results: { ...defaultState().results, ...(data.results || {}) },
+        results: normalizeResults(data.results),
+        archives: Array.isArray(data.archives) ? data.archives : [],
       };
       [1,2,3].forEach(k => {
         newState.todos[k] = (newState.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none' }));
@@ -2634,10 +3193,11 @@
         const data = snap.data();
         state = {
           ...defaultState(), ...data,
-          goals: { ...defaultState().goals, ...(data.goals || {}) },
+          goals: normalizeAllGoals(data.goals),
           todos: { ...defaultState().todos, ...(data.todos || {}) },
           weeks: Array.isArray(data.weeks) && data.weeks.length ? data.weeks : defaultState().weeks,
-          results: { ...defaultState().results, ...(data.results || {}) },
+          results: normalizeResults(data.results),
+          archives: Array.isArray(data.archives) ? data.archives : [],
         };
         [1,2,3].forEach(k => {
           state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none' }));
