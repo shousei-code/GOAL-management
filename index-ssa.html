@@ -1347,6 +1347,105 @@
     color: var(--danger);
   }
 
+  /* ===== 使い方ガイドモーダル ===== */
+  #guide-modal .modal { max-width: 760px; max-height: 88vh; }
+  .guide-tabs {
+    display: flex;
+    border-bottom: 2px solid var(--border);
+    background: var(--panel-2);
+    flex-shrink: 0;
+  }
+  .guide-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    font-family: inherit;
+  }
+  .guide-tab:hover { background: var(--accent-soft); }
+  .guide-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: #fff;
+  }
+  .guide-section { display: none; }
+  .guide-section.active { display: block; }
+  .guide-section h4 {
+    font-size: 16px;
+    color: var(--accent);
+    margin: 18px 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent-soft);
+  }
+  .guide-section h4:first-child { margin-top: 0; }
+  .guide-section h5 {
+    font-size: 14px;
+    color: var(--text);
+    margin: 14px 0 6px;
+    font-weight: 700;
+  }
+  .guide-section p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    margin: 6px 0;
+  }
+  .guide-section ol,
+  .guide-section ul {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    padding-left: 22px;
+    margin: 6px 0;
+  }
+  .guide-section li { margin-bottom: 4px; }
+  .guide-section .tip {
+    background: #fef3c7;
+    border-left: 4px solid var(--warn);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin: 10px 0;
+    color: #92400e;
+  }
+  .guide-section .info {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    margin: 10px 0;
+    color: #1e3a8a;
+  }
+  .guide-section code {
+    background: #f1f5f9;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .guide-section .step-num {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
   /* ===== Read-only banner (admin viewing another user) ===== */
   #ro-banner {
     display: none;
@@ -1422,6 +1521,7 @@
     <span class="sync-status" id="ub-sync">✅ 同期済み</span>
   </div>
   <div class="actions">
+    <button id="ub-guide" title="使い方ガイドを開く">📖 使い方</button>
     <button id="ub-edit-name">✏️ 名前</button>
     <button id="ub-email-toggle" title="毎週日曜に応援メールを受信するか切り替え">📧 メール</button>
     <button id="ub-admin" style="display:none;">👥 受講生一覧</button>
@@ -1564,6 +1664,190 @@
     </div>
   </section>
 </main>
+
+<!-- 使い方ガイド Modal -->
+<div class="modal-backdrop" id="guide-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>📖 使い方ガイド</h3>
+      <button class="modal-close" id="guide-close">×</button>
+    </div>
+    <div class="guide-tabs">
+      <button class="guide-tab active" data-guide-tab="user">🎯 受講生向け</button>
+      <button class="guide-tab" data-guide-tab="admin">👨‍🏫 講師（管理者）向け</button>
+      <button class="guide-tab" data-guide-tab="faq">❓ よくある質問</button>
+    </div>
+    <div class="modal-body">
+      <!-- 受講生向け -->
+      <div class="guide-section active" data-guide-section="user">
+        <h4>🚀 まずはこれから</h4>
+        <h5>📌 ゴールマネジメントとは？</h5>
+        <p>年間の最重要目標（KGI）を3つのKPIに分解し、週次のアクションに落とし込んで、目標達成までを見える化するアプリです。</p>
+        <p><strong>使う流れ：</strong></p>
+        <ol>
+          <li>📌 KGI（最重要目標）を決める</li>
+          <li>📊 3つのKPIに分解する</li>
+          <li>✅ 各KPIをTodoに落とし込む</li>
+          <li>🗓 週ごとにTodoを設定して実行</li>
+          <li>📊 結果を振り返る</li>
+        </ol>
+
+        <h4>🏆 ① KGI / KPI を入力する</h4>
+        <ol>
+          <li>画面上部の <strong>「達成したい最重要目標を入力（文章）」</strong> にKGIをテキストで書きます</li>
+          <li>その下の <strong>「📊 数値で測る」</strong> ブロックで:
+            <ul>
+              <li><strong>単位プルダウン</strong> から選択（円・%・人・回など）</li>
+              <li><strong>現状値</strong> と <strong>目標値</strong> を入力</li>
+            </ul>
+          </li>
+          <li>同じ手順で KPI① / KPI② / KPI③ も入力</li>
+        </ol>
+        <div class="tip">💡 数字は<strong>全角でも自動的に半角に変換</strong>されます。円なら入力後に「1,000,000円」と桁区切り＋単位が表示されます。</div>
+        <div class="info">📉 <strong>「下げたい指標」</strong> にチェックを入れると、原価率など低い方が良い指標として達成率が逆計算されます。</div>
+
+        <h4>✅ ② Todo を入力する</h4>
+        <p>「KPIをTodoに落とし込む」セクションで、各KPIに必要な行動をリスト化します。</p>
+        <ol>
+          <li>各カラム下の <strong>「＋ Todo追加」</strong> をクリックしてTodoを追加</li>
+          <li>各Todoの右にある <strong>「—」ボタン</strong> をクリックすると優先順位が切り替わります（大→中→小→なし）</li>
+          <li>左の <strong>「⋮⋮」</strong> をドラッグするとTodoの順番を入れ替えられます</li>
+        </ol>
+        <div class="tip">💡 優先順位「大」は赤、「中」は橙、「小」は緑で枠が色付きます。</div>
+
+        <h4>🗓 ③ 週次行動目標を設定する</h4>
+        <ol>
+          <li>各週カードをクリックして展開</li>
+          <li><strong>「＋ Todoから選ぶ」</strong> でその週に取り組むTodoを選択</li>
+          <li>選んだTodoは <strong>KPIごとにグループ化</strong> されて表示されます</li>
+          <li>KPIヘッダー（色付き帯）を <strong>ドラッグ</strong> すると、その週のKPI優先順位を変えられます</li>
+          <li>週が終わったら「実行できたこと」「振り返り」を記入</li>
+        </ol>
+        <div class="info">📋 <strong>「先週分を引き継ぐ」</strong> ボタンで、前の週のTodoをそのままコピーできます。継続案件に便利。</div>
+        <div class="info">☐ <strong>「レ点を外す」</strong> ボタンでその週のTodoのチェックを一括で外せます。</div>
+
+        <h4>📊 ④ 結果を見る</h4>
+        <p>KGI/KPIで入力した数字が <strong>結果テーブル</strong> に自動連動して表示されます。</p>
+        <ul>
+          <li><strong>現状・目標</strong>：自動表示（編集不可）</li>
+          <li><strong>実績</strong>：手動で入力</li>
+          <li><strong>達成率</strong>：実績÷目標 ×100</li>
+          <li><strong>成長率</strong>：実績÷現状 ×100</li>
+        </ul>
+
+        <h4>📧 メール通知について</h4>
+        <p>毎週木曜の朝と日曜（または設定された曜日）に、応援メールが届きます。</p>
+        <p>不要な場合はヘッダーの <strong>「📧 メールON / 🔕 メールOFF」</strong> ボタンで切り替えてください。</p>
+
+        <h4>📦 期が終わったら</h4>
+        <ol>
+          <li>ヘッダーの <strong>「📦 今期を保存して新期へ」</strong> をクリック</li>
+          <li>現在の期のデータがアーカイブとして保存されます</li>
+          <li>期間欄を新しい期（例: 2026年7-9月）に書き換えて新期スタート</li>
+          <li>過去の期を見たい時は <strong>「📂 過去の期を見る…」</strong> から選択（読み取り専用で表示）</li>
+        </ol>
+      </div>
+
+      <!-- 講師（管理者）向け -->
+      <div class="guide-section" data-guide-section="admin">
+        <h4>👨‍🏫 講師の役割</h4>
+        <p>講師は「管理者」として、受講生のゴール管理状況を閲覧・サポートできます。</p>
+        <p><strong>主な機能：</strong></p>
+        <ul>
+          <li>受講生一覧の閲覧</li>
+          <li>個別受講生のデータを読み取り専用で閲覧</li>
+          <li>他のメンバーに管理者権限を付与/解除</li>
+        </ul>
+
+        <h4>👥 受講生一覧の使い方</h4>
+        <ol>
+          <li>ヘッダーの <strong>「👥 受講生一覧」</strong> をクリック</li>
+          <li>登録されている受講生がリスト表示されます（最終更新日順）</li>
+          <li>各行をクリックすると、その受講生のゴール管理画面が <strong>読み取り専用モード</strong> で開きます</li>
+          <li>画面上部の紫バナーから「自分のデータに戻る」で戻れます</li>
+        </ol>
+        <div class="info">📌 受講生が「お名前」を設定していれば一覧に表示されます。未設定の場合は「名前未設定」と灰色で表示されます。</div>
+
+        <h4>👑 管理者権限の付与・解除</h4>
+        <p>共同で運営する講師に管理者権限を渡せます。</p>
+        <ol>
+          <li>「👥 受講生一覧」を開く</li>
+          <li>対象ユーザーの右側に <strong>「＋ 管理者にする」</strong> ボタンが表示される</li>
+          <li>クリックして確認 → 即座に管理者として動作開始</li>
+          <li>解除する場合は <strong>「✕ 管理者解除」</strong> ボタン</li>
+        </ol>
+        <h5>🔒 制限事項</h5>
+        <ul>
+          <li>「👑 主管理者」（コードに固定された講師）は降格できません</li>
+          <li>自分自身の権限は解除できません（ロックアウト防止）</li>
+        </ul>
+
+        <h4>📧 メール配信の管理</h4>
+        <p>受講生宛の応援メール配信について：</p>
+        <ul>
+          <li><strong>毎週日曜・木曜</strong>に自動配信</li>
+          <li>受講生は自分の画面の「📧 メール」ボタンでON/OFF切替可能</li>
+          <li>講師側からは個別にON/OFFする機能はありません（受講生本人の判断）</li>
+        </ul>
+
+        <h4>📝 受講生サポートの流れ（推奨）</h4>
+        <ol>
+          <li>毎週月曜に「👥 受講生一覧」を開いて、各受講生の進捗を確認</li>
+          <li>更新が止まっている受講生にDMで声がけ</li>
+          <li>達成率が低いKPIには、Todoの細分化を提案</li>
+          <li>四半期ごとに「過去の期を見る」で振り返りミーティング</li>
+        </ol>
+      </div>
+
+      <!-- FAQ -->
+      <div class="guide-section" data-guide-section="faq">
+        <h4>❓ よくある質問</h4>
+
+        <h5>Q. 入力したデータが消えました</h5>
+        <p>A. データはクラウドに自動保存されているので、別の端末でログインし直すと復元できます。同じメールアドレスでログインしてください。</p>
+
+        <h5>Q. ログイン方法が2種類あります</h5>
+        <p>A.</p>
+        <ul>
+          <li><strong>Googleログイン</strong>（推奨）：認証付き、安全</li>
+          <li><strong>メールアドレスのみ</strong>：簡易ログイン、誰でも入力できてしまうので機密度低めの内容向け</li>
+        </ul>
+
+        <h5>Q. 他の端末（スマホ・PC）でも使えますか？</h5>
+        <p>A. はい、同じメールアドレスでログインすれば自動同期されます。リアルタイムで反映されます。</p>
+
+        <h5>Q. 数字を入れたのに達成率が「—」のまま</h5>
+        <p>A. 「目標値」と「実績」両方が入力されているか確認してください。「目標値」は KGI/KPI の「📊 数値で測る」ブロックで入力します。</p>
+
+        <h5>Q. 「下げたい指標」とは？</h5>
+        <p>A. 原価率や離職率のように <strong>低い方が良い指標</strong> 用のフラグです。チェックを入れると達成率が逆計算されます（例: 目標30%・実績25% → 120%達成）。</p>
+
+        <h5>Q. ドラッグできない / 反応しない</h5>
+        <p>A. 必ず <strong>「⋮⋮」アイコン</strong> またはKPIの色付き帯を掴んでください。テキスト部分だと選択モードになります。</p>
+
+        <h5>Q. 過去の期が見えなくなった</h5>
+        <p>A. 「📦 今期を保存して新期へ」をクリックしないと過去期として保存されません。アーカイブ済みの期は「📂 過去の期を見る」プルダウンに表示されます。</p>
+
+        <h5>Q. PDFで保存できますか？</h5>
+        <p>A. はい。ヘッダーの <strong>「📄 PDFで保存」</strong> をクリックすると、すべての週カードが展開された状態でPDF印刷できます。</p>
+
+        <h5>Q. メールが届かない</h5>
+        <p>A. 以下を確認してください：</p>
+        <ol>
+          <li>「📧 メールON」になっているか</li>
+          <li>迷惑メールフォルダ</li>
+          <li>登録メールアドレスが正しいか</li>
+        </ol>
+
+        <h5>Q. 困ったら？</h5>
+        <p>A. 講師（管理者）にご相談ください。データ復旧などは講師から運営者への連絡で対応可能です。</p>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button id="guide-done">閉じる</button>
+    </div>
+  </div>
+</div>
 
 <!-- Admin Modal -->
 <div class="modal-backdrop" id="admin-modal">
@@ -3237,6 +3521,21 @@
   $('ub-edit-name').addEventListener('click', promptDisplayName);
   $('ub-name').addEventListener('click', promptDisplayName);
   $('ub-email-toggle').addEventListener('click', toggleEmailNotifications);
+
+  // ===== 使い方ガイド =====
+  $('ub-guide').addEventListener('click', () => $('guide-modal').classList.add('show'));
+  $('guide-close').addEventListener('click', () => $('guide-modal').classList.remove('show'));
+  $('guide-done').addEventListener('click', () => $('guide-modal').classList.remove('show'));
+  $('guide-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'guide-modal') $('guide-modal').classList.remove('show');
+  });
+  document.querySelectorAll('.guide-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.guideTab;
+      document.querySelectorAll('.guide-tab').forEach(t => t.classList.toggle('active', t === tab));
+      document.querySelectorAll('.guide-section').forEach(s => s.classList.toggle('active', s.dataset.guideSection === target));
+    });
+  });
 
   // ===== ログアウト / メアド変更 =====
   $('ub-logout').addEventListener('click', async () => {
