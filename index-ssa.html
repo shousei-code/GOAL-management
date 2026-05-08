@@ -1342,27 +1342,126 @@
   }
 
   /* ===== 結果 ===== */
-  .result-table { width: 100%; border-collapse: collapse; }
+  .result-cta {
+    background: linear-gradient(135deg, #fef3c7, #fce7f3);
+    border: 2px solid #f59e0b;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+  .result-cta-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #b45309;
+    margin-bottom: 6px;
+  }
+  .result-cta-body {
+    font-size: 13px;
+    color: #1f2937;
+    line-height: 1.6;
+  }
+  .result-table { width: 100%; border-collapse: collapse; table-layout: auto; }
   .result-table th, .result-table td {
     border: 1px solid var(--border);
-    padding: 8px;
+    padding: 12px 14px;
     text-align: center;
+    vertical-align: middle;
+    font-size: 14px;
   }
   .result-table th {
     background: var(--panel-2);
-    font-weight: 600;
-    font-size: 12px;
+    font-weight: 700;
+    font-size: 13px;
     color: var(--muted);
+    padding: 10px 8px;
+    letter-spacing: 0.05em;
   }
-  .result-table .label-cell { text-align: left; font-weight: 600; }
+  .result-table .label-cell {
+    text-align: left;
+    font-weight: 700;
+    font-size: 15px;
+    width: 80px;
+    white-space: nowrap;
+  }
+  .result-table .content-cell { min-width: 200px; max-width: 280px; }
+  .result-table td[data-label="現状"],
+  .result-table td[data-label="目標"] {
+    font-size: 15px;
+    min-width: 120px;
+    white-space: nowrap;
+    padding: 12px 16px;
+  }
+  .result-table td[data-label="実績"] {
+    min-width: 140px;
+    padding: 12px 14px;
+  }
   .result-table input {
-    width: 90px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 4px 6px;
+    width: 100%;
+    min-width: 120px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
     text-align: right;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    background: #fff;
+    box-sizing: border-box;
   }
-  .result-table input:focus { border-color: var(--accent); }
+  .result-table input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    outline: none;
+  }
+  .result-table .calc {
+    font-size: 18px;
+    font-weight: 800;
+    min-width: 100px;
+    padding: 12px 8px;
+  }
+  .result-table input.actual-empty {
+    border: 2px solid #f59e0b;
+    background: #fffbeb;
+    animation: actualPulse 2s ease-in-out infinite;
+  }
+  @keyframes actualPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0); }
+  }
+  .actual-hint {
+    color: #d97706;
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 4px;
+    line-height: 1.2;
+  }
+  .result-ai-wrap {
+    margin-top: 10px;
+  }
+  .result-ai-btn-big {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    width: 100%;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .result-ai-btn-big:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+  }
+  .result-ai-btn-big:active { transform: translateY(0); }
+  .result-ai-btn-big .ai-icon { font-size: 16px; }
+  .result-ai-btn-big .ai-main { font-size: 13px; font-weight: 700; }
+  .result-ai-btn-big .ai-sub { font-size: 10px; opacity: 0.9; font-weight: 500; }
   .calc { font-weight: 700; }
   .calc-good { color: var(--success); }
   .calc-mid { color: var(--warn); }
@@ -1439,46 +1538,82 @@
     .result-table .label-cell {
       background: linear-gradient(135deg, #1e3a8a, #2563eb);
       color: #fff !important;
-      border-radius: 6px;
-      padding: 8px 12px;
-      margin-bottom: 8px;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
       text-align: center;
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 700;
+      letter-spacing: 0.04em;
     }
     .result-table .content-cell {
       background: #fff;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 8px;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 10px;
       font-weight: 600;
+      font-size: 14px;
+      line-height: 1.5;
     }
     .result-table td[data-label]:not(.label-cell)::before {
       content: attr(data-label);
       display: block;
-      font-size: 11px;
+      font-size: 12px;
       color: var(--muted);
       font-weight: 700;
-      margin-bottom: 4px;
-      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+      letter-spacing: 0.06em;
+    }
+    .result-table td[data-label="現状"],
+    .result-table td[data-label="目標"] {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .result-table td[data-label="実績"] {
+      padding: 0;
+      margin-bottom: 8px;
+      background: transparent;
+    }
+    .result-table td[data-label="実績"]::before {
+      padding: 0 4px;
     }
     .result-table input {
       width: 100%;
-      text-align: left;
-      padding: 8px 10px;
-      font-size: 14px;
+      text-align: right;
+      padding: 14px 16px;
+      font-size: 18px;
+      font-weight: 700;
+      min-height: 50px;
+      box-sizing: border-box;
     }
     .result-table .calc {
       background: #fff;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 16px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 12px;
+      font-size: 22px;
+      font-weight: 800;
       text-align: center;
       margin-top: 4px;
+      margin-bottom: 8px;
     }
-    /* Treat consecutive 達成率/成長率 visually grouped */
+    /* Side-by-side layout for 達成率/成長率 on mobile to save vertical space */
+    .result-table tr {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .result-table .label-cell,
+    .result-table .content-cell,
+    .result-table td[data-label="実績"] {
+      grid-column: 1 / -1;
+    }
   }
   @media print {
     .toolbar, .todo-add, .plan-pick-btn, .modal-backdrop, #login-overlay, #user-bar,
@@ -1829,7 +1964,20 @@
   body.readonly input,
   body.readonly textarea,
   body.readonly select { pointer-events: none; opacity: 0.85; }
-  body.readonly button:not(#ro-banner button):not(.modal-close):not(#picker-done) { pointer-events: none; opacity: 0.5; }
+  body.readonly button:not(#ro-banner button):not(.modal-close):not(#picker-done):not(.ai-help-btn):not(.result-ai-btn-big):not([data-act^="ai-help"]):not(#ai-copy-btn):not(#ai-done):not([data-ai-service]) { pointer-events: none; opacity: 0.5; }
+  body.readonly .ai-help-btn,
+  body.readonly .result-ai-btn-big,
+  body.readonly [data-act^="ai-help"] { pointer-events: auto !important; opacity: 1 !important; }
+
+  /* Primary admin editing another user — different banner color */
+  #ro-banner.editing {
+    background: linear-gradient(90deg, #dbeafe, #bfdbfe);
+    border-bottom-color: #2563eb;
+    color: #1e3a8a;
+  }
+  #ro-banner.editing button {
+    background: #2563eb;
+  }
 </style>
 </head>
 <body>
@@ -1858,7 +2006,7 @@
 
 <!-- 管理者が他人を閲覧中の警告バナー -->
 <div id="ro-banner">
-  📖 <span id="ro-email"></span> さんのデータを閲覧中（読み取り専用）
+  <span id="ro-email"></span>
   <button id="ro-back">自分のデータに戻る</button>
 </div>
 
@@ -1976,6 +2124,9 @@
             <div class="lbl">現状</div>
             <textarea data-goal="other" data-field="current" placeholder="現状（数字を入れなくても良い）"></textarea>
           </div>
+          <div style="text-align:right;margin-top:8px;">
+            <button class="ai-help-btn" data-act="ai-help-other" title="KPI①②③以外で優先してやるべきことをAIに分析依頼">🔬 AI分析</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2058,6 +2209,13 @@
       <span class="sub">※半角の数字で記入</span>
     </div>
     <div class="sec-body">
+      <div class="result-cta">
+        <div class="result-cta-title">🎯 期末はここで「次期改善案」をAI分析！</div>
+        <div class="result-cta-body">
+          <strong>① まず各行の「実績」欄に数字を入力</strong> → 達成率・成長率が自動計算<br>
+          <strong>② 各行の <span style="color:#ec4899;font-weight:700;">🔬 期末AI分析</span> ボタン</strong>で、ギャップの原因と次期の具体改善案を全データから分析
+        </div>
+      </div>
       <table class="result-table">
         <thead>
           <tr>
@@ -2227,10 +2385,12 @@
         <p>KGI/KPIで入力した数字が <strong>結果テーブル</strong> に自動連動して表示されます。</p>
         <ul>
           <li><strong>現状・目標</strong>：KGI/KPIから自動表示（編集不可）</li>
-          <li><strong>実績</strong>：手動で入力</li>
+          <li><strong>実績</strong>：手動で入力（期末に入れる）</li>
           <li><strong>達成率</strong>：実績÷目標 ×100（下げたい指標は逆計算）</li>
           <li><strong>成長率</strong>：実績÷現状 ×100</li>
         </ul>
+        <div class="info">⚠️ <strong>期末になると実績欄が黄色く点滅</strong>：設定した期末日（期間フィールドの最終月の最終日）に到達すると、未入力の実績欄が <strong>黄色い太枠＋パルスアニメーション</strong> で目立ちます。「⚠️ 期末です。実績を入力してください」のヒントも自動表示。期間中は何も警告が出ないので、入力を急かされません。</div>
+        <div class="info">📦 <strong>「📦 今期を保存して新期へ」を押した時</strong>：実績未入力のKPIがあれば、保存前に確認ダイアログが出ます。「実績を入力しに戻る」を選ぶと、未入力の項目に自動でフォーカス＆スクロールします。</div>
 
         <h4>📧 メール通知について</h4>
         <p>毎週木曜の朝と日曜の夜（または設定された曜日）に、応援メールが届きます。</p>
@@ -2249,15 +2409,38 @@
         <div class="tip">💡 <strong>運用のコツ</strong>：定例業務は 🔁 ON にしておけば、新期切替後もそのままリズム継続。スポット案件は 🔁 OFF のまま追加→ 期末に振り返って必要なら次期も継続するか判断。</div>
 
         <h4>🤖 AIサポート機能</h4>
-        <p>ChatGPT / Claude / Gemini にKGI/KPIの内容を渡して相談できる機能です。</p>
+        <p>ChatGPT / Claude / Gemini / NotebookLM にKGI/KPI/Todo/週次の全データを渡して相談できる機能です。場面ごとに7種類のAI相談ボタンがあります。</p>
+
+        <h5>📍 ボタンの配置と用途</h5>
+        <ul>
+          <li><strong>🌟 AIに年間ゴール相談</strong>（年間最終ゴール下） → 入力済みのKGI/KPIから年間最終ゴールの設定を3パターン提案</li>
+          <li><strong>🎯 AIにKGI設定+戦略を相談</strong>（年間最終ゴール下） → 今期KGIの設定と達成戦略を提案</li>
+          <li><strong>🔬 AI分析</strong>（KPI①②③カード内 各1個） → そのKPIの課題・解決策・他KPIとの連動性・短期施策を分析</li>
+          <li><strong>🔬 AI分析</strong>（📁 その他の業務カード内） → KPI①②③以外で優先してやるべき業務を分析・Todo提案</li>
+          <li><strong>🤖 AIにTodo提案</strong>（Todoエリア下） → 各KPIを実行可能なTodoに分解する案を取得</li>
+          <li><strong>🤖 AIに優先順位相談</strong>（各週カード内） → その週のTodoをインパクト×簡単さで再優先順位付け</li>
+          <li><strong>🔬 AI分析</strong>（📊 結果テーブル KGI/KPI①/KPI②/KPI③ 各1個） → 数値ギャップの原因・次期改善案を全データから分析（最重要・期末用）</li>
+        </ul>
+
+        <h5>🎯 結果分析AI（期末の振り返り用）</h5>
+        <p>📊 結果テーブルの各行（KGI / KPI① / KPI② / KPI③）に <strong>「🔬 AI分析」</strong> ボタンを配置。期が終わって実績を入力したあと、これをクリックすると：</p>
         <ol>
-          <li>KGI/KPIエリアの <strong>「🤖 AIにKPI分解を相談」</strong> ボタン → KGIを3つのKPIに分解する案を取得</li>
-          <li>Todoエリアの <strong>「🤖 AIにTodo提案」</strong> ボタン → 各KPIを実行可能なTodoに分解する案を取得</li>
-          <li>モーダルが開くので <strong>「📋 プロンプトをコピー」</strong> をクリック</li>
-          <li>下のChatGPT / Claude / Geminiボタンから好きなAIサービスを開く</li>
+          <li><strong>Part 1</strong>: 数値ギャップを定量整理（達成率・成長率・絶対値・割合）</li>
+          <li><strong>Part 2</strong>: ギャップが生まれた "なぜ" を分析（入力した課題・解決策・週次のTodo完了状況・振り返りメモを全部読み取って原因抽出）</li>
+          <li><strong>Part 3</strong>: 期の途中で気付けていれば取れた代替シナリオを3パターン提示</li>
+          <li><strong>Part 4</strong>: 次の期に向けた具体改善案（目標値見直し／課題・解決策修正／追加Todo／削除Todo／週次運用の改善／早期警告サイン）</li>
+        </ol>
+        <div class="info">📈 <strong>結果分析AIの特徴</strong>：受講生が入力した<strong>すべての情報</strong>（数値・文章・Todo・週次の実行状況・振り返りメモ）を読み取って分析。「なんとなく頑張りましょう」のような精神論は禁止し、必ず数値計算式と具体引用で論理展開する設計。</div>
+
+        <h5>🛠 共通の使い方</h5>
+        <ol>
+          <li>各AIボタンをクリック → モーダルが開く</li>
+          <li><strong>「📋 プロンプトをコピー」</strong> をクリック（自動でクリップボードにコピー）</li>
+          <li>下の <strong>ChatGPT / Claude / Gemini / NotebookLM</strong> ボタンから好きなAIサービスを開く</li>
           <li>AI画面に貼り付けて送信 → 提案を取得</li>
         </ol>
         <div class="info">💡 すべての無料プランでも使えます（ChatGPT GPT-4はログイン必須、Claude/Geminiは無料）。</div>
+        <div class="tip">💡 <strong>NotebookLM</strong>は長文プロンプトと複数ソース管理に強いので、結果分析AIなど情報量の多い相談に特におすすめ。</div>
 
         <h4>📅 Googleカレンダー連携</h4>
         <p>週次のTodoをカレンダーアプリに一括登録できます。</p>
@@ -2273,35 +2456,58 @@
       <!-- 講師（管理者）向け -->
       <div class="guide-section" data-guide-section="admin">
         <h4>👨‍🏫 講師の役割</h4>
-        <p>講師は「管理者」として、受講生のゴール管理状況を閲覧・サポートできます。</p>
-        <p><strong>主な機能：</strong></p>
-        <ul>
-          <li>受講生一覧の閲覧</li>
-          <li>個別受講生のデータを読み取り専用で閲覧</li>
-          <li>他のメンバーに管理者権限を付与/解除</li>
-        </ul>
+        <p>講師は「管理者」として、受講生のゴール管理状況を閲覧・サポートできます。<strong>権限は2段階</strong>に分かれています。</p>
+
+        <h5>🆚 権限レベルの比較</h5>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;margin:8px 0;">
+          <thead>
+            <tr style="background:#eff6ff;">
+              <th style="border:1px solid #bfdbfe;padding:8px;text-align:left;">機能</th>
+              <th style="border:1px solid #bfdbfe;padding:8px;text-align:center;">👑 主管理者</th>
+              <th style="border:1px solid #bfdbfe;padding:8px;text-align:center;">管理者</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="border:1px solid #e5e7eb;padding:6px;">受講生一覧の閲覧</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center;">✅</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center;">✅</td></tr>
+            <tr><td style="border:1px solid #e5e7eb;padding:6px;">受講生のデータ閲覧</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center;">✅</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center;">✅</td></tr>
+            <tr><td style="border:1px solid #e5e7eb;padding:6px;"><strong>受講生のデータ編集</strong></td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center;color:#16a34a;font-weight:700;">✅ 全項目編集可</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center;color:#dc2626;">✕ 読み取り専用</td></tr>
+            <tr><td style="border:1px solid #e5e7eb;padding:6px;"><strong>AI分析の使用</strong>（受講生データに対して）</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center;color:#16a34a;font-weight:700;">✅</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center;color:#16a34a;font-weight:700;">✅</td></tr>
+            <tr><td style="border:1px solid #e5e7eb;padding:6px;">管理者権限の付与/解除</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center;">✅</td><td style="border:1px solid #e5e7eb;padding:6px;text-align:center;">✅</td></tr>
+          </tbody>
+        </table>
+
+        <div class="info">👑 <strong>主管理者</strong>（コード固定: 当アプリでは <code>info@keep-j.com</code>）は、受講生全員のデータを<strong>直接編集</strong>できます。受講生が入力途中の内容を講師が代行入力したり、ミス入力を直接修正できます。</div>
+        <div class="info">📖 <strong>管理者</strong>（主管理者から権限付与された講師）は、受講生のデータは<strong>読み取り専用</strong>ですが、<strong>「🔬 AI分析」「🤖 AI相談」ボタンは使用可能</strong>。受講生のKGI/KPI/Todo/週次データをAIに渡して、コーチング材料として活用できます。</div>
 
         <h4>👥 受講生一覧の使い方</h4>
         <ol>
           <li>ヘッダーの <strong>「👥 受講生一覧」</strong> をクリック</li>
           <li>登録されている受講生がリスト表示されます（最終更新日順）</li>
-          <li>各行をクリックすると、その受講生のゴール管理画面が <strong>読み取り専用モード</strong> で開きます</li>
-          <li>画面上部の紫バナーから「自分のデータに戻る」で戻れます</li>
+          <li>各行をクリックすると、その受講生のゴール管理画面が開きます
+            <ul>
+              <li>👑 <strong>主管理者</strong>として開いた場合：<strong>青色のバナー</strong>「✏️ <受講生名>の編集モード（主管理者として保存可）」 → そのまま編集できる、変更は受講生のクラウドに即保存</li>
+              <li>🛡 <strong>管理者</strong>として開いた場合：<strong>オレンジ色のバナー</strong>「📖 <受講生名>のデータを閲覧中（読み取り専用・AI分析のみ可）」 → 編集はできないがAIボタンは押せる</li>
+            </ul>
+          </li>
+          <li>バナーの <strong>「自分のデータに戻る」</strong> ボタンで戻る</li>
         </ol>
         <div class="info">📌 受講生が「お名前」を設定していれば一覧に表示されます。未設定の場合は「名前未設定」と灰色で表示されます。</div>
+        <div class="tip">💡 <strong>主管理者の使い道</strong>：受講生がスマホで入力しづらい長文を代行入力／期末の実績入力を漏れなく代行／受講生のKGI/KPI設計が甘ければ即修正、など。</div>
+        <div class="tip">💡 <strong>管理者の使い道</strong>：複数の受講生のデータを巡回しながら「🔬 期末AI分析」を実行し、各受講生に合わせた次期改善案をクライアント別に作成。</div>
 
         <h4>👑 管理者権限の付与・解除</h4>
         <p>共同で運営する講師に管理者権限を渡せます。</p>
         <ol>
           <li>「👥 受講生一覧」を開く</li>
           <li>対象ユーザーの右側に <strong>「＋ 管理者にする」</strong> ボタンが表示される</li>
-          <li>クリックして確認 → 即座に管理者として動作開始</li>
+          <li>クリックして確認 → 即座に管理者として動作開始（読み取り専用 + AI分析）</li>
           <li>解除する場合は <strong>「✕ 管理者解除」</strong> ボタン</li>
         </ol>
         <h5>🔒 制限事項</h5>
         <ul>
           <li>「👑 主管理者」（コードに固定された講師）は降格できません</li>
           <li>自分自身の権限は解除できません（ロックアウト防止）</li>
+          <li>権限を付与しても <strong>編集権限は付与されません</strong>（編集は主管理者のみ）。これによって、受講生データを誤って書き換えるリスクを最小限に抑えています。</li>
         </ul>
 
         <h4>📧 メール配信の管理</h4>
@@ -2562,6 +2768,17 @@
     if (!p) return period || '';
     if (p.months.length === 1) return `${p.year}年${p.months[0]}月`;
     return `${p.year}年${p.months[0]}月〜${p.months[p.months.length-1]}月`;
+  }
+
+  // True if today >= last day of periodEndMonth (i.e., the period has reached its final day)
+  function isPeriodEndedOrToday() {
+    const y = state.periodYear;
+    const em = state.periodEndMonth;
+    if (!y || !em) return false;
+    // last day of (y, em) month
+    const lastDay = new Date(y, em, 0); // day=0 → previous month's last day
+    lastDay.setHours(23, 59, 59, 999);
+    return Date.now() >= lastDay.getTime();
   }
 
   function parsePeriod(s) {
@@ -2903,7 +3120,11 @@
     return defaultState();
   }
   function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    // Don't overwrite local storage when primary admin is editing another user's data
+    const isPrimaryAdminEditingOther = (currentEmail === ADMIN_EMAIL) && viewingDocId && viewingDocId !== currentDocId;
+    if (!isPrimaryAdminEditingOther) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
     saveToCloud();
   }
 
@@ -2986,6 +3207,19 @@
   // ===== Todos =====
   const PRIORITY_LABELS = { high: '大', medium: '中', low: '小', none: '—' };
   const PRIORITY_NEXT = { none: 'high', high: 'medium', medium: 'low', low: 'none' };
+  const PRIORITY_ORDER = { high: 0, medium: 1, low: 2, none: 3 };
+  const priorityRank = (p) => PRIORITY_ORDER[p || 'none'] ?? 3;
+  // Stable sort by priority — within same priority, original (drag) order is preserved
+  function sortByPriorityStable(arr) {
+    return arr
+      .map((item, idx) => ({ item, idx }))
+      .sort((a, b) => {
+        const pa = priorityRank(a.item.priority);
+        const pb = priorityRank(b.item.priority);
+        return pa !== pb ? pa - pb : a.idx - b.idx;
+      })
+      .map(x => x.item);
+  }
   // Track which "history" sections are open (in-memory)
   const openHistory = new Set();
 
@@ -3024,7 +3258,8 @@
     let totalDone = 0, totalAll = 0;
     TODO_KEYS.forEach(k => {
       const list = state.todos[k] || [];
-      const active = list.filter(t => !t.done);
+      // Active todos: sort by priority (大→中→小→なし), stable within same priority (drag order preserved)
+      const active = sortByPriorityStable(list.filter(t => !t.done));
       const done = list.filter(t => t.done);
       // Sort completed by completedAt desc (newest first)
       done.sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
@@ -3061,13 +3296,21 @@
   }
 
   function getDoneTodosForWeek(w) {
-    return (w.planTodoIds || [])
+    // Done todos in this week, sorted by priority (大→中→小→なし); within same priority, by planTodoIds order (drag order)
+    const items = (w.planTodoIds || [])
       .map(id => {
         const f = findTodoById(id);
         return f && f.todo.done ? { todo: f.todo, kpi: f.kpi } : null;
       })
-      .filter(Boolean)
-      .sort((a, b) => (a.todo.completedAt || 0) - (b.todo.completedAt || 0));
+      .filter(Boolean);
+    return items
+      .map((it, idx) => ({ it, idx }))
+      .sort((a, b) => {
+        const pa = priorityRank(a.it.todo.priority);
+        const pb = priorityRank(b.it.todo.priority);
+        return pa !== pb ? pa - pb : a.idx - b.idx;
+      })
+      .map(x => x.it);
   }
 
   function renderWeeks() {
@@ -3078,6 +3321,10 @@
         const found = findTodoById(id);
         if (!found) return;
         groupedByKpi[found.kpi].push(found.todo);
+      });
+      // Sort within each KPI group by priority (大→中→小→なし), stable
+      Object.keys(groupedByKpi).forEach(kpi => {
+        groupedByKpi[kpi] = sortByPriorityStable(groupedByKpi[kpi]);
       });
       const kpiOrder = (Array.isArray(w.kpiOrder) && w.kpiOrder.length === 3) ? w.kpiOrder : [1,2,3];
       // Always append 'other' at the end
@@ -3241,13 +3488,20 @@
       const tgtDisp = r.target === '' || r.target === undefined || r.target === null
         ? '<span style="color:var(--muted);font-size:11px;">（KGI/KPIで入力）</span>'
         : esc(formatWithUnit(r.target, r.unit));
+      const actualEmpty = r.actual === '' || r.actual === undefined || r.actual === null;
+      // Only show warning when period has ended (or is at last day) — avoids being annoying mid-period
+      const periodEnded = isPeriodEndedOrToday();
+      const showWarn = actualEmpty && periodEnded;
+      const actualClass = showWarn ? 'actual-empty' : '';
+      const actualHint = showWarn ? '<div class="actual-hint">⚠️ 期末です。実績を入力してください</div>' : '';
+      const aiBtn = `<button class="result-ai-btn-big" data-act="ai-help-result" data-result-k="${k}" title="この${KPI_LABELS[k]}の数値ギャップ・原因・次期改善案をAIに分析依頼"><span class="ai-icon">🔬</span><span class="ai-main">期末AI分析</span><span class="ai-sub">（次期の改善点を全データから分析）</span></button>`;
       return `
-        <tr>
+        <tr class="result-row-${k}">
           <td class="label-cell" style="color:var(--${k});">${KPI_LABELS[k]}${lowerTag}</td>
-          <td class="content-cell" data-label="📌 内容" style="text-align:left;">${contentDisplay}</td>
+          <td class="content-cell" data-label="📌 内容" style="text-align:left;">${contentDisplay}<div class="result-ai-wrap">${aiBtn}</div></td>
           <td data-label="現状" style="font-weight:600;">${curDisp}</td>
           <td data-label="目標" style="font-weight:600;">${tgtDisp}</td>
-          <td data-label="実績"><input type="text" inputmode="decimal" data-result="${k}" data-field="actual" value="${escAttr(formatLiveValue(r.actual, r.unit))}" placeholder="0" /></td>
+          <td data-label="実績"><input type="text" inputmode="decimal" class="${actualClass}" data-result="${k}" data-field="actual" value="${escAttr(formatLiveValue(r.actual, r.unit))}" placeholder="ここに数字を入力" />${actualHint}</td>
           <td class="calc ${calcCls(ach)}" data-label="達成率">${calcFmt(ach)}</td>
           <td class="calc ${calcCls(grw)}" data-label="成長率">${calcFmt(grw)}</td>
         </tr>
@@ -3409,6 +3663,23 @@
       state.results[t.dataset.result][t.dataset.field] = val;
       save();
       updateResultCalcs(t.dataset.result);
+      // Toggle the "actual-empty" warning style + hint based on current input
+      // Only show during period-end warning window
+      if (t.dataset.field === 'actual') {
+        const isEmpty = !val;
+        const showWarn = isEmpty && isPeriodEndedOrToday();
+        t.classList.toggle('actual-empty', showWarn);
+        const cell = t.closest('td');
+        let hint = cell?.querySelector('.actual-hint');
+        if (showWarn && !hint && cell) {
+          hint = document.createElement('div');
+          hint.className = 'actual-hint';
+          hint.textContent = '⚠️ 期末です。実績を入力してください';
+          cell.appendChild(hint);
+        } else if (!showWarn && hint) {
+          hint.remove();
+        }
+      }
     } else if (t.dataset.act === 'text' && t.dataset.id) {
       const f = findTodoById(t.dataset.id);
       if (f) { f.todo.text = t.value; save(); renderWeeks(); }
@@ -3432,6 +3703,8 @@
       const periodDisp = $('kgi-period-display');
       if (periodDisp) periodDisp.textContent = '期間：' + (formatPeriodDisplay(state.period) || '—');
       if (syncWeeksWithPeriod()) renderWeeks();
+      // Re-render results so the period-end warning UI refreshes
+      renderResults();
       save();
     }
   });
@@ -3888,6 +4161,38 @@
       return;
     }
     const periodLabel = state.period || '期間未設定';
+    // Check if 実績 is empty for any KPI — warn before archiving (last chance to enter results)
+    const emptyResults = KPI_KEYS.filter(k => {
+      const v = state.results[k] && state.results[k].actual;
+      return !v && v !== 0 && v !== '0';
+    });
+    if (emptyResults.length > 0) {
+      const labels = emptyResults.map(k => KPI_LABELS[k]).join(' / ');
+      const okEmpty = confirm(`⚠️ 「実績」がまだ未入力の項目があります：\n  ${labels}\n\n新期に進む前に実績を入力すると、過去の期として正確に保存されます。\n（保存後は「📂 過去の期を見る」で実績付きの記録として確認できる）\n\n実績を入力しに戻りますか？\n（OK: 実績を入力しに戻る / キャンセル: このまま保存する）`);
+      if (okEmpty) {
+        // Highlight all empty inputs and scroll to the first
+        const firstK = emptyResults[0];
+        const firstInp = document.querySelector(`.result-table input[data-result="${firstK}"][data-field="actual"]`);
+        emptyResults.forEach(k => {
+          const inp = document.querySelector(`.result-table input[data-result="${k}"][data-field="actual"]`);
+          if (inp) {
+            inp.classList.add('actual-empty');
+            const cell = inp.closest('td');
+            if (cell && !cell.querySelector('.actual-hint')) {
+              const hint = document.createElement('div');
+              hint.className = 'actual-hint';
+              hint.textContent = '⚠️ 期末です。実績を入力してください';
+              cell.appendChild(hint);
+            }
+          }
+        });
+        if (firstInp) {
+          firstInp.focus();
+          firstInp.scrollIntoView({block: 'center', behavior: 'smooth'});
+        }
+        return;
+      }
+    }
     // Count routine todos to inform user
     let routineCount = 0;
     TODO_KEYS.forEach(k => {
@@ -4303,21 +4608,33 @@
 
   function saveToCloud() {
     if (!currentEmail || isReadOnly || suppressCloudSave) return;
-    if (!viewingDocId || viewingDocId !== currentDocId) return;
-    setSyncStatus('💾 保存中...', 'saving');
+    // Allow primary admin (ADMIN_EMAIL) to save to another user's docId; other accounts only save to their own
+    const isPrimaryAdminEditing = (currentEmail === ADMIN_EMAIL) && viewingDocId && viewingDocId !== currentDocId;
+    if (!viewingDocId || (viewingDocId !== currentDocId && !isPrimaryAdminEditing)) return;
+    const targetDocId = viewingDocId;
+    const isEditingOther = isPrimaryAdminEditing;
+    setSyncStatus(isEditingOther ? '💾 受講生データ保存中...' : '💾 保存中...', 'saving');
     if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
     cloudSaveTimer = setTimeout(async () => {
       try {
-        const ref = doc(db, 'users', currentDocId);
-        await setDoc(ref, {
-          ...sanitizeForFirestore(state),
-          _email: currentEmail,
-          _displayName: currentDisplayName || '',
-          _emailNotifications: currentEmailNotifications,
-          _isAdmin: isAdminUser,
-          _updatedAt: Date.now(),
-        });
-        setSyncStatus('✅ 同期済み');
+        const ref = doc(db, 'users', targetDocId);
+        // When editing another user, preserve their _email/_displayName/_emailNotifications/_isAdmin
+        if (isEditingOther) {
+          await setDoc(ref, {
+            ...sanitizeForFirestore(state),
+            _updatedAt: Date.now(),
+          }, { merge: true });
+        } else {
+          await setDoc(ref, {
+            ...sanitizeForFirestore(state),
+            _email: currentEmail,
+            _displayName: currentDisplayName || '',
+            _emailNotifications: currentEmailNotifications,
+            _isAdmin: isAdminUser,
+            _updatedAt: Date.now(),
+          });
+        }
+        setSyncStatus(isEditingOther ? '✅ 受講生データ保存済み' : '✅ 同期済み');
       } catch (err) {
         console.error('saveToCloud error', err);
         setSyncStatus('⚠️ 同期エラー', 'error');
@@ -4426,11 +4743,19 @@
   $('admin-done').addEventListener('click', () => $('admin-modal').classList.remove('show'));
 
   async function enterReadOnlyMode(docId, email, displayName) {
-    isReadOnly = true;
+    // Primary admin gets full edit access on other users; regular admin gets read-only + AI
+    const isPrimaryAdminViewing = (currentEmail === ADMIN_EMAIL);
+    isReadOnly = !isPrimaryAdminViewing;
     viewingDocId = docId;
     viewingEmail = email;
-    document.body.classList.add('readonly');
-    $('ro-email').textContent = displayName ? `${displayName}（${email}）` : email;
+    document.body.classList.toggle('readonly', !isPrimaryAdminViewing);
+    const banner = $('ro-banner');
+    banner.classList.toggle('editing', isPrimaryAdminViewing);
+    if (isPrimaryAdminViewing) {
+      $('ro-email').innerHTML = `✏️ <strong>${esc(displayName || email)}</strong>（${esc(email)}）の編集モード（主管理者として保存可）`;
+    } else {
+      $('ro-email').innerHTML = `📖 <strong>${esc(displayName || email)}</strong>（${esc(email)}）のデータを閲覧中（読み取り専用・AI分析のみ可）`;
+    }
     $('ro-banner').classList.add('show');
     if (firestoreUnsub) { firestoreUnsub(); firestoreUnsub = null; }
     try {
@@ -4471,7 +4796,7 @@
     viewingDocId = currentDocId;
     viewingEmail = currentEmail;
     document.body.classList.remove('readonly');
-    $('ro-banner').classList.remove('show');
+    $('ro-banner').classList.remove('show', 'editing');
     // Reload own data
     state = load();
     renderAll();
@@ -4521,6 +4846,104 @@
     }
     return lines.join('\n');
   }
+  // Build context for AI analysis of result for a specific KPI key (kgi/kpi1/kpi2/kpi3)
+  function buildResultAnalysisContext(k) {
+    const lines = [];
+    const ag = state.annualGoal || {};
+    const kgi = state.goals.kgi || {};
+    const goal = state.goals[k] || {};
+    const result = state.results[k] || {};
+    const r = buildResultRow(k);
+    const ach = calcAch(r), grw = calcGrw(r);
+    // Header: 全体目標
+    lines.push(`【期間】${state.period || ''}`);
+    if (ag.target) lines.push(`【年間最終ゴール】${ag.target}`);
+    if (kgi.target && k !== 'kgi') lines.push(`【今期KGI】${kgi.target}`);
+    // 分析対象の詳細
+    lines.push(`\n【分析対象】${KPI_LABELS[k]}`);
+    if (goal.target) lines.push(`  目標(文章): ${goal.target}`);
+    if (goal.current) lines.push(`  現状(文章): ${goal.current}`);
+    if (k !== 'kgi') {
+      if (goal.issue) lines.push(`  課題: ${goal.issue}`);
+      if (goal.solution) lines.push(`  解決策: ${goal.solution}`);
+    }
+    // 数値
+    lines.push(`\n【${KPI_LABELS[k]} 数値結果】`);
+    lines.push(`  現状値: ${formatLiveValue(goal.currentValue || '', goal.unit)}`);
+    lines.push(`  目標値: ${formatLiveValue(goal.targetValue || '', goal.unit)}${goal.lowerIsBetter ? ' (↓低い方が良い指標)' : ''}`);
+    lines.push(`  実績値: ${formatLiveValue(result.actual || '', goal.unit)}`);
+    lines.push(`  達成率: ${calcFmt(ach)} (実績÷目標)`);
+    lines.push(`  成長率: ${calcFmt(grw)} (実績÷現状)`);
+    // ギャップ計算
+    const tgt = parseFloat(goal.targetValue), act = parseFloat(result.actual);
+    if (!isNaN(tgt) && !isNaN(act)) {
+      const gap = goal.lowerIsBetter ? (act - tgt) : (tgt - act);
+      const gapPct = tgt !== 0 ? (Math.abs(gap) / tgt * 100) : null;
+      const direction = gap > 0 ? '未達' : gap < 0 ? '超過達成' : '完全達成';
+      lines.push(`  ギャップ: ${direction} ${formatLiveValue(Math.abs(gap), goal.unit)}${gapPct !== null ? ` (目標比 ${gapPct.toFixed(1)}%)` : ''}`);
+    }
+    // 関連Todo
+    let relevantTodoKeys = [];
+    if (k === 'kgi') {
+      relevantTodoKeys = TODO_KEYS;  // 全Todo
+    } else if (k === 'kpi1') relevantTodoKeys = [1];
+    else if (k === 'kpi2') relevantTodoKeys = [2];
+    else if (k === 'kpi3') relevantTodoKeys = [3];
+    const todoLines = [];
+    let totalTodo = 0, doneTodo = 0;
+    relevantTodoKeys.forEach(tk => {
+      const list = state.todos[tk] || [];
+      list.forEach(t => {
+        totalTodo++;
+        if (t.done) doneTodo++;
+        const pri = t.priority && t.priority !== 'none' ? `[${t.priority === 'high' ? '大' : t.priority === 'medium' ? '中' : '小'}]` : '[—]';
+        const status = t.done ? '✓完了' : '未完了';
+        const routine = t.routine ? ' 🔁' : '';
+        const tkLabel = tk === 'other' ? 'その他' : `KPI${['①','②','③'][tk-1]}`;
+        todoLines.push(`  - [${tkLabel}]${pri} ${t.text || '(未入力)'} ${status}${routine}`);
+      });
+    });
+    if (totalTodo > 0) {
+      lines.push(`\n【関連Todo一覧（${doneTodo}/${totalTodo} 完了）】`);
+      lines.push(...todoLines);
+    } else {
+      lines.push(`\n【関連Todo】（登録なし）`);
+    }
+    // 週次の振り返り＋実行状況
+    const weekEntries = [];
+    (state.weeks || []).forEach((w, wi) => {
+      const ids = w.planTodoIds || [];
+      // フィルタ：このKPIに関連するTodoのみ
+      const relevantIds = ids.filter(id => {
+        const f = findTodoById(id);
+        if (!f) return false;
+        if (k === 'kgi') return true;
+        if (k === 'kpi1') return f.kpi === 1;
+        if (k === 'kpi2') return f.kpi === 2;
+        if (k === 'kpi3') return f.kpi === 3;
+        return false;
+      });
+      if (relevantIds.length === 0 && !w.review) return;
+      const block = [`  ${w.week || `週${wi+1}`}:`];
+      if (relevantIds.length > 0) {
+        const doneIds = relevantIds.filter(id => findTodoById(id)?.todo.done);
+        block.push(`    Todo: ${doneIds.length}/${relevantIds.length} 完了`);
+        relevantIds.forEach(id => {
+          const f = findTodoById(id);
+          if (!f) return;
+          block.push(`      ${f.todo.done ? '✓' : '☐'} ${f.todo.text || '(未入力)'}`);
+        });
+      }
+      if (w.review) block.push(`    振り返り: ${w.review}`);
+      weekEntries.push(block.join('\n'));
+    });
+    if (weekEntries.length > 0) {
+      lines.push(`\n【週次の実行状況・振り返り】`);
+      lines.push(weekEntries.join('\n'));
+    }
+    return lines.join('\n');
+  }
+
   function buildWeekContext(wi) {
     const w = state.weeks[wi];
     if (!w) return '';
@@ -4585,6 +5008,14 @@
       const kpiLabel = ['①','②','③'][kpiNum - 1];
       title = `🔬 AIにKPI${kpiLabel}分析を相談`;
       prompt = `あなたは経営戦略のコンサルタントです。以下の情報を踏まえて、KPI${kpiLabel}に焦点を当てた分析と提案を行ってください。\n\n${ctx}\n\n【分析対象】\nKPI${kpiLabel}（上記の【KPI${kpiLabel}】の項目）\n\n【分析の視点】\n1. 数値ギャップ分析：KPI${kpiLabel}の現状値と目標値の差分を計算（％やインパクト換算）\n2. 課題の特定：KPI${kpiLabel}達成を阻んでいる課題を具体的に3つ以上抽出\n3. 解決策の提示：各課題に対する解決策を3つずつ（実行可能なレベル）\n4. KGIへの貢献度：このKPI${kpiLabel}がKGI全体にどう寄与するかを定量的に説明\n5. 他KPIとの連動性：他のKPI（KPI①②③のうちKPI${kpiLabel}以外）と相互作用がある場合、どう連携・補完するかを分析\n6. 短期施策：今週・来週で着手できる具体的な行動を3つ\n\n【重要】\n- 数値（現状値・目標値・差分・%）を計算式と一緒に必ず示す\n- 既に入力されている「課題」「解決策」テキストを参考にしつつ、より深い視点で再提案\n- KPI${kpiLabel}単体ではなく、KGI達成という全体像の中で位置づける${AI_OUTPUT_GUIDE}`;
+    } else if (mode && mode.startsWith('result-analysis-')) {
+      const key = mode.split('result-analysis-')[1];  // 'kgi'|'kpi1'|'kpi2'|'kpi3'
+      const label = (key === 'kgi') ? 'KGI' : (key === 'kpi1' ? 'KPI①' : key === 'kpi2' ? 'KPI②' : 'KPI③');
+      title = `🔬 AIに「${label}」結果分析を相談`;
+      prompt = `あなたは経営戦略のコンサルタントであり、目標達成の伴走コーチです。以下の${label}に関する全ての入力情報（数値・文章・Todo・週次の実行状況・振り返り）を読み取った上で、「数値で見えた未達ギャップは"なぜ"生まれたのか」「どうすれば埋められたのか」「次の期に向けた具体的な改善提案」を分析してください。\n\n${ctx}\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: 数値ギャップの整理（事実）\n1. ${label}の現状値・目標値・実績値・達成率・成長率を再掲し、ギャップの大きさを定量化\n2. 「未達」「超過達成」「完全達成」のいずれかを明示\n3. ギャップを<strong>絶対値・割合・インパクト</strong>の3段階で表現（例: 「目標まで○○○円不足、目標比△%、年間ゴール達成への影響◎%」）\n\n■ Part 2: ギャップが生まれた原因の分析（"なぜ"）\n1. 入力されている「課題」「解決策」のテキストと、実際の週次行動・Todo完了状況を照らし合わせる\n2. <strong>根本原因を3つ以上抽出</strong>（例: ① 計画したTodoの完了率が低い、② 完了Todoがあっても優先順位が低かった、③ そもそも目標数値が高すぎた、④ 解決策が課題に対して的外れだった、⑤ 週次の振り返りで気づきがあったのに行動修正されていない、など）\n3. 各原因について「どの週・どのTodo・どの振り返り記述から読み取れるか」<strong>具体的に引用しながら</strong>論理を示す\n4. ${label === 'KGI' ? 'KGI達成のためにKPI①②③のどれが特にボトルネックになったか' : `${label}が他のKPIや${label === 'KPI①' ? 'KPI②③' : label === 'KPI②' ? 'KPI①③' : 'KPI①②'}とどう連動・競合したか`}も分析\n\n■ Part 3: ギャップを埋めるためにできた選択肢（"どうすれば良かったか"）\n1. 振り返って「もし期の途中で気付けていれば、こう動けば埋められた」という代替シナリオを<strong>3パターン</strong>提示\n2. 各シナリオに「いつ・何を・どれくらい」の粒度で具体行動を提示\n3. なぜその行動が有効か（数値根拠・経験則・ロジック）を必ず添える\n\n■ Part 4: 次の期に向けた改善提案（最重要）\n1. <strong>目標値の見直し</strong>: 次期${label}の数値目標は据え置き／上方修正／下方修正のどれが妥当か、根拠付きで\n2. <strong>課題・解決策テキストの修正提案</strong>: 入力されている「課題」「解決策」をどう書き換えるべきか具体例\n3. <strong>追加すべきTodo（5〜8個）</strong>: 動詞で始まる行動形式で、優先順位（大/中/小）と週あたりの所要時間付き\n4. <strong>削除・統廃合すべき既存Todo</strong>: 達成率に貢献しなかったTodoは何か、なぜ外すべきか\n5. <strong>週次運用の改善</strong>: 「先週の引き継ぎ運用」「ルーティンTodoの見直し」「振り返りの質を上げる工夫」を提案\n6. <strong>早期警告サイン</strong>: 次期で「またギャップが生まれそう」な兆候を察知するための週次チェックポイント\n\n【重要】\n- 一般論は禁止。必ず<strong>入力情報（数値・テキスト・Todo・振り返り）から具体的に引用</strong>して論理展開\n- 「頑張りましょう」のような精神論で締めない\n- 数値はすべて計算式と一緒に提示（例: 「目標200万 - 実績150万 = 50万未達 (25%ギャップ)」）\n- 受講生が次期に「何から手を付けるか」が明確になる粒度で提案${AI_OUTPUT_GUIDE}`;
+    } else if (mode === 'other-analysis') {
+      title = '🔬 AIに「その他の業務」分析を相談';
+      prompt = `あなたは経営戦略のコンサルタントです。以下のKGI/KPI/その他の業務の入力情報を踏まえて、「KPI①②③以外で優先してやるべきこと」を分析・提案してください。\n\n${ctx}\n\n【分析対象】\n「その他の業務」エリア — KPI①②③に該当しないが、事業継続・成長のために必要な業務領域\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: KPI①②③のスコープ確認\n1. 既に入力されているKPI①②③が「事業の成長ドライバー」として何をカバーしているか整理\n2. 逆に「KPI①②③ではカバーされていない領域」を3〜5領域で具体的に列挙\n   例: バックオフィス／組織づくり／採用／法務・コンプライアンス／資金繰り／長期R&D／自分自身の学習・健康 など\n\n■ Part 2: 「その他の業務」で優先すべきテーマの特定\n1. KGI達成・年間最終ゴール達成に「間接的だが必要不可欠」な業務テーマを3つ提示\n2. 各テーマについて「なぜ優先すべきか」の根拠（リスク回避／土台作り／レバレッジ など）を必ず添える\n3. 「やらないと半年〜1年後にKGI達成を阻害する」という観点で重要度を判定\n\n■ Part 3: 具体的なTodo提案（5〜8個）\n1. 「その他の業務」エリアに追加すべきTodoを5〜8個、動詞で始まる具体的な行動形式で提案\n2. 各Todoに「優先順位（大/中/小）」と「想定所要時間（週あたり何時間）」を付ける\n3. 「ルーティン化すべきもの」と「スポット対応で良いもの」を分けて明示\n\n■ Part 4: 既に入力されている「その他の業務」内容の評価\n1. 現在入力されている「その他の業務」の目標・現状テキストが妥当か評価\n2. 過剰なら削減、不足なら追加の具体提案\n3. KPI①②③とのバランス（時間配分の目安: 例 KPI:その他 = 7:3 など）を提示\n\n【重要】\n- 「KPI①②③に集中すべき」という結論は避ける（その他の業務にも必ず重要なものがある前提で分析）\n- ユーザーが見落としがちな「土台業務」「リスク管理業務」を特に意識して提案\n- 数値や具体例（時間配分%、頻度、優先順位）を必ず添える${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'week-priority') {
       title = '🎯 AIに今週の優先順位を相談';
       prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIと、今週この受講生が考えているTodoリストを見て、最適な優先順位と他に追加すべきTodoがないかを提案してください。\n\n${ctx}\n\n【最優先の判断基準】\n優先順位の定義は「インパクト（成果の大きさ） × 簡単さ（着手しやすさ）」のマトリクスです。\n  - インパクト大 × 簡単 = 最優先（すぐやる）\n  - インパクト大 × 難しい = 計画的に着手\n  - インパクト小 × 簡単 = スキマ時間で\n  - インパクト小 × 難しい = やらない判断もアリ\n\n【お願い】\n1. 今週登録されている各Todoについて「インパクト」「簡単さ」の2軸で評価（5段階）\n2. その評価をもとに、今週の優先順位を1位から並べ直して提案\n3. KGI/KPI達成のために「他に追加すべきTodo」があれば3〜5個提案（具体的な行動レベルで）\n4. 逆に「今週は外しても良いTodo」があれば理由付きで指摘\n5. 1週間で現実的に実行できる量に絞り込む${AI_OUTPUT_GUIDE}`;
@@ -4639,6 +5070,42 @@
       e.stopPropagation();
       const n = t.dataset.kpiNum;
       openAIModal('kpi-analysis-' + n, buildKgiKpiContext());
+    } else if (t.dataset.act === 'ai-help-result' && t.dataset.resultK) {
+      e.stopPropagation();
+      const k = t.dataset.resultK;  // 'kgi'|'kpi1'|'kpi2'|'kpi3'
+      // Warn if 実績 not entered yet — analysis quality drops without it
+      const actualVal = (state.results[k] && state.results[k].actual);
+      if (!actualVal && actualVal !== 0 && actualVal !== '0') {
+        const label = (k === 'kgi') ? 'KGI' : (k === 'kpi1' ? 'KPI①' : k === 'kpi2' ? 'KPI②' : 'KPI③');
+        const ok = confirm(`⚠️ ${label}の「実績」がまだ未入力です。\n\nAI分析は「実績値 vs 目標値」のギャップから原因を分析するので、実績を入力した状態で実行することを強くおすすめします。\n\nこのまま実績なしで分析を続けますか？\n（OK: そのまま続行 / キャンセル: 実績を入力しに戻る）`);
+        if (!ok) {
+          // Focus the actual input so user can fill it
+          const inp = document.querySelector(`.result-table input[data-result="${k}"][data-field="actual"]`);
+          if (inp) {
+            inp.focus();
+            inp.scrollIntoView({block: 'center', behavior: 'smooth'});
+          }
+          return;
+        }
+      }
+      openAIModal('result-analysis-' + k, buildResultAnalysisContext(k));
+    } else if (t.dataset.act === 'ai-help-other') {
+      e.stopPropagation();
+      // Append current "Other" Todo list to the context for analysis
+      const otherTodos = (state.todos.other || []);
+      let extraCtx = '';
+      if (otherTodos.length) {
+        const lines = ['\n【現在「その他の業務」に登録されているTodo】'];
+        otherTodos.forEach((t, idx) => {
+          const pri = t.priority && t.priority !== 'none' ? ` [優先度:${t.priority === 'high' ? '大' : t.priority === 'medium' ? '中' : '小'}]` : '';
+          const routine = t.routine ? ' 🔁ルーティン' : '';
+          lines.push(`  ${idx+1}. ${t.text || '(未入力)'}${pri}${routine}${t.done ? ' ✓完了' : ''}`);
+        });
+        extraCtx = '\n' + lines.join('\n');
+      } else {
+        extraCtx = '\n【現在「その他の業務」に登録されているTodo】（まだ登録なし）';
+      }
+      openAIModal('other-analysis', buildKgiKpiContext() + extraCtx);
     }
   });
 
