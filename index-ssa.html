@@ -1839,11 +1839,10 @@
         </div>
       </div>
 
-      <!-- ゴール定義の説明 -->
-      <div class="goal-definition">
-        <div class="goal-definition-title">ゴールの定義</div>
-        <div class="goal-definition-body">いつまで（期限）にどんな状態（定量）か</div>
-        <div class="goal-definition-footer">これがKGIゴールの定義</div>
+      <!-- KGI関連 AIサポート（年間最終ゴール ⇄ KGI Hero の間） -->
+      <div style="margin-bottom:10px;display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;">
+        <button class="ai-help-btn" data-act="ai-help" data-ai-mode="kgi-consult" title="今期KGIの設定と達成戦略をまとめてAIに相談">🎯 AIにKGI設定+戦略を相談</button>
+        <button class="ai-help-btn" data-act="ai-help" data-ai-mode="kgi-analysis" title="KGI達成のための課題・解決策・KPI連動性をAIに分析依頼">🔬 AIにKGI分析を相談</button>
       </div>
 
       <!-- KGI Hero -->
@@ -1872,11 +1871,6 @@
             <div class="field"><span class="field-label">目標:</span><input type="text" class="num-input" data-goal="kgi" data-field="targetValue" placeholder="0" inputmode="decimal" /></div>
           </div>
         </div>
-      </div>
-
-      <!-- AI KPI分解サポート -->
-      <div style="text-align:right;margin-bottom:10px;">
-        <button class="ai-help-btn" data-act="ai-help" data-ai-mode="kpi-decompose" title="AIにKPI分解を相談">🤖 AIにKPI分解を相談</button>
       </div>
 
       <!-- KPI Cards -->
@@ -2010,6 +2004,7 @@
         <a class="ai-service-btn" href="https://chat.openai.com/" target="_blank" rel="noopener">💬 ChatGPT</a>
         <a class="ai-service-btn" href="https://claude.ai/" target="_blank" rel="noopener">🧠 Claude</a>
         <a class="ai-service-btn" href="https://gemini.google.com/" target="_blank" rel="noopener">✨ Gemini</a>
+        <a class="ai-service-btn" href="https://notebooklm.google.com/" target="_blank" rel="noopener">📓 NotebookLM</a>
       </div>
     </div>
     <div class="modal-foot">
@@ -2034,6 +2029,13 @@
       <!-- 受講生向け -->
       <div class="guide-section active" data-guide-section="user">
         <h4>🚀 まずはこれから</h4>
+
+        <div class="goal-definition" style="margin-bottom:14px;">
+          <div class="goal-definition-title">📐 ゴールの定義</div>
+          <div class="goal-definition-body">いつまで（期限）にどんな状態（定量）か</div>
+          <div class="goal-definition-footer">これがKGIゴールの定義です</div>
+        </div>
+
         <h5>📌 ゴールマネジメントとは？</h5>
         <p>年間の最終ゴールを期間ごとのKGI（最重要目標）に分解し、3つのKPIに落とし込んで、週次のアクションで目標達成までを見える化するアプリです。</p>
         <p><strong>使う流れ：</strong></p>
@@ -2539,8 +2541,18 @@
     if (m) return { month: +m[1], weekIdx: +m[2] - 1 };
     return null;
   }
+  // Parse "HH:MM" → {hour, minute}, fallback null
+  function parseTimeStr(s) {
+    const m = String(s || '').trim().match(/^(\d{1,2})[:：](\d{1,2})$/);
+    if (!m) return null;
+    const h = +m[1], min = +m[2];
+    if (h < 0 || h > 23 || min < 0 || min > 59) return null;
+    return { hour: h, minute: min };
+  }
   // Build .ics content for a week's plan todos
-  function buildIcsForWeek(wi) {
+  // opts: { allDay: true } or { allDay: false, startTime: "HH:MM", endTime: "HH:MM" }
+  function buildIcsForWeek(wi, opts) {
+    opts = opts || { allDay: true };
     const w = state.weeks[wi];
     if (!w) return '';
     const ids = w.planTodoIds || [];
@@ -2565,6 +2577,7 @@
     ];
     const pad = n => String(n).padStart(2, '0');
     const fmtDate = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+    const fmtDateTimeLocal = d => `${fmtDate(d)}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
     const dtstamp = `${fmtDate(new Date())}T${pad(new Date().getHours())}${pad(new Date().getMinutes())}${pad(new Date().getSeconds())}Z`;
     ids.forEach((id, idx) => {
       const found = findTodoById(id);
@@ -2574,16 +2587,27 @@
       // Distribute todos across the week (1 per day if possible)
       const dayOffset = idx % totalDays;
       const eventDate = new Date(weekStart.getTime() + dayOffset * 86400000);
-      const dtStart = fmtDate(eventDate);
-      const nextDate = new Date(eventDate.getTime() + 86400000);
-      const dtEnd = fmtDate(nextDate);
       const summary = `[${kpiLabel}] ${text}`.replace(/[\r\n]+/g, ' ');
       const uid = `gm-${id}-${wi}-${idx}@goal-mgmt`;
       lines.push('BEGIN:VEVENT');
       lines.push(`UID:${uid}`);
       lines.push(`DTSTAMP:${dtstamp}`);
-      lines.push(`DTSTART;VALUE=DATE:${dtStart}`);
-      lines.push(`DTEND;VALUE=DATE:${dtEnd}`);
+      if (opts.allDay) {
+        const dtStart = fmtDate(eventDate);
+        const nextDate = new Date(eventDate.getTime() + 86400000);
+        const dtEnd = fmtDate(nextDate);
+        lines.push(`DTSTART;VALUE=DATE:${dtStart}`);
+        lines.push(`DTEND;VALUE=DATE:${dtEnd}`);
+      } else {
+        const startD = new Date(eventDate);
+        startD.setHours(opts.startTime.hour, opts.startTime.minute, 0, 0);
+        const endD = new Date(eventDate);
+        endD.setHours(opts.endTime.hour, opts.endTime.minute, 0, 0);
+        // If end <= start, push to next day at end time
+        if (endD <= startD) endD.setDate(endD.getDate() + 1);
+        lines.push(`DTSTART:${fmtDateTimeLocal(startD)}`);
+        lines.push(`DTEND:${fmtDateTimeLocal(endD)}`);
+      }
       lines.push(`SUMMARY:${summary.slice(0, 200)}`);
       lines.push(`DESCRIPTION:ゴールマネジメント - ${esc(w.week || '')}`);
       lines.push('END:VEVENT');
@@ -2592,12 +2616,30 @@
     return lines.join('\r\n');
   }
   function downloadIcsForWeek(wi) {
-    const ics = buildIcsForWeek(wi);
-    if (!ics) {
+    const w = state.weeks[wi];
+    if (!w || !(w.planTodoIds || []).length) {
       alert('この週にはTodoが設定されていません。「+ Todoから選ぶ」でTodoを追加してから再度お試しください。');
       return;
     }
-    const w = state.weeks[wi];
+    // Ask user for time settings
+    const choice = prompt('カレンダーへの登録形式を選んでください：\n\n  1 = 終日（時刻なし）\n  2 = 時刻指定（例: 9:00〜10:00）\n\n番号を入力してください', '1');
+    if (choice === null) return;  // cancelled
+    let opts = { allDay: true };
+    if (choice.trim() === '2') {
+      const startStr = prompt('開始時刻を入力してください（例: 9:00 / 13:30）', '9:00');
+      if (startStr === null) return;
+      const endStr = prompt('終了時刻を入力してください（例: 10:00 / 14:30）', '10:00');
+      if (endStr === null) return;
+      const startTime = parseTimeStr(startStr);
+      const endTime = parseTimeStr(endStr);
+      if (!startTime || !endTime) {
+        alert('時刻の形式が正しくありません。「9:00」のように HH:MM で入力してください。');
+        return;
+      }
+      opts = { allDay: false, startTime, endTime };
+    }
+    const ics = buildIcsForWeek(wi, opts);
+    if (!ics) return;
     const safeName = (w.week || `week-${wi}`).replace(/[\/\\:*?"<>|]/g, '_');
     const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -2802,7 +2844,12 @@
       <div class="kpi-card" data-kpi="${n}">
         <div class="kpi-card-head">
           <span class="kpi-num">KPI${['①','②','③'][n-1]}</span>
-          <textarea class="kpi-target-input2 autosize" data-goal="${k}" data-field="target" placeholder="KPI${n}の目標を入力（文章）" rows="1">${esc(g.target)}</textarea>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;">
+            <textarea class="kpi-target-input2 autosize" data-goal="${k}" data-field="target" placeholder="KPI${n}の目標を入力（文章）" rows="1">${esc(g.target)}</textarea>
+            <div style="text-align:right;">
+              <button class="ai-help-btn" data-act="ai-help-kpi" data-kpi-num="${n}" title="このKPIの課題・解決策・他KPIとの連動性をAIに分析依頼">🔬 AI分析</button>
+            </div>
+          </div>
         </div>
         <div class="kpi-card-body">
           <div class="kpi-row">
@@ -2956,6 +3003,7 @@
               <div class="week-field-label" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
                 <span>📋 アクションプラン（計画）</span>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <button class="ai-help-btn" data-act="ai-help-week" data-ai-mode="week-priority" data-week="${wi}" title="この週のTodoの優先順位（インパクト×簡単さ）と追加Todoの提案をAIに相談">🤖 AIに優先順位相談</button>
                   ${wi > 0 ? `<button class="week-carry-btn" data-week="${wi}" data-act="carry-over" title="前の週のTodoをこの週にコピー">📋 先週分を引き継ぐ</button>` : ''}
                   ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="ics-download" title="この週のTodoをカレンダー形式(.ics)でダウンロード（Googleカレンダー/Apple/Outlookに対応）">📅 カレンダーに登録</button>` : ''}
                   ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="uncheck-week" title="この週のTodoのチェックを外す">☐ レ点を外す</button>` : ''}
@@ -4226,32 +4274,103 @@
     const ag = state.annualGoal || {};
     const kgi = state.goals.kgi || {};
     const lines = [];
+    // 年間最終ゴール
     if (ag.target) lines.push(`【年間最終ゴール】${ag.target}`);
     if (ag.current) lines.push(`【年間現状】${ag.current}`);
-    if (kgi.target) lines.push(`【今期KGI（${state.period || ''}）】${kgi.target}`);
-    if (kgi.targetValue) lines.push(`【KGI目標値】${formatLiveValue(kgi.targetValue, kgi.unit)}`);
+    // 今期KGI
+    if (kgi.target) lines.push(`\n【今期KGI（${state.period || ''}）】${kgi.target}`);
+    if (kgi.current) lines.push(`【KGI現状（文章）】${kgi.current}`);
+    if (kgi.targetValue) lines.push(`【KGI目標値】${formatLiveValue(kgi.targetValue, kgi.unit)}${kgi.lowerIsBetter ? '（↓低い方が良い指標）' : ''}`);
     if (kgi.currentValue) lines.push(`【KGI現状値】${formatLiveValue(kgi.currentValue, kgi.unit)}`);
+    // 各KPI（target / current / issue / solution / 数値）
     [1,2,3].forEach(n => {
       const k = state.goals['kpi' + n];
-      if (k && k.target) lines.push(`【KPI${['①','②','③'][n-1]}】${k.target}${k.targetValue ? ` (目標:${formatLiveValue(k.targetValue, k.unit)} / 現状:${formatLiveValue(k.currentValue || '', k.unit)})` : ''}`);
+      if (!k) return;
+      const label = ['①','②','③'][n-1];
+      const block = [];
+      if (k.target) block.push(`【KPI${label}】${k.target}`);
+      if (k.current) block.push(`  現状(文章): ${k.current}`);
+      if (k.issue) block.push(`  課題: ${k.issue}`);
+      if (k.solution) block.push(`  解決策: ${k.solution}`);
+      if (k.targetValue || k.currentValue) {
+        block.push(`  数値: 目標 ${formatLiveValue(k.targetValue || '', k.unit)} / 現状 ${formatLiveValue(k.currentValue || '', k.unit)}${k.lowerIsBetter ? ' (↓低い方が良い指標)' : ''}`);
+      }
+      if (block.length) lines.push('\n' + block.join('\n'));
     });
+    // その他の業務
+    const og = state.goals.other || {};
+    if (og.target || og.current) {
+      lines.push(`\n【その他の業務】${og.target || ''}`);
+      if (og.current) lines.push(`  現状: ${og.current}`);
+    }
     return lines.join('\n');
   }
+  function buildWeekContext(wi) {
+    const w = state.weeks[wi];
+    if (!w) return '';
+    const lines = [];
+    lines.push(`【対象週】${w.week || ''}`);
+    const ids = w.planTodoIds || [];
+    if (ids.length === 0) {
+      lines.push('（この週にはまだTodoが登録されていません）');
+    } else {
+      lines.push(`【現在この週に登録されているTodo（${ids.length}件）】`);
+      ids.forEach((id, idx) => {
+        const found = findTodoById(id);
+        if (!found) return;
+        const kpiLabel = found.kpi === 'other' ? 'その他' : `KPI${['①','②','③'][found.kpi-1]}`;
+        const pri = found.todo.priority && found.todo.priority !== 'none' ? ` [優先度:${found.todo.priority === 'high' ? '大' : found.todo.priority === 'medium' ? '中' : '小'}]` : '';
+        lines.push(`  ${idx+1}. [${kpiLabel}] ${found.todo.text || '(未入力)'}${pri}${found.todo.done ? ' ✓完了' : ''}`);
+      });
+    }
+    // KPIごとの未割り当てTodo一覧（提案候補）
+    const allTodoLines = [];
+    [1,2,3,'other'].forEach(k => {
+      const list = state.todos[k] || [];
+      const unassigned = list.filter(t => !ids.includes(t.id));
+      if (unassigned.length > 0) {
+        const kpiLabel = k === 'other' ? 'その他' : `KPI${['①','②','③'][k-1]}`;
+        allTodoLines.push(`  [${kpiLabel}]`);
+        unassigned.forEach(t => {
+          allTodoLines.push(`    - ${t.text || '(未入力)'}`);
+        });
+      }
+    });
+    if (allTodoLines.length) {
+      lines.push('\n【今週まだ割り当てていないTodo候補（既存リスト）】');
+      lines.push(...allTodoLines);
+    }
+    return lines.join('\n');
+  }
+
+  // Common output instruction template (structured + step-by-step + concrete examples + grounded reasoning)
+  const AI_OUTPUT_GUIDE = `\n\n【回答フォーマット（必ず守ってください）】\n■ まず「結論」を最初に2〜3行で明示\n■ その後、見出し付き箇条書きで構造化（マークダウン記法OK）\n■ 各項目は「具体例×3つ」を必ず含める（抽象論NG）\n■ 各提案には「なぜそうするか」の根拠（数値・理由・経験則）を必ず添える\n■ 重要なポイントは太字や絵文字で強調\n■ 中学生でも分かる平易な言葉で（専門用語使う場合は注釈）\n■ 各見出しの本文は400字程度を目安に、しっかり情報量を入れる\n■ 最後に「💡 次の一歩（今日できる1つの行動）」で締める\n\n【NG事項】\n× 「重要です」「考えましょう」など抽象的・薄い断定\n× 根拠のない提案（必ず「なぜなら〜だから」を入れる）\n× 一般論で終わる（その人の状況に合わせた具体性が必要）\n× 専門用語の羅列\n× 短すぎる回答（情報が薄い）`;
 
   function openAIModal(mode, ctx) {
     const titleEl = $('ai-modal-title');
     const promptBox = $('ai-prompt-box');
     let title = '🤖 AIサポート';
     let prompt = '';
-    if (mode === 'kpi-decompose') {
-      title = '🌳 AIにKPI分解を相談';
-      prompt = `あなたは経営戦略のコンサルタントです。以下のKGI（最重要目標）を達成するために、最適な3つのKPI（重要中間指標）に分解してください。\n\n${ctx}\n\n【お願い】\n1. KGIを構成する要素式（例：売上=客数×客単価×頻度）を提示してください\n2. その要素式から、最も影響度が大きく、自分でコントロール可能な3つのKPIを提案してください\n3. 各KPIに「現状値」「目標値」「単位（円・%・人・回など）」を含めてください\n4. 設定理由も簡潔に教えてください`;
+    if (mode === 'kgi-consult') {
+      title = '🎯 AIにKGI設定+戦略を相談';
+      prompt = `あなたは経営戦略のコンサルタントです。以下の年間最終ゴールと現状を踏まえて、今期（四半期など）のKGI（最重要目標）の設定と達成戦略を一緒に提案してください。\n\n${ctx}\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: KGI設定\n1. 年間最終ゴールから逆算して、今期に達成すべきKGIの妥当な目安を提案\n2. その数値根拠（なぜその値が妥当か）を示す\n3. 過大すぎず過小すぎない適切な「ストレッチ目標」を意識\n\n■ Part 2: KGI達成戦略\n1. KGIを達成する上で最重要となる「3つの戦略の柱」を提示\n2. 各戦略について、想定される具体的な施策を3つずつ\n3. 優先順位（最初に着手すべきもの）を明示${AI_OUTPUT_GUIDE}`;
+    } else if (mode === 'kgi-analysis') {
+      title = '🔬 AIにKGI分析を相談';
+      prompt = `あなたは経営戦略のコンサルタントです。以下の情報を踏まえて、今期KGIを達成するための分析を行ってください。\n\n${ctx}\n\n【分析の視点】\n1. 数値ギャップ分析：現状値と目標値の差分を計算し、どれくらいのインパクトが必要か\n2. 課題の特定：KGI達成を阻む現状の課題を3つ以上抽出（具体的に）\n3. 解決策の提示：各課題に対する解決策を3つずつ（実行可能なレベルで）\n4. KPIとの連動性：3つのKPIがそれぞれKGIにどう貢献するか、相互作用も含めて分析\n5. ボトルネック特定：最もKGI達成に影響する1つのキーポイントを指摘\n\n【重要】\n- 数値（現状値・目標値・差分%）を必ず計算式と一緒に示す\n- KPI①②③それぞれとKGIの関係を明示\n- 抽象論ではなく、その人の状況に合わせた具体的な分析を${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'todo-suggest') {
       title = '✅ AIにTodo提案を相談';
-      prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIを達成するために、各KPIを実行可能なTodo（行動レベル）に分解してください。\n\n${ctx}\n\n【お願い】\n1. KPI①〜③それぞれに対して、5〜8個のTodoを提案してください\n2. Todoは「動詞」で始まる具体的な行動形式にしてください（例：「〇〇に営業電話する」「LP原稿を書く」など）\n3. 優先順位（大/中/小）も提案してください\n4. 1週間で着手できる粒度にしてください`;
+      prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIを達成するために、各KPIを実行可能なTodo（行動レベル）に分解してください。\n\n${ctx}\n\n【お願い】\n1. KPI①〜③それぞれに対して、5〜8個のTodoを提案\n2. Todoは「動詞」で始まる具体的な行動形式（例：「〇〇に営業電話する」「LP原稿を書く」）\n3. 優先順位（大/中/小）も提案\n4. 1週間で着手できる粒度に${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'review') {
       title = '🔍 AIに振り返り相談';
-      prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIと進捗を踏まえて、改善ポイントと次の一手を提案してください。\n\n${ctx}\n\n【お願い】\n1. 達成率の評価\n2. 進捗が遅れているKPIに対して、改善のヒント\n3. 来週優先すべきTodoの再提案\n4. モチベーション維持のためのコメント`;
+      prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIと進捗を踏まえて、改善ポイントと次の一手を提案してください。\n\n${ctx}\n\n【お願い】\n1. 達成率の評価\n2. 進捗が遅れているKPIに対して、改善のヒント\n3. 来週優先すべきTodoの再提案\n4. モチベーション維持のためのコメント${AI_OUTPUT_GUIDE}`;
+    } else if (mode && mode.startsWith('kpi-analysis-')) {
+      const kpiNum = +mode.split('-').pop();
+      const kpiLabel = ['①','②','③'][kpiNum - 1];
+      title = `🔬 AIにKPI${kpiLabel}分析を相談`;
+      prompt = `あなたは経営戦略のコンサルタントです。以下の情報を踏まえて、KPI${kpiLabel}に焦点を当てた分析と提案を行ってください。\n\n${ctx}\n\n【分析対象】\nKPI${kpiLabel}（上記の【KPI${kpiLabel}】の項目）\n\n【分析の視点】\n1. 数値ギャップ分析：KPI${kpiLabel}の現状値と目標値の差分を計算（％やインパクト換算）\n2. 課題の特定：KPI${kpiLabel}達成を阻んでいる課題を具体的に3つ以上抽出\n3. 解決策の提示：各課題に対する解決策を3つずつ（実行可能なレベル）\n4. KGIへの貢献度：このKPI${kpiLabel}がKGI全体にどう寄与するかを定量的に説明\n5. 他KPIとの連動性：他のKPI（KPI①②③のうちKPI${kpiLabel}以外）と相互作用がある場合、どう連携・補完するかを分析\n6. 短期施策：今週・来週で着手できる具体的な行動を3つ\n\n【重要】\n- 数値（現状値・目標値・差分・%）を計算式と一緒に必ず示す\n- 既に入力されている「課題」「解決策」テキストを参考にしつつ、より深い視点で再提案\n- KPI${kpiLabel}単体ではなく、KGI達成という全体像の中で位置づける${AI_OUTPUT_GUIDE}`;
+    } else if (mode === 'week-priority') {
+      title = '🎯 AIに今週の優先順位を相談';
+      prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIと、今週この受講生が考えているTodoリストを見て、最適な優先順位と他に追加すべきTodoがないかを提案してください。\n\n${ctx}\n\n【最優先の判断基準】\n優先順位の定義は「インパクト（成果の大きさ） × 簡単さ（着手しやすさ）」のマトリクスです。\n  - インパクト大 × 簡単 = 最優先（すぐやる）\n  - インパクト大 × 難しい = 計画的に着手\n  - インパクト小 × 簡単 = スキマ時間で\n  - インパクト小 × 難しい = やらない判断もアリ\n\n【お願い】\n1. 今週登録されている各Todoについて「インパクト」「簡単さ」の2軸で評価（5段階）\n2. その評価をもとに、今週の優先順位を1位から並べ直して提案\n3. KGI/KPI達成のために「他に追加すべきTodo」があれば3〜5個提案（具体的な行動レベルで）\n4. 逆に「今週は外しても良いTodo」があれば理由付きで指摘\n5. 1週間で現実的に実行できる量に絞り込む${AI_OUTPUT_GUIDE}`;
     }
     titleEl.textContent = title;
     promptBox.textContent = prompt;
@@ -4294,6 +4413,15 @@
     if (t.dataset.act === 'ai-help' && t.dataset.aiMode) {
       e.stopPropagation();
       openAIModal(t.dataset.aiMode, buildKgiKpiContext());
+    } else if (t.dataset.act === 'ai-help-week' && t.dataset.aiMode) {
+      e.stopPropagation();
+      const wi = +t.dataset.week;
+      const ctx = buildKgiKpiContext() + '\n\n---\n' + buildWeekContext(wi);
+      openAIModal(t.dataset.aiMode, ctx);
+    } else if (t.dataset.act === 'ai-help-kpi' && t.dataset.kpiNum) {
+      e.stopPropagation();
+      const n = t.dataset.kpiNum;
+      openAIModal('kpi-analysis-' + n, buildKgiKpiContext());
     }
   });
 
