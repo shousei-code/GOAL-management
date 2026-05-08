@@ -1155,6 +1155,23 @@
     font-size: 14px;
   }
   .plan-chip .chip-x:hover { color: var(--danger); }
+  .plan-chip .chip-cal {
+    border: 1px solid var(--border);
+    background: #f0f9ff;
+    color: #0369a1;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+    line-height: 1;
+    font-family: inherit;
+  }
+  .plan-chip .chip-cal:hover {
+    background: #0369a1;
+    color: #fff;
+    border-color: #0369a1;
+  }
   .plan-chip .chip-drag {
     cursor: grab;
     color: var(--muted);
@@ -2230,6 +2247,32 @@
 </main>
 
 <!-- AI サポート Modal -->
+<!-- カレンダー登録 Modal -->
+<div class="modal-backdrop" id="cal-modal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-head">
+      <h3>📅 カレンダーに登録（1時間枠）</h3>
+      <button class="modal-close" id="cal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="cal-todo-name" style="font-weight:700;font-size:14px;margin-bottom:14px;padding:10px 12px;background:#f3f4f6;border-radius:6px;line-height:1.4;"></div>
+      <div style="margin-bottom:14px;">
+        <label for="cal-date" style="display:block;font-weight:600;margin-bottom:6px;font-size:13px;color:#1f2937;">📅 実施する日付</label>
+        <input type="date" id="cal-date" style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:6px;font-size:15px;font-family:inherit;box-sizing:border-box;" />
+      </div>
+      <div style="margin-bottom:18px;">
+        <label for="cal-time" style="display:block;font-weight:600;margin-bottom:6px;font-size:13px;color:#1f2937;">⏰ 開始時刻（1時間で固定）</label>
+        <input type="time" id="cal-time" value="09:00" style="width:100%;padding:10px 12px;border:1.5px solid #d1d5db;border-radius:6px;font-size:15px;font-family:inherit;box-sizing:border-box;" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:8px;">
+        <button id="cal-google" style="padding:12px;background:linear-gradient(135deg,#4285f4,#1e40af);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">📅 Googleカレンダーに登録</button>
+        <button id="cal-ics" style="padding:12px;background:#1f2937;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">🍎 Apple/Outlookに登録（.icsダウンロード）</button>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin:8px 0 0;line-height:1.4;">💡 Googleカレンダー：新しいタブが開き、内容が入った状態で「保存」ボタンを押すだけ。<br>💡 .ics：ダウンロードしたファイルをタップ/ダブルクリックでApple Calendar・Outlookに取り込めます。</p>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="ai-modal">
   <div class="modal">
     <div class="modal-head">
@@ -2442,15 +2485,22 @@
         <div class="info">💡 すべての無料プランでも使えます（ChatGPT GPT-4はログイン必須、Claude/Geminiは無料）。</div>
         <div class="tip">💡 <strong>NotebookLM</strong>は長文プロンプトと複数ソース管理に強いので、結果分析AIなど情報量の多い相談に特におすすめ。</div>
 
-        <h4>📅 Googleカレンダー連携</h4>
-        <p>週次のTodoをカレンダーアプリに一括登録できます。</p>
+        <h4>📅 カレンダー連携（Todo 1個ずつ登録）</h4>
+        <p>各Todoを <strong>1時間枠の予定</strong> として、Googleカレンダー / Apple Calendar / Outlook に登録できます。</p>
         <ol>
           <li>週カードを開く</li>
-          <li><strong>「📅 カレンダーに登録」</strong> ボタンをクリック</li>
-          <li>その週のTodoが入った <strong>.icsファイル</strong> がダウンロードされる</li>
-          <li>ダブルクリックで Googleカレンダー / Apple Calendar / Outlook などに一括インポート可能</li>
+          <li>各Todoチップの右側にある小さな <strong>「📅」ボタン</strong> をクリック</li>
+          <li>モーダルが開くので、<strong>日付</strong> と <strong>開始時刻</strong> を選ぶ（時間幅は1時間で固定）</li>
+          <li>下のボタンを選択：
+            <ul>
+              <li><strong>📅 Googleカレンダーに登録</strong> → 新しいタブが開き、予定の内容が入った状態で表示。「保存」を押すだけで登録完了</li>
+              <li><strong>🍎 Apple/Outlookに登録（.ics）</strong> → 単一イベントの.icsファイルがダウンロード。タップ/ダブルクリックでカレンダーアプリに取り込み</li>
+            </ul>
+          </li>
         </ol>
-        <div class="tip">💡 Todoは週内に1日1件ずつ自動配置されます。日時調整は各カレンダーアプリで行ってください。</div>
+        <div class="info">💡 <strong>1時間枠で固定</strong>：開始時刻を入れるだけで、終了時刻は自動で +1時間。終日設定はなくなり、シンプルに使えるようになりました。</div>
+        <div class="tip">💡 <strong>初期日付の自動設定</strong>：今日がその週の範囲内ならその日付が自動で入ります。範囲外なら週の初日が入るので、必要に応じて変更できます。</div>
+        <div class="tip">💡 <strong>1個ずつの登録</strong>：今までの「週単位で一括」ではなく、Todo毎に個別登録できるようになったので、優先順位の高いものだけカレンダーに入れたり、1日に複数のTodoを別時間で予定したりできます。</div>
       </div>
 
       <!-- 講師（管理者）向け -->
@@ -2923,6 +2973,95 @@
     lines.push('END:VCALENDAR');
     return lines.join('\r\n');
   }
+  // ===== Per-Todo calendar registration (Google Calendar URL or single-event .ics) =====
+  // Modal state
+  let calCtx = null;  // { wi, todoId, summary, description }
+
+  function openCalendarModalForTodo(wi, todoId) {
+    const w = state.weeks[wi];
+    const found = findTodoById(todoId);
+    if (!w || !found) return;
+    const todo = found.todo;
+    const kpiLabel = found.kpi === 'other' ? 'その他' : `KPI${['①','②','③'][found.kpi-1]}`;
+    const summary = `[${kpiLabel}] ${todo.text || '(未入力)'}`;
+    // Compute default date: today if today falls within this week's range, else week start, else today
+    const parsed = parseWeekLabel(w.week);
+    const year = state.periodYear || new Date().getFullYear();
+    let defaultDate = new Date();
+    if (parsed) {
+      const wkStart = getWeekStartDate(year, parsed.month, parsed.weekIdx);
+      const wkEnd = getWeekEndDate(year, parsed.month, parsed.weekIdx);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      if (today >= wkStart && today <= wkEnd) {
+        defaultDate = today;
+      } else {
+        defaultDate = wkStart;
+      }
+    }
+    // Set modal fields
+    $('cal-todo-name').textContent = summary;
+    const pad = n => String(n).padStart(2, '0');
+    const dateStr = `${defaultDate.getFullYear()}-${pad(defaultDate.getMonth()+1)}-${pad(defaultDate.getDate())}`;
+    $('cal-date').value = dateStr;
+    // Keep the time as last value or default to 09:00
+    const timeInput = $('cal-time');
+    if (!timeInput.value) timeInput.value = '09:00';
+    calCtx = {
+      wi, todoId, summary,
+      description: `ゴールマネジメント - ${w.week || ''}`,
+    };
+    $('cal-modal').classList.add('show');
+  }
+
+  function getCalDateTimeFromModal() {
+    const dateStr = $('cal-date').value;  // "YYYY-MM-DD"
+    const timeStr = $('cal-time').value;  // "HH:MM"
+    if (!dateStr || !timeStr) {
+      alert('日付と時刻を入力してください。');
+      return null;
+    }
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const [hh, mm] = timeStr.split(':').map(Number);
+    const start = new Date(y, m-1, d, hh, mm, 0, 0);
+    const end = new Date(start.getTime() + 60 * 60 * 1000);  // +1 hour
+    return { start, end };
+  }
+
+  function fmtGcalDateTime(d) {
+    // YYYYMMDDTHHmmSS (local time, no Z)
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+  }
+
+  function buildIcsForSingleTodo(summary, description, start, end) {
+    const pad = n => String(n).padStart(2, '0');
+    const fmtDateTimeLocal = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+    const now = new Date();
+    const dtstamp = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}T${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}Z`;
+    const uid = `gm-todo-${calCtx?.todoId || 'x'}-${Date.now()}@goal-mgmt`;
+    return [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Goal Management//JP',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      `UID:${uid}`,
+      `DTSTAMP:${dtstamp}`,
+      `DTSTART:${fmtDateTimeLocal(start)}`,
+      `DTEND:${fmtDateTimeLocal(end)}`,
+      `SUMMARY:${summary.replace(/[\r\n]+/g, ' ').slice(0, 200)}`,
+      `DESCRIPTION:${description.replace(/[\r\n]+/g, ' ').slice(0, 300)}`,
+      'END:VEVENT',
+      'END:VCALENDAR',
+    ].join('\r\n');
+  }
+
+  // Wire up modal close + actions
+  function closeCalModal() {
+    $('cal-modal').classList.remove('show');
+  }
+
   function downloadIcsForWeek(wi) {
     const w = state.weeks[wi];
     if (!w || !(w.planTodoIds || []).length) {
@@ -3346,6 +3485,7 @@
               <input type="checkbox" class="chip-check" data-todoid="${todo.id}" data-act="chip-check" ${todo.done ? 'checked' : ''} title="完了/未完了を切り替え" />
               <span class="chip-text">${esc(todo.text || '(未入力)')}</span>
               <button class="chip-prio ${priClass}" data-todoid="${todo.id}" data-act="cycle-chip-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
+              <button class="chip-cal" data-week="${wi}" data-todoid="${todo.id}" data-act="todo-calendar" title="このTodoをカレンダーに登録（1時間枠）">📅</button>
               <button class="chip-x" data-week="${wi}" data-todoid="${todo.id}" data-act="unpick" title="この週から外す">×</button>
             </div>
           `;
@@ -3397,7 +3537,6 @@
                   <button class="ai-help-btn" data-act="ai-help-week" data-ai-mode="week-priority" data-week="${wi}" title="この週のTodoの優先順位（インパクト×簡単さ）と追加Todoの提案をAIに相談">🤖 AIに優先順位相談</button>
                   ${wi > 0 ? `<button class="week-carry-btn" data-week="${wi}" data-act="carry-over" title="前の週のTodoをこの週にコピー">📋 先週分を引き継ぐ</button>` : ''}
                   ${hasArchives ? `<button class="week-restore-btn" data-week="${wi}" data-act="restore-prev-period" title="直近の過去の期から、同じ週のTodoを復元（前期の同じ週のリズムを再現）">📋 前期の同じ週分を復元</button>` : ''}
-                  ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="ics-download" title="この週のTodoをカレンダー形式(.ics)でダウンロード（Googleカレンダー/Apple/Outlookに対応）">📅 カレンダーに登録</button>` : ''}
                   ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="uncheck-week" title="この週のTodoのチェックを外す">☐ レ点を外す</button>` : ''}
                 </div>
               </div>
@@ -3968,10 +4107,11 @@
       const id = t.dataset.todoid;
       state.weeks[wi].planTodoIds = state.weeks[wi].planTodoIds.filter(x => x !== id);
       save(); renderWeeks();
-    } else if (t.dataset.act === 'ics-download') {
+    } else if (t.dataset.act === 'todo-calendar') {
       e.stopPropagation();
       const wi = +t.dataset.week;
-      downloadIcsForWeek(wi);
+      const id = t.dataset.todoid;
+      openCalendarModalForTodo(wi, id);
     } else if (t.dataset.act === 'uncheck-week') {
       e.stopPropagation();
       const wi = +t.dataset.week;
@@ -5032,6 +5172,45 @@
   $('ai-done').addEventListener('click', () => $('ai-modal').classList.remove('show'));
   $('ai-modal').addEventListener('click', (e) => {
     if (e.target.id === 'ai-modal') $('ai-modal').classList.remove('show');
+  });
+
+  // Calendar modal handlers
+  $('cal-close').addEventListener('click', closeCalModal);
+  $('cal-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'cal-modal') closeCalModal();
+  });
+  $('cal-google').addEventListener('click', () => {
+    if (!calCtx) return;
+    const dt = getCalDateTimeFromModal();
+    if (!dt) return;
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: calCtx.summary,
+      dates: `${fmtGcalDateTime(dt.start)}/${fmtGcalDateTime(dt.end)}`,
+      details: calCtx.description,
+    });
+    const url = `https://calendar.google.com/calendar/render?${params.toString()}`;
+    window.open(url, '_blank', 'noopener');
+    closeCalModal();
+  });
+  $('cal-ics').addEventListener('click', () => {
+    if (!calCtx) return;
+    const dt = getCalDateTimeFromModal();
+    if (!dt) return;
+    const ics = buildIcsForSingleTodo(calCtx.summary, calCtx.description, dt.start, dt.end);
+    const safeName = calCtx.summary.replace(/[\/\\:*?"<>|]/g, '_').slice(0, 50);
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${safeName}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+    closeCalModal();
   });
   $('ai-copy-btn').addEventListener('click', async () => {
     const text = $('ai-prompt-box').textContent;
