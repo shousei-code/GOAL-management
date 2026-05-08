@@ -94,6 +94,86 @@
   }
   textarea:focus, input:focus { outline: none; }
 
+  /* ===== 年間最終ゴール ブロック ===== */
+  .annual-goal {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+    border-radius: 14px;
+    padding: 20px 22px;
+    color: #fff;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.4);
+    position: relative;
+  }
+  .annual-goal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at top right, rgba(255,255,255,0.15), transparent 60%);
+    border-radius: 14px;
+    pointer-events: none;
+  }
+  .annual-goal-label {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    opacity: 0.9;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .annual-target-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .annual-target-wrap .icon { font-size: 26px; }
+  .annual-target-input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    border-bottom: 2px dashed rgba(255,255,255,0.4);
+    color: #fff;
+    font-size: 22px;
+    font-weight: 800;
+    padding: 4px 2px;
+    line-height: 1.3;
+    width: 100%;
+    font-family: inherit;
+    resize: none;
+    overflow: hidden;
+    word-break: break-word;
+  }
+  .annual-target-input::placeholder { color: rgba(255,255,255,0.55); font-weight: 600; }
+  .annual-target-input:focus { border-bottom-color: #fff; outline: none; }
+  .annual-current-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 8px 12px;
+    backdrop-filter: blur(4px);
+  }
+  .annual-current-wrap .clabel {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    opacity: 0.85;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .annual-current-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    padding: 2px;
+    resize: vertical;
+    min-height: 22px;
+    font-family: inherit;
+  }
+  .annual-current-input::placeholder { color: rgba(255,255,255,0.6); }
+
   /* ===== ゴール定義ブロック ===== */
   .goal-definition {
     background: linear-gradient(135deg, #f3e8ff, #e9d5ff);
@@ -200,6 +280,199 @@
     font-family: inherit;
   }
   .kgi-current-input::placeholder { color: rgba(255,255,255,0.6); }
+
+  /* ===== AI Support ===== */
+  .ai-help-btn {
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 6px;
+    font-family: inherit;
+  }
+  .ai-help-btn:hover { filter: brightness(1.1); }
+  .ai-modal-services {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+    flex-wrap: wrap;
+  }
+  .ai-service-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    font-family: inherit;
+  }
+  .ai-service-btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .ai-prompt-box {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 240px;
+    overflow-y: auto;
+    font-family: inherit;
+    color: var(--text);
+  }
+  .ai-copy-btn {
+    margin-top: 8px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .ai-copy-btn:hover { background: #1d4ed8; }
+  .ai-copy-btn.copied { background: var(--success); }
+
+  /* ===== Period 3-field input ===== */
+  .period-fields {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+  .period-input {
+    background: transparent;
+    border: none;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    font-family: inherit;
+    padding: 4px 2px;
+  }
+  .period-input:focus { outline: 1px solid var(--accent); border-radius: 4px; }
+  .period-input { width: 56px; }
+  .period-input.period-input-mo { width: 32px; }
+  .period-sep { font-size: 12px; color: var(--muted); font-weight: 600; }
+
+  /* ===== その他の業務 (Other Card / Todo) ===== */
+  .other-toggle-btn {
+    width: 100%;
+    background: var(--panel-2);
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    margin-bottom: 14px;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .other-toggle-btn:hover {
+    background: #f1f5f9;
+    border-color: var(--muted);
+    color: var(--text);
+  }
+  .other-card {
+    border: 2px solid #94a3b8;
+    border-radius: 12px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    background: var(--panel);
+    display: none;
+  }
+  .other-card.show { display: block; }
+  .other-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    color: #fff;
+    font-weight: 700;
+    background: #64748b;
+  }
+  .other-card-num {
+    background: rgba(255,255,255,0.25);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .other-card-title {
+    flex: 1;
+    font-size: 14px;
+  }
+  .other-card-close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-family: inherit;
+  }
+  .other-card-close:hover { background: rgba(255,255,255,0.35); }
+  .other-card-body { padding: 12px 14px; }
+  .other-card-body .kpi-row > .lbl {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  /* Other Todo Row (independent below the 3-column grid) */
+  .other-todo-toggle {
+    width: 100%;
+    background: var(--panel-2);
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    margin-top: 12px;
+    font-family: inherit;
+  }
+  .other-todo-toggle:hover {
+    background: #f1f5f9;
+    border-color: var(--muted);
+    color: var(--text);
+  }
+  .other-todo-col {
+    border: 2px solid #94a3b8;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 12px;
+    display: none;
+  }
+  .other-todo-col.show { display: flex; flex-direction: column; }
+  .other-todo-col .todo-col-head { background: #64748b; }
+  /* Plan chip & group for "other" */
+  .plan-chip[data-kpi="other"] { border-color: #94a3b8; background: #f1f5f9; }
+  .plan-chip[data-kpi="other"] .chip-num { color: #64748b; }
+  .plan-kpi-group[data-kpi="other"] { border-color: #94a3b8; background: #f1f5f9; }
+  .plan-kpi-group[data-kpi="other"] .plan-kpi-group-head { background: #64748b; }
+  .pick-group[data-kpi="other"] .pick-group-head { background: #64748b; }
+  .todo-item-other { border-left: 3px solid #94a3b8 !important; }
 
   /* ===== Metric Block (numeric) ===== */
   .metric-block {
@@ -1535,7 +1808,14 @@
 </header>
 
 <div class="toolbar">
-  <input type="text" id="period" placeholder="期間（例: 2026年4-6月）" />
+  <div class="period-fields" title="期間を入力">
+    <input type="text" id="period-year" class="period-input" inputmode="numeric" maxlength="4" placeholder="年" />
+    <span class="period-sep">年</span>
+    <input type="text" id="period-start" class="period-input period-input-mo" inputmode="numeric" maxlength="2" placeholder="月" />
+    <span class="period-sep">月〜</span>
+    <input type="text" id="period-end" class="period-input period-input-mo" inputmode="numeric" maxlength="2" placeholder="月" />
+    <span class="period-sep">月</span>
+  </div>
   <button id="archive-save" title="現在の期のデータをスナップショット保存">📦 今期を保存して新期へ</button>
   <select id="archive-select" class="archive-select" title="過去の期を選んで閲覧"><option value="">📂 過去の期を見る…</option></select>
   <button id="pdf-btn" class="primary">📄 PDFで保存</button>
@@ -1545,16 +1825,27 @@
 <main>
   <!-- 年間目標 -->
   <section>
-    <div class="sec-head">
-      <h2>📌 年間目標</h2>
-    </div>
     <div class="sec-body">
+      <!-- 年間最終ゴール -->
+      <div class="annual-goal">
+        <div class="annual-goal-label">🎯 年間最終ゴール — ANNUAL GOAL</div>
+        <div class="annual-target-wrap">
+          <span class="icon">🌟</span>
+          <textarea class="annual-target-input autosize" data-goal="annualGoal" data-field="target" placeholder="1年間で達成したい最終ゴールを入力（文章）" rows="1"></textarea>
+        </div>
+        <div class="annual-current-wrap">
+          <span class="clabel">現状</span>
+          <textarea class="annual-current-input" data-goal="annualGoal" data-field="current" placeholder="今の状態（文章）"></textarea>
+        </div>
+      </div>
+
       <!-- ゴール定義の説明 -->
       <div class="goal-definition">
         <div class="goal-definition-title">ゴールの定義</div>
         <div class="goal-definition-body">いつまで（期限）にどんな状態（定量）か</div>
         <div class="goal-definition-footer">これがKGIゴールの定義</div>
       </div>
+
       <!-- KGI Hero -->
       <div class="kgi-hero">
         <div class="kgi-label">⭐ KGI — KEY GOAL INDICATOR</div>
@@ -1583,8 +1874,33 @@
         </div>
       </div>
 
+      <!-- AI KPI分解サポート -->
+      <div style="text-align:right;margin-bottom:10px;">
+        <button class="ai-help-btn" data-act="ai-help" data-ai-mode="kpi-decompose" title="AIにKPI分解を相談">🤖 AIにKPI分解を相談</button>
+      </div>
+
       <!-- KPI Cards -->
       <div id="kpi-cards"></div>
+
+      <!-- その他の業務（折りたたみ） -->
+      <button class="other-toggle-btn" id="other-card-toggle" type="button">📁 その他の業務 ▼（クリックで開く）</button>
+      <div class="other-card" id="other-card">
+        <div class="other-card-head">
+          <span class="other-card-num">その他</span>
+          <span class="other-card-title">📁 その他の業務</span>
+          <button class="other-card-close" id="other-card-close" type="button">✕ 閉じる</button>
+        </div>
+        <div class="other-card-body">
+          <div class="kpi-row">
+            <div class="lbl">目標</div>
+            <textarea data-goal="other" data-field="target" placeholder="その他の業務の目標（KPI①〜③に該当しない業務、定性的でもOK）"></textarea>
+          </div>
+          <div class="kpi-row">
+            <div class="lbl">現状</div>
+            <textarea data-goal="other" data-field="current" placeholder="現状（数字を入れなくても良い）"></textarea>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1594,6 +1910,7 @@
       <h2>✅ KPIをTodoに落とし込む</h2>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <span class="sub" id="todo-summary">—</span>
+        <button class="ai-help-btn" data-act="ai-help" data-ai-mode="todo-suggest" title="AIにTodo提案を相談">🤖 AIにTodo提案</button>
         <button id="todo-uncheck-all" class="week-ctrl-btn" title="全てのチェックを外す">☐ 全てのレ点を外す</button>
       </div>
     </div>
@@ -1626,6 +1943,18 @@
           <button class="todo-add" data-kpi="3" data-act="add">＋ Todo追加</button>
           <div class="todo-progress" id="todo-3-prog">0 / 0 完了</div>
         </div>
+      </div>
+
+      <!-- その他の業務 Todo（折りたたみ） -->
+      <button class="other-todo-toggle" id="other-todo-toggle" type="button">📁 その他の業務のTodo ▼（クリックで開く）</button>
+      <div class="other-todo-col" id="other-todo-col">
+        <div class="todo-col-head">
+          <div><span class="num">その他</span></div>
+          <div class="name" id="kpi-other-name">その他の業務</div>
+        </div>
+        <div class="todo-list" id="todo-other"></div>
+        <button class="todo-add" data-kpi="other" data-act="add">＋ Todo追加</button>
+        <div class="todo-progress" id="todo-other-prog">0 / 0 完了</div>
       </div>
     </div>
   </section>
@@ -1665,6 +1994,30 @@
   </section>
 </main>
 
+<!-- AI サポート Modal -->
+<div class="modal-backdrop" id="ai-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="ai-modal-title">🤖 AIサポート</h3>
+      <button class="modal-close" id="ai-close">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--muted);margin:0 0 8px;">下のプロンプトをコピーして、お好みのAIサービスに貼り付けてください。</p>
+      <div class="ai-prompt-box" id="ai-prompt-box"></div>
+      <button class="ai-copy-btn" id="ai-copy-btn">📋 プロンプトをコピー</button>
+      <p style="font-size:12px;color:var(--muted);margin:18px 0 6px;font-weight:700;">AIサービスを選んで開く（プロンプトを貼り付けてください）：</p>
+      <div class="ai-modal-services">
+        <a class="ai-service-btn" href="https://chat.openai.com/" target="_blank" rel="noopener">💬 ChatGPT</a>
+        <a class="ai-service-btn" href="https://claude.ai/" target="_blank" rel="noopener">🧠 Claude</a>
+        <a class="ai-service-btn" href="https://gemini.google.com/" target="_blank" rel="noopener">✨ Gemini</a>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button id="ai-done">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <!-- 使い方ガイド Modal -->
 <div class="modal-backdrop" id="guide-modal">
   <div class="modal">
@@ -1682,19 +2035,62 @@
       <div class="guide-section active" data-guide-section="user">
         <h4>🚀 まずはこれから</h4>
         <h5>📌 ゴールマネジメントとは？</h5>
-        <p>年間の最重要目標（KGI）を3つのKPIに分解し、週次のアクションに落とし込んで、目標達成までを見える化するアプリです。</p>
+        <p>年間の最終ゴールを期間ごとのKGI（最重要目標）に分解し、3つのKPIに落とし込んで、週次のアクションで目標達成までを見える化するアプリです。</p>
         <p><strong>使う流れ：</strong></p>
         <ol>
-          <li>📌 KGI（最重要目標）を決める</li>
-          <li>📊 3つのKPIに分解する</li>
+          <li>🎯 年間最終ゴールを決める</li>
+          <li>🏆 期間（四半期など）のKGIを決める</li>
+          <li>📊 3つのKPIに分解する（必要なら「その他の業務」も）</li>
           <li>✅ 各KPIをTodoに落とし込む</li>
           <li>🗓 週ごとにTodoを設定して実行</li>
           <li>📊 結果を振り返る</li>
         </ol>
 
-        <h4>🏆 ① KGI / KPI を入力する</h4>
+        <h4>📅 期間を入力する</h4>
         <ol>
-          <li>画面上部の <strong>「達成したい最重要目標を入力（文章）」</strong> にKGIをテキストで書きます</li>
+          <li>画面上部のツールバーに <strong>「年 / 月〜 月」</strong> の3つのフィールドがあります</li>
+          <li>例: 「2026 年 4 月〜 6 月」と入力</li>
+          <li>入力後、自動で週次行動目標の週が再計算されます（例: 「4月1週 - 4/1〜4/7」のように日付付きで表示）</li>
+        </ol>
+        <div class="tip">💡 数字は<strong>全角でも自動的に半角に変換</strong>されます。「２０２６」と入れても「2026」になります。</div>
+
+        <h4>🎯 ① 年間最終ゴール</h4>
+        <p>1年通しての最終目標を入力する欄です。文章で記入できます。</p>
+        <ul>
+          <li><strong>達成したい最終ゴール</strong>：年商10億達成 など</li>
+          <li><strong>現状</strong>：今の状態</li>
+        </ul>
+        <p>※ 数値メトリクスは KGI 側で管理するため、年間最終ゴールには無し。</p>
+
+        <h4>🏆 ② KGI / KPI を入力する</h4>
+
+        <h5>📖 まずは用語の理解から</h5>
+        <ul>
+          <li><strong>KGI（Key Goal Indicator）= 最重要目標</strong><br>例: 年商3億円、利益率10%</li>
+          <li><strong>KPI（Key Performance Indicator）= 重要中間指標</strong><br>KGIを達成するための「3つの行動軸」に分解したもの</li>
+        </ul>
+
+        <h5>🌳 KGIをKPIに分解する考え方</h5>
+        <p>KGI「年商3億円」を達成するには、何が必要か？</p>
+        <p>例: <strong>売上 = 客数 × 客単価 × 来店回数</strong></p>
+        <ul>
+          <li>KPI①: 客数を月100人増やす</li>
+          <li>KPI②: 客単価を5,000円→7,000円に</li>
+          <li>KPI③: リピート率を30%→50%に</li>
+        </ul>
+        <p>つまり、KGI達成のために <strong>「コントロールできる3つの数値」</strong> を選びます。</p>
+
+        <h5>🎯 KPI設定のコツ</h5>
+        <ul>
+          <li>数値で測れること（円・%・人・回など）</li>
+          <li>自分でコントロールできること</li>
+          <li>3つに絞る（多すぎると追いきれない）</li>
+          <li>KGIと因果関係があること</li>
+        </ul>
+
+        <h5>✏️ 入力手順</h5>
+        <ol>
+          <li><strong>「達成したい最重要目標を入力（文章）」</strong> にKGIをテキストで書きます</li>
           <li>その下の <strong>「📊 数値で測る」</strong> ブロックで:
             <ul>
               <li><strong>単位プルダウン</strong> から選択（円・%・人・回など）</li>
@@ -1703,49 +2099,82 @@
           </li>
           <li>同じ手順で KPI① / KPI② / KPI③ も入力</li>
         </ol>
-        <div class="tip">💡 数字は<strong>全角でも自動的に半角に変換</strong>されます。円なら入力後に「1,000,000円」と桁区切り＋単位が表示されます。</div>
+        <div class="tip">💡 円なら入力後「1,000,000円」、人なら「20人」のように<strong>桁区切り＋単位</strong>が自動表示されます。</div>
         <div class="info">📉 <strong>「下げたい指標」</strong> にチェックを入れると、原価率など低い方が良い指標として達成率が逆計算されます。</div>
 
-        <h4>✅ ② Todo を入力する</h4>
+        <h4>📁 ③ その他の業務（オプション）</h4>
+        <p>KPI①〜③に該当しない業務を別枠で管理したい場合に使います。</p>
+        <ol>
+          <li>KPI③の下の <strong>「📁 その他の業務 ▼」</strong> をクリックして展開</li>
+          <li>目標と現状を文章で入力（数字は不要、定性的でOK）</li>
+        </ol>
+        <div class="info">💡 不要なら閉じたままでOK。表示はされません。</div>
+
+        <h4>✅ ④ Todo を入力する</h4>
         <p>「KPIをTodoに落とし込む」セクションで、各KPIに必要な行動をリスト化します。</p>
         <ol>
           <li>各カラム下の <strong>「＋ Todo追加」</strong> をクリックしてTodoを追加</li>
           <li>各Todoの右にある <strong>「—」ボタン</strong> をクリックすると優先順位が切り替わります（大→中→小→なし）</li>
           <li>左の <strong>「⋮⋮」</strong> をドラッグするとTodoの順番を入れ替えられます</li>
+          <li>その他の業務のTodoが必要なら、下の <strong>「📁 その他の業務のTodo ▼」</strong> を開いて追加</li>
         </ol>
         <div class="tip">💡 優先順位「大」は赤、「中」は橙、「小」は緑で枠が色付きます。</div>
 
-        <h4>🗓 ③ 週次行動目標を設定する</h4>
+        <h4>🗓 ⑤ 週次行動目標を設定する</h4>
+        <p>週カードのタイトルは「<strong>4月1週 - 4/1〜4/7</strong>」のように日付付きで自動表示されます。</p>
         <ol>
           <li>各週カードをクリックして展開</li>
-          <li><strong>「＋ Todoから選ぶ」</strong> でその週に取り組むTodoを選択</li>
-          <li>選んだTodoは <strong>KPIごとにグループ化</strong> されて表示されます</li>
-          <li>KPIヘッダー（色付き帯）を <strong>ドラッグ</strong> すると、その週のKPI優先順位を変えられます</li>
+          <li><strong>「＋ Todoから選ぶ」</strong> でその週に取り組むTodoを選択（KPI①②③＋その他から選べます）</li>
+          <li>選んだTodoは <strong>KPIごとにグループ化</strong> されて表示</li>
+          <li>KPIヘッダー（色付き帯）を <strong>ドラッグ</strong> で、その週のKPI優先順位を変更可能</li>
           <li>週が終わったら「実行できたこと」「振り返り」を記入</li>
         </ol>
         <div class="info">📋 <strong>「先週分を引き継ぐ」</strong> ボタンで、前の週のTodoをそのままコピーできます。継続案件に便利。</div>
         <div class="info">☐ <strong>「レ点を外す」</strong> ボタンでその週のTodoのチェックを一括で外せます。</div>
 
-        <h4>📊 ④ 結果を見る</h4>
+        <h4>📊 ⑥ 結果を見る</h4>
         <p>KGI/KPIで入力した数字が <strong>結果テーブル</strong> に自動連動して表示されます。</p>
         <ul>
-          <li><strong>現状・目標</strong>：自動表示（編集不可）</li>
+          <li><strong>現状・目標</strong>：KGI/KPIから自動表示（編集不可）</li>
           <li><strong>実績</strong>：手動で入力</li>
-          <li><strong>達成率</strong>：実績÷目標 ×100</li>
+          <li><strong>達成率</strong>：実績÷目標 ×100（下げたい指標は逆計算）</li>
           <li><strong>成長率</strong>：実績÷現状 ×100</li>
         </ul>
 
         <h4>📧 メール通知について</h4>
-        <p>毎週木曜の朝と日曜（または設定された曜日）に、応援メールが届きます。</p>
+        <p>毎週木曜の朝と日曜の夜（または設定された曜日）に、応援メールが届きます。</p>
         <p>不要な場合はヘッダーの <strong>「📧 メールON / 🔕 メールOFF」</strong> ボタンで切り替えてください。</p>
 
-        <h4>📦 期が終わったら</h4>
+        <h4>📦 期が終わったら（自動継続モード）</h4>
         <ol>
           <li>ヘッダーの <strong>「📦 今期を保存して新期へ」</strong> をクリック</li>
           <li>現在の期のデータがアーカイブとして保存されます</li>
-          <li>期間欄を新しい期（例: 2026年7-9月）に書き換えて新期スタート</li>
+          <li><strong>KGI/KPI/Todoはそのまま引き継がれます</strong>（ゼロから入力し直す必要なし）</li>
+          <li>実績・週次の振り返り・Todoのチェックはリセット</li>
+          <li>期間フィールド（年/月〜月）を新しい期に書き換えて新期スタート</li>
           <li>過去の期を見たい時は <strong>「📂 過去の期を見る…」</strong> から選択（読み取り専用で表示）</li>
         </ol>
+
+        <h4>🤖 AIサポート機能</h4>
+        <p>ChatGPT / Claude / Gemini にKGI/KPIの内容を渡して相談できる機能です。</p>
+        <ol>
+          <li>KGI/KPIエリアの <strong>「🤖 AIにKPI分解を相談」</strong> ボタン → KGIを3つのKPIに分解する案を取得</li>
+          <li>Todoエリアの <strong>「🤖 AIにTodo提案」</strong> ボタン → 各KPIを実行可能なTodoに分解する案を取得</li>
+          <li>モーダルが開くので <strong>「📋 プロンプトをコピー」</strong> をクリック</li>
+          <li>下のChatGPT / Claude / Geminiボタンから好きなAIサービスを開く</li>
+          <li>AI画面に貼り付けて送信 → 提案を取得</li>
+        </ol>
+        <div class="info">💡 すべての無料プランでも使えます（ChatGPT GPT-4はログイン必須、Claude/Geminiは無料）。</div>
+
+        <h4>📅 Googleカレンダー連携</h4>
+        <p>週次のTodoをカレンダーアプリに一括登録できます。</p>
+        <ol>
+          <li>週カードを開く</li>
+          <li><strong>「📅 カレンダーに登録」</strong> ボタンをクリック</li>
+          <li>その週のTodoが入った <strong>.icsファイル</strong> がダウンロードされる</li>
+          <li>ダブルクリックで Googleカレンダー / Apple Calendar / Outlook などに一括インポート可能</li>
+        </ol>
+        <div class="tip">💡 Todoは週内に1日1件ずつ自動配置されます。日時調整は各カレンダーアプリで行ってください。</div>
       </div>
 
       <!-- 講師（管理者）向け -->
@@ -1816,11 +2245,37 @@
         <h5>Q. 他の端末（スマホ・PC）でも使えますか？</h5>
         <p>A. はい、同じメールアドレスでログインすれば自動同期されます。リアルタイムで反映されます。</p>
 
+        <h5>Q. 期間（例: 2026年4-6月）の入力</h5>
+        <p>A. ヘッダーの3つのフィールドに「年・開始月・終了月」をそれぞれ数字で入れます。全角でもOK、自動で半角になります。</p>
+
+        <h5>Q. 週ラベルが「4月1週 - 4/1〜4/7」になっているけど、どう計算してるの？</h5>
+        <p>A. 月の1日起点で4分割しています：</p>
+        <ul>
+          <li>1週: 1日〜7日</li>
+          <li>2週: 8日〜14日</li>
+          <li>3週: 15日〜21日</li>
+          <li>4週: 22日〜月末（30日 or 31日）</li>
+        </ul>
+
+        <h5>Q. 「年間最終ゴール」と「KGI」の違いは？</h5>
+        <p>A.</p>
+        <ul>
+          <li><strong>年間最終ゴール</strong>：1年間のビジョン・最終目標（文章のみ）</li>
+          <li><strong>KGI</strong>：期間（四半期など）ごとの最重要数値目標（数字あり）</li>
+        </ul>
+        <p>年間最終ゴール → KGI → KPI → Todo の階層で目標を分解していくイメージです。</p>
+
+        <h5>Q. 「その他の業務」は何のため？</h5>
+        <p>A. KPI①〜③に該当しない業務を管理する別枠です。定性的な業務や、数字で測れない仕事に使います。不要なら閉じたままでOK。</p>
+
         <h5>Q. 数字を入れたのに達成率が「—」のまま</h5>
         <p>A. 「目標値」と「実績」両方が入力されているか確認してください。「目標値」は KGI/KPI の「📊 数値で測る」ブロックで入力します。</p>
 
         <h5>Q. 「下げたい指標」とは？</h5>
         <p>A. 原価率や離職率のように <strong>低い方が良い指標</strong> 用のフラグです。チェックを入れると達成率が逆計算されます（例: 目標30%・実績25% → 120%達成）。</p>
+
+        <h5>Q. 数字を入れたら勝手にカンマが入る</h5>
+        <p>A. 仕様です。1,000以上の数字には3桁ごとのカンマ＋単位（円・人など）が自動で付きます。クリックすると編集用に生の数字に戻ります。</p>
 
         <h5>Q. ドラッグできない / 反応しない</h5>
         <p>A. 必ず <strong>「⋮⋮」アイコン</strong> またはKPIの色付き帯を掴んでください。テキスト部分だと選択モードになります。</p>
@@ -1964,10 +2419,23 @@
       : String(n);
     return formatted + suffix;
   }
+  // Get goal object by key (handles annualGoal, goals.kpi*, goals.other)
+  function getGoalByKey(key) {
+    if (key === 'annualGoal') {
+      if (!state.annualGoal) state.annualGoal = defaultGoal();
+      return state.annualGoal;
+    }
+    if (key === 'other') {
+      if (!state.goals.other) state.goals.other = { target: '', current: '' };
+      return state.goals.other;
+    }
+    return state.goals[key];
+  }
   // Get raw value from state for an input element
   function getRawValueForInput(t) {
     if (t.dataset.goal && (t.dataset.field === 'currentValue' || t.dataset.field === 'targetValue')) {
-      return (state.goals[t.dataset.goal] && state.goals[t.dataset.goal][t.dataset.field]) ?? '';
+      const g = getGoalByKey(t.dataset.goal);
+      return (g && g[t.dataset.field]) ?? '';
     }
     if (t.dataset.result && t.dataset.field === 'actual') {
       return (state.results[t.dataset.result] && state.results[t.dataset.result].actual) ?? '';
@@ -1977,7 +2445,8 @@
   // Get unit for an input element (from related goal)
   function getUnitForInput(t) {
     if (t.dataset.goal) {
-      return (state.goals[t.dataset.goal] && state.goals[t.dataset.goal].unit) || 'none';
+      const g = getGoalByKey(t.dataset.goal);
+      return (g && g.unit) || 'none';
     }
     if (t.dataset.result) {
       return (state.goals[t.dataset.result] && state.goals[t.dataset.result].unit) || 'none';
@@ -2023,13 +2492,124 @@
     }
     return null;
   }
+  // Build period string from year/start/end fields
+  function buildPeriodString(year, start, end) {
+    const y = parseInt(year, 10);
+    const s = parseInt(start, 10);
+    const e = parseInt(end, 10);
+    if (!y || !s) return '';
+    if (!e || e === s) return `${y}年${s}月`;
+    return `${y}年${s}-${e}月`;
+  }
 
+  // Get week's start date (Date object) for ICS export
+  function getWeekStartDate(year, month, weekIdx) {
+    const startDay = weekIdx * 7 + 1;
+    return new Date(year, month - 1, startDay);
+  }
+  function getWeekEndDate(year, month, weekIdx) {
+    const startDay = weekIdx * 7 + 1;
+    const endDay = (weekIdx < 3) ? startDay + 6 : new Date(year, month, 0).getDate();
+    return new Date(year, month - 1, endDay);
+  }
+  // Format date range: "4/1〜4/7 - 4月1週"
+  function buildWeekLabel(year, month, weekIdx) {
+    // weekIdx: 0..3
+    const startDay = weekIdx * 7 + 1;
+    let endDay;
+    if (weekIdx < 3) {
+      endDay = startDay + 6;
+    } else {
+      // Final (4th) week: through end of month
+      endDay = new Date(year, month, 0).getDate();
+    }
+    return `${month}月${weekIdx + 1}週 - ${month}/${startDay}〜${month}/${endDay}`;
+  }
   function generateWeekLabels(year, months) {
     const labels = [];
     for (const mo of months) {
-      for (let w = 1; w <= 4; w++) labels.push(`${year}年${mo}月${w}週`);
+      for (let w = 0; w < 4; w++) labels.push(buildWeekLabel(year, mo, w));
     }
     return labels;
+  }
+  // Parse a week label like "4月1週 - 4/1〜4/7" → { month, weekIdx }
+  function parseWeekLabel(label) {
+    if (!label) return null;
+    const m = String(label).match(/(\d{1,2})月(\d)週/);
+    if (m) return { month: +m[1], weekIdx: +m[2] - 1 };
+    return null;
+  }
+  // Build .ics content for a week's plan todos
+  function buildIcsForWeek(wi) {
+    const w = state.weeks[wi];
+    if (!w) return '';
+    const ids = w.planTodoIds || [];
+    if (ids.length === 0) return '';
+    const parsed = parseWeekLabel(w.week);
+    const year = state.periodYear || new Date().getFullYear();
+    let weekStart, weekEnd;
+    if (parsed) {
+      weekStart = getWeekStartDate(year, parsed.month, parsed.weekIdx);
+      weekEnd = getWeekEndDate(year, parsed.month, parsed.weekIdx);
+    } else {
+      // Fallback: today
+      weekStart = new Date();
+      weekEnd = new Date(weekStart.getTime() + 6 * 86400000);
+    }
+    const totalDays = Math.max(1, Math.round((weekEnd - weekStart) / 86400000) + 1);
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Goal Management//JP',
+      'CALSCALE:GREGORIAN',
+    ];
+    const pad = n => String(n).padStart(2, '0');
+    const fmtDate = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+    const dtstamp = `${fmtDate(new Date())}T${pad(new Date().getHours())}${pad(new Date().getMinutes())}${pad(new Date().getSeconds())}Z`;
+    ids.forEach((id, idx) => {
+      const found = findTodoById(id);
+      if (!found) return;
+      const text = found.todo.text || '(未入力)';
+      const kpiLabel = found.kpi === 'other' ? 'その他' : `KPI${['①','②','③'][found.kpi-1]}`;
+      // Distribute todos across the week (1 per day if possible)
+      const dayOffset = idx % totalDays;
+      const eventDate = new Date(weekStart.getTime() + dayOffset * 86400000);
+      const dtStart = fmtDate(eventDate);
+      const nextDate = new Date(eventDate.getTime() + 86400000);
+      const dtEnd = fmtDate(nextDate);
+      const summary = `[${kpiLabel}] ${text}`.replace(/[\r\n]+/g, ' ');
+      const uid = `gm-${id}-${wi}-${idx}@goal-mgmt`;
+      lines.push('BEGIN:VEVENT');
+      lines.push(`UID:${uid}`);
+      lines.push(`DTSTAMP:${dtstamp}`);
+      lines.push(`DTSTART;VALUE=DATE:${dtStart}`);
+      lines.push(`DTEND;VALUE=DATE:${dtEnd}`);
+      lines.push(`SUMMARY:${summary.slice(0, 200)}`);
+      lines.push(`DESCRIPTION:ゴールマネジメント - ${esc(w.week || '')}`);
+      lines.push('END:VEVENT');
+    });
+    lines.push('END:VCALENDAR');
+    return lines.join('\r\n');
+  }
+  function downloadIcsForWeek(wi) {
+    const ics = buildIcsForWeek(wi);
+    if (!ics) {
+      alert('この週にはTodoが設定されていません。「+ Todoから選ぶ」でTodoを追加してから再度お試しください。');
+      return;
+    }
+    const w = state.weeks[wi];
+    const safeName = (w.week || `week-${wi}`).replace(/[\/\\:*?"<>|]/g, '_');
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${safeName}.ics`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
   }
 
   const DEFAULT_WEEKS = generateWeekLabels(2026, [4,5,6]);
@@ -2047,13 +2627,18 @@
   });
   const defaultState = () => ({
     period: '2026年4-6月',
+    periodYear: 2026,
+    periodStartMonth: 4,
+    periodEndMonth: 6,
+    annualGoal: defaultGoal(),
     goals: {
       kgi:  defaultGoal(),
       kpi1: defaultGoal({ issue: '', solution: '' }),
       kpi2: defaultGoal({ issue: '', solution: '' }),
       kpi3: defaultGoal({ issue: '', solution: '' }),
+      other: { target: '', current: '' },  // simpler: text only
     },
-    todos: { 1: [], 2: [], 3: [] },
+    todos: { 1: [], 2: [], 3: [], other: [] },
     weeks: DEFAULT_WEEKS.map(w => ({ week: w, planTodoIds: [], kpiOrder: [1,2,3], planNote: '', done: '', review: '' })),
     results: {
       kgi:  { actual: '' },
@@ -2123,7 +2708,21 @@
     out.kpi1 = normalizeGoal(out.kpi1, false);
     out.kpi2 = normalizeGoal(out.kpi2, false);
     out.kpi3 = normalizeGoal(out.kpi3, false);
+    out.other = {
+      target: (out.other && out.other.target) || '',
+      current: (out.other && out.other.current) || '',
+    };
     return out;
+  }
+  // Derive periodYear/Start/End from period string for backward compat
+  function derivePeriodFields(s, periodStr) {
+    if (typeof s.periodYear === 'number' && typeof s.periodStartMonth === 'number') return;
+    const p = parsePeriod(periodStr);
+    if (p) {
+      s.periodYear = p.year;
+      s.periodStartMonth = p.months[0];
+      s.periodEndMonth = p.months[p.months.length - 1];
+    }
   }
   // Normalize results: only "actual" is needed now; preserve old shape just in case
   function normalizeResults(results) {
@@ -2142,14 +2741,16 @@
         const d = defaultState();
         const merged = {
           ...d, ...s,
+          annualGoal: normalizeGoal(s.annualGoal, true),
           goals: normalizeAllGoals(s.goals),
           todos: { ...d.todos, ...(s.todos || {}) },
           weeks: Array.isArray(s.weeks) && s.weeks.length > 0 ? s.weeks : d.weeks,
           results: normalizeResults(s.results),
           archives: Array.isArray(s.archives) ? s.archives : [],
         };
+        derivePeriodFields(merged, merged.period);
         // ensure todo ids
-        [1,2,3].forEach(k => {
+        TODO_KEYS.forEach(k => {
           merged.todos[k] = (merged.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none' }));
         });
         // ensure week shape
@@ -2176,9 +2777,12 @@
   let state = load();
   const $ = (id) => document.getElementById(id);
 
+  const TODO_KEYS = [1, 2, 3, 'other'];
   function findTodoById(id) {
-    for (const k of [1,2,3]) {
-      const t = state.todos[k].find(x => x.id === id);
+    for (const k of TODO_KEYS) {
+      const list = state.todos[k];
+      if (!Array.isArray(list)) continue;
+      const t = list.find(x => x.id === id);
       if (t) return { todo: t, kpi: k };
     }
     return null;
@@ -2246,15 +2850,20 @@
   const PRIORITY_NEXT = { none: 'high', high: 'medium', medium: 'low', low: 'none' };
   function renderTodos() {
     let totalDone = 0, totalAll = 0;
-    [1,2,3].forEach(k => {
+    TODO_KEYS.forEach(k => {
       const list = state.todos[k] || [];
       const done = list.filter(t => t.done).length;
       totalDone += done; totalAll += list.length;
-      $(`todo-${k}`).innerHTML = list.map((t, i) => {
+      const containerId = (k === 'other') ? 'todo-other' : `todo-${k}`;
+      const progId = (k === 'other') ? 'todo-other-prog' : `todo-${k}-prog`;
+      const container = $(containerId);
+      if (!container) return;
+      container.innerHTML = list.map((t, i) => {
         const p = t.priority || 'none';
         const priClass = p === 'none' ? '' : `priority-${p}`;
+        const otherCls = k === 'other' ? 'todo-item-other' : '';
         return `
-        <div class="todo-item ${t.done ? 'done' : ''} ${priClass}" draggable="true" data-id="${t.id}" data-kpi="${k}" data-index="${i}">
+        <div class="todo-item ${t.done ? 'done' : ''} ${priClass} ${otherCls}" draggable="true" data-id="${t.id}" data-kpi="${k}" data-index="${i}">
           <span class="drag-handle" title="ドラッグで並び替え">⋮⋮</span>
           <input type="checkbox" data-id="${t.id}" data-act="check" ${t.done ? 'checked' : ''} />
           <textarea class="autosize todo-text" data-id="${t.id}" data-act="text" placeholder="Todoを入力" rows="1">${esc(t.text)}</textarea>
@@ -2264,7 +2873,8 @@
         </div>
       `;
       }).join('');
-      $(`todo-${k}-prog`).textContent = `${done} / ${list.length} 完了`;
+      const prog = $(progId);
+      if (prog) prog.textContent = `${done} / ${list.length} 完了`;
     });
     $('todo-summary').textContent = totalAll ? `全体 ${totalDone} / ${totalAll} 完了` : '—';
   }
@@ -2281,17 +2891,22 @@
   function renderWeeks() {
     const html = state.weeks.map((w, wi) => {
       // Group todos by KPI in order they appear in planTodoIds
-      const groupedByKpi = { 1: [], 2: [], 3: [] };
+      const groupedByKpi = { 1: [], 2: [], 3: [], other: [] };
       (w.planTodoIds || []).forEach(id => {
         const found = findTodoById(id);
         if (!found) return;
         groupedByKpi[found.kpi].push(found.todo);
       });
       const kpiOrder = (Array.isArray(w.kpiOrder) && w.kpiOrder.length === 3) ? w.kpiOrder : [1,2,3];
-      const chips = kpiOrder.map(kpi => {
+      // Always append 'other' at the end
+      const fullOrder = [...kpiOrder, 'other'];
+      const chips = fullOrder.map(kpi => {
         const items = groupedByKpi[kpi] || [];
         if (items.length === 0) return '';
-        const targetText = state.goals['kpi' + kpi].target || '';
+        const isOther = kpi === 'other';
+        const targetText = isOther
+          ? ((state.goals.other && state.goals.other.target) || 'その他の業務')
+          : (state.goals['kpi' + kpi].target || '');
         const truncated = targetText ? (targetText.length > 30 ? targetText.slice(0, 30) + '…' : targetText) : '';
         const chipsHTML = items.map(todo => {
           const p = todo.priority || 'none';
@@ -2306,11 +2921,15 @@
             </div>
           `;
         }).join('');
+        const groupLabel = isOther
+          ? `📁 その他: ${esc(truncated)}`
+          : `KPI${['①','②','③'][kpi-1]}${truncated ? ': ' + esc(truncated) : ''}`;
+        const draggableAttr = isOther ? '' : 'draggable="true"';
         return `
-          <div class="plan-kpi-group" data-kpi="${kpi}" data-week="${wi}" draggable="true">
+          <div class="plan-kpi-group" data-kpi="${kpi}" data-week="${wi}" ${draggableAttr}>
             <div class="plan-kpi-group-head">
-              <span class="group-drag" title="グループをドラッグでKPIの優先順位を変更">⋮⋮</span>
-              <span class="group-label">KPI${['①','②','③'][kpi-1]}${truncated ? ': ' + esc(truncated) : ''}</span>
+              ${isOther ? '' : '<span class="group-drag" title="グループをドラッグでKPIの優先順位を変更">⋮⋮</span>'}
+              <span class="group-label">${groupLabel}</span>
             </div>
             <div class="plan-kpi-group-body">${chipsHTML}</div>
           </div>
@@ -2338,6 +2957,7 @@
                 <span>📋 アクションプラン（計画）</span>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
                   ${wi > 0 ? `<button class="week-carry-btn" data-week="${wi}" data-act="carry-over" title="前の週のTodoをこの週にコピー">📋 先週分を引き継ぐ</button>` : ''}
+                  ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="ics-download" title="この週のTodoをカレンダー形式(.ics)でダウンロード（Googleカレンダー/Apple/Outlookに対応）">📅 カレンダーに登録</button>` : ''}
                   ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="uncheck-week" title="この週のTodoのチェックを外す">☐ レ点を外す</button>` : ''}
                 </div>
               </div>
@@ -2486,8 +3106,34 @@
   }
 
   function renderAll() {
-    $('period').value = state.period || '';
+    // Period fields (3 inputs)
+    const py = $('period-year');
+    const ps = $('period-start');
+    const pe = $('period-end');
+    if (py) py.value = state.periodYear ?? '';
+    if (ps) ps.value = state.periodStartMonth ?? '';
+    if (pe) pe.value = state.periodEndMonth ?? '';
     updateHeaderPeriod();
+    // Other goal (text only)
+    const og = state.goals.other || { target: '', current: '' };
+    const otT = document.querySelector('[data-goal="other"][data-field="target"]');
+    const otC = document.querySelector('[data-goal="other"][data-field="current"]');
+    if (otT) otT.value = og.target || '';
+    if (otC) otC.value = og.current || '';
+    // Annual Goal (static HTML)
+    const ag = state.annualGoal || defaultGoal();
+    const agT = document.querySelector('[data-goal="annualGoal"][data-field="target"]');
+    const agC = document.querySelector('[data-goal="annualGoal"][data-field="current"]');
+    const agUnit = document.querySelector('[data-goal="annualGoal"][data-field="unit"]');
+    const agCV = document.querySelector('[data-goal="annualGoal"][data-field="currentValue"]');
+    const agTV = document.querySelector('[data-goal="annualGoal"][data-field="targetValue"]');
+    const agLB = document.querySelector('[data-goal="annualGoal"][data-field="lowerIsBetter"]');
+    if (agT) agT.value = ag.target || '';
+    if (agC) agC.value = ag.current || '';
+    if (agUnit) agUnit.innerHTML = unitOptionsHTML(ag.unit || 'none');
+    if (agCV) agCV.value = formatLiveValue(ag.currentValue, ag.unit || 'none');
+    if (agTV) agTV.value = formatLiveValue(ag.targetValue, ag.unit || 'none');
+    if (agLB) agLB.checked = !!ag.lowerIsBetter;
     // KGI hero (in static HTML, not generated by renderKpiCards)
     const g = state.goals.kgi;
     const kgiT = document.querySelector('[data-goal="kgi"][data-field="target"]');
@@ -2543,10 +3189,11 @@
           val = normalized;
         }
       }
-      state.goals[t.dataset.goal][f] = val;
+      const g = getGoalByKey(t.dataset.goal);
+      g[f] = val;
       save();
       if (f === 'target') {
-        if (t.dataset.goal !== 'kgi') updateKpiNames();
+        if (t.dataset.goal !== 'kgi' && t.dataset.goal !== 'annualGoal') updateKpiNames();
         renderWeeks();
         renderResults();
       } else if (NUMERIC_GOAL_FIELDS.includes(f) || f === 'unit') {
@@ -2572,10 +3219,23 @@
     } else if (t.dataset.act === 'text' && t.dataset.id) {
       const f = findTodoById(t.dataset.id);
       if (f) { f.todo.text = t.value; save(); renderWeeks(); }
-    } else if (t.id === 'period') {
-      state.period = t.value;
+    } else if (t.id === 'period-year' || t.id === 'period-start' || t.id === 'period-end') {
+      // Auto half-width
+      const normalized = toHalfWidth(t.value).replace(/[^0-9]/g, '');
+      if (normalized !== t.value) {
+        const start = t.selectionStart;
+        t.value = normalized;
+        try { t.setSelectionRange(start, start); } catch {}
+      }
+      const yv = parseInt($('period-year')?.value, 10);
+      const sv = parseInt($('period-start')?.value, 10);
+      const ev = parseInt($('period-end')?.value, 10);
+      if (yv) state.periodYear = yv;
+      if (sv) state.periodStartMonth = sv;
+      if (ev) state.periodEndMonth = ev;
+      const newPeriod = buildPeriodString(state.periodYear, state.periodStartMonth, state.periodEndMonth);
+      if (newPeriod) state.period = newPeriod;
       updateHeaderPeriod();
-      // Update KGI period display
       const periodDisp = $('kgi-period-display');
       if (periodDisp) periodDisp.textContent = '期間：' + (formatPeriodDisplay(state.period) || '—');
       if (syncWeeksWithPeriod()) renderWeeks();
@@ -2587,12 +3247,12 @@
   document.addEventListener('change', (e) => {
     const t = e.target;
     if (t.dataset.goal && t.dataset.field === 'unit') {
-      state.goals[t.dataset.goal].unit = t.value;
+      getGoalByKey(t.dataset.goal).unit = t.value;
       save();
       renderResults();
       refreshNumericDisplays();  // re-format all numeric inputs with new unit
     } else if (t.dataset.goal && t.dataset.field === 'lowerIsBetter') {
-      state.goals[t.dataset.goal].lowerIsBetter = !!t.checked;
+      getGoalByKey(t.dataset.goal).lowerIsBetter = !!t.checked;
       save();
       renderResults();
     }
@@ -2650,7 +3310,7 @@
     if (tgt.classList && tgt.classList.contains('plan-chip')) {
       dragMode = 'chip';
       dragSrcId = tgt.dataset.todoid;
-      dragSrcKpi = +tgt.dataset.kpi;
+      dragSrcKpi = tgt.dataset.kpi === 'other' ? 'other' : +tgt.dataset.kpi;
       dragSrcWeek = +tgt.dataset.week;
       tgt.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
@@ -2671,7 +3331,7 @@
     if (item) {
       dragMode = 'todo';
       dragSrcId = item.dataset.id;
-      dragSrcKpi = +item.dataset.kpi;
+      dragSrcKpi = item.dataset.kpi === 'other' ? 'other' : +item.dataset.kpi;
       item.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
       try { e.dataTransfer.setData('text/plain', dragSrcId); } catch {}
@@ -2692,7 +3352,8 @@
     if (dragMode === 'todo') {
       const item = e.target.closest('.todo-item');
       if (!item) return;
-      if (+item.dataset.kpi !== dragSrcKpi) return;
+      const itemKpi = item.dataset.kpi === 'other' ? 'other' : +item.dataset.kpi;
+      if (itemKpi !== dragSrcKpi) return;
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
       document.querySelectorAll('.todo-item.drag-over').forEach(el => { if (el !== item) el.classList.remove('drag-over'); });
@@ -2701,7 +3362,8 @@
       const chip = e.target.closest('.plan-chip');
       if (!chip) return;
       if (+chip.dataset.week !== dragSrcWeek) return;
-      if (+chip.dataset.kpi !== dragSrcKpi) return;  // same KPI only
+      const chipKpi = chip.dataset.kpi === 'other' ? 'other' : +chip.dataset.kpi;
+      if (chipKpi !== dragSrcKpi) return;  // same KPI only
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
       document.querySelectorAll('.plan-chip.drop-target').forEach(el => { if (el !== chip) el.classList.remove('drop-target'); });
@@ -2728,7 +3390,7 @@
       const item = e.target.closest('.todo-item');
       if (!item) return;
       e.preventDefault();
-      const targetKpi = +item.dataset.kpi;
+      const targetKpi = item.dataset.kpi === 'other' ? 'other' : +item.dataset.kpi;
       if (targetKpi !== dragSrcKpi) return;
       const targetId = item.dataset.id;
       if (targetId === dragSrcId) return;
@@ -2745,7 +3407,8 @@
       if (!chip) return;
       e.preventDefault();
       if (+chip.dataset.week !== dragSrcWeek) return;
-      if (+chip.dataset.kpi !== dragSrcKpi) return;
+      const chipKpi = chip.dataset.kpi === 'other' ? 'other' : +chip.dataset.kpi;
+      if (chipKpi !== dragSrcKpi) return;
       const targetId = chip.dataset.todoid;
       if (targetId === dragSrcId) return;
       const ids = state.weeks[dragSrcWeek].planTodoIds || [];
@@ -2781,16 +3444,19 @@
   document.addEventListener('click', (e) => {
     const t = e.target;
     if (t.dataset.act === 'add' && t.dataset.kpi) {
-      const k = +t.dataset.kpi;
+      const rawK = t.dataset.kpi;
+      const k = (rawK === 'other') ? 'other' : +rawK;
+      if (!state.todos[k]) state.todos[k] = [];
       state.todos[k].push({ id: newId(), text: '', done: false, priority: 'none' });
       save(); renderTodos();
       setTimeout(() => {
-        const items = document.querySelectorAll(`#todo-${k} textarea.todo-text`);
+        const containerId = (k === 'other') ? 'todo-other' : `todo-${k}`;
+        const items = document.querySelectorAll(`#${containerId} textarea.todo-text`);
         if (items.length) items[items.length - 1].focus();
       }, 10);
     } else if (t.dataset.act === 'del' && t.dataset.id) {
       const id = t.dataset.id;
-      [1,2,3].forEach(k => { state.todos[k] = state.todos[k].filter(x => x.id !== id); });
+      TODO_KEYS.forEach(k => { state.todos[k] = (state.todos[k] || []).filter(x => x.id !== id); });
       // also remove from weekly references
       state.weeks.forEach(w => { w.planTodoIds = (w.planTodoIds || []).filter(x => x !== id); });
       save(); renderTodos(); renderWeeks();
@@ -2816,6 +3482,10 @@
       const id = t.dataset.todoid;
       state.weeks[wi].planTodoIds = state.weeks[wi].planTodoIds.filter(x => x !== id);
       save(); renderWeeks();
+    } else if (t.dataset.act === 'ics-download') {
+      e.stopPropagation();
+      const wi = +t.dataset.week;
+      downloadIcsForWeek(wi);
     } else if (t.dataset.act === 'uncheck-week') {
       e.stopPropagation();
       const wi = +t.dataset.week;
@@ -2873,14 +3543,14 @@
 
   // Uncheck all todos (preserve text)
   $('todo-uncheck-all').addEventListener('click', () => {
-    const total = [1,2,3].reduce((s, k) => s + state.todos[k].filter(t => t.done).length, 0);
+    const total = TODO_KEYS.reduce((s, k) => s + ((state.todos[k] || []).filter(t => t.done).length), 0);
     if (total === 0) {
       alert('外せるチェックがありません');
       return;
     }
     if (!confirm(`${total}件のTodoのチェックを外します。\n（Todoの内容は消えません）`)) return;
-    [1,2,3].forEach(k => {
-      state.todos[k].forEach(t => { t.done = false; });
+    TODO_KEYS.forEach(k => {
+      (state.todos[k] || []).forEach(t => { t.done = false; });
     });
     save();
     renderTodos();
@@ -2904,18 +3574,27 @@
     pickerWeek = wi;
     const w = state.weeks[wi];
     $('picker-title').textContent = `${w.week} の Todo を選ぶ`;
-    const html = [1,2,3].map(k => {
-      const targetName = state.goals['kpi'+k].target || '(目標未入力)';
-      const list = state.todos[k] || [];
-      const items = list.length ? list.map(t => `
+    const groups = [1,2,3].map(k => ({
+      key: k,
+      title: `KPI${['①','②','③'][k-1]}: ${esc(state.goals['kpi'+k].target || '(目標未入力)')}`,
+      list: state.todos[k] || [],
+    }));
+    // Always include "other" group
+    groups.push({
+      key: 'other',
+      title: `📁 その他の業務: ${esc((state.goals.other && state.goals.other.target) || '(目標未入力)')}`,
+      list: state.todos.other || [],
+    });
+    const html = groups.map(g => {
+      const items = g.list.length ? g.list.map(t => `
         <label class="pick-item">
           <input type="checkbox" data-act="pick-check" data-week="${wi}" data-id="${t.id}" ${w.planTodoIds.includes(t.id) ? 'checked' : ''} />
           <span>${esc(t.text || '(未入力)')}</span>
         </label>
       `).join('') : '<div class="pick-empty">Todoがありません</div>';
       return `
-        <div class="pick-group" data-kpi="${k}">
-          <div class="pick-group-head">KPI${['①','②','③'][k-1]}: ${esc(targetName)}</div>
+        <div class="pick-group" data-kpi="${g.key}">
+          <div class="pick-group-head">${g.title}</div>
           ${items}
         </div>
       `;
@@ -2963,10 +3642,14 @@
       return;
     }
     const periodLabel = state.period || '期間未設定';
-    if (!confirm(`現在の期「${periodLabel}」をアーカイブとして保存します。\n\n・KGI/KPI、Todo、週次、結果のスナップショットが保存されます\n・保存後は同じ画面で次の期の内容に書き換え可能です\n（保存したデータは「📂過去の期を見る」から閲覧できます）\n\nよろしいですか？`)) return;
+    if (!confirm(`現在の期「${periodLabel}」をアーカイブとして保存し、内容をそのまま新しい期に引き継ぎます。\n\n・現在のKGI/KPI/Todo/週次/結果のスナップショットが「過去の期」として保存されます\n・現在の画面の内容はそのまま残ります（前期と同じ内容を引き継いで継続）\n・期間フィールドを新期に変更すれば、そのまま新しい期として運用開始\n（保存したデータは「📂過去の期を見る」から閲覧できます）\n\nよろしいですか？`)) return;
     const id = 'arc-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     const snapshot = {
       period: state.period,
+      periodYear: state.periodYear,
+      periodStartMonth: state.periodStartMonth,
+      periodEndMonth: state.periodEndMonth,
+      annualGoal: JSON.parse(JSON.stringify(state.annualGoal || defaultGoal())),
       goals: JSON.parse(JSON.stringify(state.goals)),
       todos: JSON.parse(JSON.stringify(state.todos)),
       weeks: JSON.parse(JSON.stringify(state.weeks)),
@@ -2974,9 +3657,21 @@
     };
     state.archives = state.archives || [];
     state.archives.push({ id, period: state.period, archivedAt: Date.now(), snapshot });
+    // Auto-continue: clear only "results.actual" and "todo done states + week notes/done/review" so the next period starts fresh,
+    // but keep KGI/KPI structure, Todo list, and week framework
+    KPI_KEYS.forEach(k => { if (state.results[k]) state.results[k].actual = ''; });
+    TODO_KEYS.forEach(k => {
+      (state.todos[k] || []).forEach(t => { t.done = false; });
+    });
+    state.weeks.forEach(w => {
+      w.done = '';
+      w.review = '';
+      w.planNote = '';
+    });
     save();
+    renderAll();
     updateArchiveSelect();
-    alert('✅ 今期を保存しました。\n期間欄を新しい期（例: 2026年7-9月）に書き換えて、新しい期を始めてください。');
+    alert('✅ 今期を保存しました。\n\n・KGI/KPI/Todoはそのまま引き継がれています\n・実績/週次の振り返り/Todoのチェックはリセットされました\n・期間フィールドを新期（例: 2026年7-9月）に書き換えれば新期スタートです');
   });
 
   $('archive-select').addEventListener('change', (e) => {
@@ -2996,6 +3691,7 @@
     const archiveState = {
       ...defaultState(),
       period: snap.period || archive.period || '',
+      annualGoal: normalizeGoal(snap.annualGoal, true),
       goals: { ...defaultState().goals, ...(snap.goals || {}) },
       todos: { ...defaultState().todos, ...(snap.todos || {}) },
       weeks: Array.isArray(snap.weeks) && snap.weeks.length ? snap.weeks : defaultState().weeks,
@@ -3253,6 +3949,7 @@
         userBarUpdate(currentEmail);
         state = {
           ...defaultState(), ...data,
+          annualGoal: normalizeGoal(data.annualGoal, true),
           goals: normalizeAllGoals(data.goals),
           todos: { ...defaultState().todos, ...(data.todos || {}) },
           weeks: Array.isArray(data.weeks) && data.weeks.length ? data.weeks : defaultState().weeks,
@@ -3260,7 +3957,7 @@
           archives: Array.isArray(data.archives) ? data.archives : [],
         };
         // normalize todos / weeks
-        [1,2,3].forEach(k => {
+        TODO_KEYS.forEach(k => {
           state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none' }));
         });
         state.weeks = state.weeks.map((w, i) => ({
@@ -3307,13 +4004,14 @@
       // Update only if different (avoid loops)
       const newState = {
         ...defaultState(), ...data,
+        annualGoal: normalizeGoal(data.annualGoal, true),
         goals: normalizeAllGoals(data.goals),
         todos: { ...defaultState().todos, ...(data.todos || {}) },
         weeks: Array.isArray(data.weeks) && data.weeks.length ? data.weeks : defaultState().weeks,
         results: normalizeResults(data.results),
         archives: Array.isArray(data.archives) ? data.archives : [],
       };
-      [1,2,3].forEach(k => {
+      TODO_KEYS.forEach(k => {
         newState.todos[k] = (newState.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none' }));
       });
       newState.weeks = newState.weeks.map((w, i) => ({
@@ -3477,13 +4175,14 @@
         const data = snap.data();
         state = {
           ...defaultState(), ...data,
+          annualGoal: normalizeGoal(data.annualGoal, true),
           goals: normalizeAllGoals(data.goals),
           todos: { ...defaultState().todos, ...(data.todos || {}) },
           weeks: Array.isArray(data.weeks) && data.weeks.length ? data.weeks : defaultState().weeks,
           results: normalizeResults(data.results),
           archives: Array.isArray(data.archives) ? data.archives : [],
         };
-        [1,2,3].forEach(k => {
+        TODO_KEYS.forEach(k => {
           state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none' }));
         });
         state.weeks = state.weeks.map((w, i) => ({
@@ -3521,6 +4220,109 @@
   $('ub-edit-name').addEventListener('click', promptDisplayName);
   $('ub-name').addEventListener('click', promptDisplayName);
   $('ub-email-toggle').addEventListener('click', toggleEmailNotifications);
+
+  // ===== AI サポート =====
+  function buildKgiKpiContext() {
+    const ag = state.annualGoal || {};
+    const kgi = state.goals.kgi || {};
+    const lines = [];
+    if (ag.target) lines.push(`【年間最終ゴール】${ag.target}`);
+    if (ag.current) lines.push(`【年間現状】${ag.current}`);
+    if (kgi.target) lines.push(`【今期KGI（${state.period || ''}）】${kgi.target}`);
+    if (kgi.targetValue) lines.push(`【KGI目標値】${formatLiveValue(kgi.targetValue, kgi.unit)}`);
+    if (kgi.currentValue) lines.push(`【KGI現状値】${formatLiveValue(kgi.currentValue, kgi.unit)}`);
+    [1,2,3].forEach(n => {
+      const k = state.goals['kpi' + n];
+      if (k && k.target) lines.push(`【KPI${['①','②','③'][n-1]}】${k.target}${k.targetValue ? ` (目標:${formatLiveValue(k.targetValue, k.unit)} / 現状:${formatLiveValue(k.currentValue || '', k.unit)})` : ''}`);
+    });
+    return lines.join('\n');
+  }
+
+  function openAIModal(mode, ctx) {
+    const titleEl = $('ai-modal-title');
+    const promptBox = $('ai-prompt-box');
+    let title = '🤖 AIサポート';
+    let prompt = '';
+    if (mode === 'kpi-decompose') {
+      title = '🌳 AIにKPI分解を相談';
+      prompt = `あなたは経営戦略のコンサルタントです。以下のKGI（最重要目標）を達成するために、最適な3つのKPI（重要中間指標）に分解してください。\n\n${ctx}\n\n【お願い】\n1. KGIを構成する要素式（例：売上=客数×客単価×頻度）を提示してください\n2. その要素式から、最も影響度が大きく、自分でコントロール可能な3つのKPIを提案してください\n3. 各KPIに「現状値」「目標値」「単位（円・%・人・回など）」を含めてください\n4. 設定理由も簡潔に教えてください`;
+    } else if (mode === 'todo-suggest') {
+      title = '✅ AIにTodo提案を相談';
+      prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIを達成するために、各KPIを実行可能なTodo（行動レベル）に分解してください。\n\n${ctx}\n\n【お願い】\n1. KPI①〜③それぞれに対して、5〜8個のTodoを提案してください\n2. Todoは「動詞」で始まる具体的な行動形式にしてください（例：「〇〇に営業電話する」「LP原稿を書く」など）\n3. 優先順位（大/中/小）も提案してください\n4. 1週間で着手できる粒度にしてください`;
+    } else if (mode === 'review') {
+      title = '🔍 AIに振り返り相談';
+      prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIと進捗を踏まえて、改善ポイントと次の一手を提案してください。\n\n${ctx}\n\n【お願い】\n1. 達成率の評価\n2. 進捗が遅れているKPIに対して、改善のヒント\n3. 来週優先すべきTodoの再提案\n4. モチベーション維持のためのコメント`;
+    }
+    titleEl.textContent = title;
+    promptBox.textContent = prompt;
+    const copyBtn = $('ai-copy-btn');
+    copyBtn.textContent = '📋 プロンプトをコピー';
+    copyBtn.classList.remove('copied');
+    $('ai-modal').classList.add('show');
+  }
+
+  $('ai-close').addEventListener('click', () => $('ai-modal').classList.remove('show'));
+  $('ai-done').addEventListener('click', () => $('ai-modal').classList.remove('show'));
+  $('ai-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'ai-modal') $('ai-modal').classList.remove('show');
+  });
+  $('ai-copy-btn').addEventListener('click', async () => {
+    const text = $('ai-prompt-box').textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = $('ai-copy-btn');
+      btn.textContent = '✅ コピー完了';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '📋 プロンプトをコピー';
+        btn.classList.remove('copied');
+      }, 2000);
+    } catch (err) {
+      // Fallback: select text
+      const range = document.createRange();
+      range.selectNodeContents($('ai-prompt-box'));
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      alert('クリップボードAPIが使えませんでした。プロンプトを手動でコピーしてください（範囲が選択済み）。');
+    }
+  });
+
+  // Top-level AI buttons (delegated)
+  document.addEventListener('click', (e) => {
+    const t = e.target;
+    if (t.dataset.act === 'ai-help' && t.dataset.aiMode) {
+      e.stopPropagation();
+      openAIModal(t.dataset.aiMode, buildKgiKpiContext());
+    }
+  });
+
+  // ===== その他の業務 折りたたみ =====
+  const otherCardToggle = document.getElementById('other-card-toggle');
+  const otherCard = document.getElementById('other-card');
+  const otherCardClose = document.getElementById('other-card-close');
+  if (otherCardToggle) {
+    otherCardToggle.addEventListener('click', () => {
+      const willOpen = !otherCard.classList.contains('show');
+      otherCard.classList.toggle('show', willOpen);
+      otherCardToggle.textContent = willOpen ? '📁 その他の業務 ▲（クリックで閉じる）' : '📁 その他の業務 ▼（クリックで開く）';
+    });
+  }
+  if (otherCardClose) {
+    otherCardClose.addEventListener('click', () => {
+      otherCard.classList.remove('show');
+      otherCardToggle.textContent = '📁 その他の業務 ▼（クリックで開く）';
+    });
+  }
+  const otherTodoToggle = document.getElementById('other-todo-toggle');
+  const otherTodoCol = document.getElementById('other-todo-col');
+  if (otherTodoToggle) {
+    otherTodoToggle.addEventListener('click', () => {
+      const willOpen = !otherTodoCol.classList.contains('show');
+      otherTodoCol.classList.toggle('show', willOpen);
+      otherTodoToggle.textContent = willOpen ? '📁 その他の業務のTodo ▲（クリックで閉じる）' : '📁 その他の業務のTodo ▼（クリックで開く）';
+    });
+  }
 
   // ===== 使い方ガイド =====
   $('ub-guide').addEventListener('click', () => $('guide-modal').classList.add('show'));
