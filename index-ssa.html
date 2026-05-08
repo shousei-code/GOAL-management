@@ -735,6 +735,42 @@
     font-weight: 400;
   }
   .todo-list { padding: 6px; max-height: 420px; overflow-y: auto; flex: 1; }
+  .todo-history-toggle {
+    width: calc(100% - 12px);
+    margin: 4px 6px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    padding: 5px 8px;
+    color: var(--muted);
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 4px;
+    text-align: left;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .todo-history-toggle:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .todo-history {
+    padding: 0 6px 6px;
+    display: none;
+  }
+  .todo-history.show { display: block; }
+  .todo-history .todo-item {
+    opacity: 0.65;
+  }
+  .todo-history .todo-item:hover {
+    opacity: 1;
+  }
+  .todo-completed-meta {
+    font-size: 10px;
+    color: var(--muted);
+    flex-shrink: 0;
+    margin-left: 4px;
+    white-space: nowrap;
+  }
   .todo-item {
     display: flex;
     align-items: center;
@@ -2711,7 +2747,7 @@
       }
       if (old.todos) {
         [1,2,3].forEach(k => {
-          d.todos[k] = (old.todos[k] || []).map(t => ({ id: newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none' }));
+          d.todos[k] = (old.todos[k] || []).map(t => ({ id: newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null }));
         });
       }
       if (old.weeks) {
@@ -2793,7 +2829,7 @@
         derivePeriodFields(merged, merged.period);
         // ensure todo ids
         TODO_KEYS.forEach(k => {
-          merged.todos[k] = (merged.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none' }));
+          merged.todos[k] = (merged.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null }));
         });
         // ensure week shape
         merged.weeks = merged.weeks.map((w, i) => ({
@@ -2895,33 +2931,62 @@
   // ===== Todos =====
   const PRIORITY_LABELS = { high: '大', medium: '中', low: '小', none: '—' };
   const PRIORITY_NEXT = { none: 'high', high: 'medium', medium: 'low', low: 'none' };
+  // Track which "history" sections are open (in-memory)
+  const openHistory = new Set();
+
+  function fmtCompletedDate(ts) {
+    if (!ts) return '';
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}/${m}/${day}`;
+  }
+
+  function renderTodoItem(t, k, isHistory) {
+    const p = t.priority || 'none';
+    const priClass = p === 'none' ? '' : `priority-${p}`;
+    const otherCls = k === 'other' ? 'todo-item-other' : '';
+    const completedMeta = isHistory && t.completedAt
+      ? `<span class="todo-completed-meta">✓ ${fmtCompletedDate(t.completedAt)}</span>`
+      : '';
+    return `
+    <div class="todo-item ${t.done ? 'done' : ''} ${priClass} ${otherCls}" draggable="true" data-id="${t.id}" data-kpi="${k}">
+      <span class="drag-handle" title="ドラッグで並び替え">⋮⋮</span>
+      <input type="checkbox" data-id="${t.id}" data-act="check" ${t.done ? 'checked' : ''} />
+      <textarea class="autosize todo-text" data-id="${t.id}" data-act="text" placeholder="Todoを入力" rows="1">${esc(t.text)}</textarea>
+      <button class="priority-btn ${priClass}" data-id="${t.id}" data-act="cycle-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
+      ${completedMeta}
+      <button data-id="${t.id}" data-act="del" title="削除"
+        style="border:none;background:transparent;cursor:pointer;color:var(--muted);font-size:14px;">×</button>
+    </div>
+  `;
+  }
+
   function renderTodos() {
     let totalDone = 0, totalAll = 0;
     TODO_KEYS.forEach(k => {
       const list = state.todos[k] || [];
-      const done = list.filter(t => t.done).length;
-      totalDone += done; totalAll += list.length;
+      const active = list.filter(t => !t.done);
+      const done = list.filter(t => t.done);
+      // Sort completed by completedAt desc (newest first)
+      done.sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+      totalDone += done.length; totalAll += list.length;
       const containerId = (k === 'other') ? 'todo-other' : `todo-${k}`;
       const progId = (k === 'other') ? 'todo-other-prog' : `todo-${k}-prog`;
       const container = $(containerId);
       if (!container) return;
-      container.innerHTML = list.map((t, i) => {
-        const p = t.priority || 'none';
-        const priClass = p === 'none' ? '' : `priority-${p}`;
-        const otherCls = k === 'other' ? 'todo-item-other' : '';
-        return `
-        <div class="todo-item ${t.done ? 'done' : ''} ${priClass} ${otherCls}" draggable="true" data-id="${t.id}" data-kpi="${k}" data-index="${i}">
-          <span class="drag-handle" title="ドラッグで並び替え">⋮⋮</span>
-          <input type="checkbox" data-id="${t.id}" data-act="check" ${t.done ? 'checked' : ''} />
-          <textarea class="autosize todo-text" data-id="${t.id}" data-act="text" placeholder="Todoを入力" rows="1">${esc(t.text)}</textarea>
-          <button class="priority-btn ${priClass}" data-id="${t.id}" data-act="cycle-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
-          <button data-id="${t.id}" data-act="del" title="削除"
-            style="border:none;background:transparent;cursor:pointer;color:var(--muted);font-size:14px;">×</button>
-        </div>
-      `;
-      }).join('');
+      const historyKey = String(k);
+      const isOpen = openHistory.has(historyKey);
+      const activeHTML = active.map(t => renderTodoItem(t, k, false)).join('');
+      const historyHTML = done.length
+        ? `<button class="todo-history-toggle" data-act="toggle-history" data-kpi="${k}">${isOpen ? '▼' : '▶'} ✅ 完了履歴 (${done.length}件)</button>
+           <div class="todo-history ${isOpen ? 'show' : ''}" data-history-kpi="${k}">${done.map(t => renderTodoItem(t, k, true)).join('')}</div>`
+        : '';
+      container.innerHTML = activeHTML + historyHTML;
       const prog = $(progId);
-      if (prog) prog.textContent = `${done} / ${list.length} 完了`;
+      if (prog) prog.textContent = `${done.length} / ${list.length} 完了`;
     });
     $('todo-summary').textContent = totalAll ? `全体 ${totalDone} / ${totalAll} 完了` : '—';
   }
@@ -3331,11 +3396,19 @@
     const t = e.target;
     if (t.dataset.act === 'check' && t.dataset.id) {
       const f = findTodoById(t.dataset.id);
-      if (f) { f.todo.done = t.checked; save(); renderTodos(); renderWeeks(); }
+      if (f) {
+        f.todo.done = t.checked;
+        f.todo.completedAt = t.checked ? Date.now() : null;
+        save(); renderTodos(); renderWeeks();
+      }
     } else if (t.dataset.act === 'chip-check' && t.dataset.todoid) {
       // Chip checkbox toggles the underlying Todo (synced with upper Todo list)
       const f = findTodoById(t.dataset.todoid);
-      if (f) { f.todo.done = t.checked; save(); renderTodos(); renderWeeks(); }
+      if (f) {
+        f.todo.done = t.checked;
+        f.todo.completedAt = t.checked ? Date.now() : null;
+        save(); renderTodos(); renderWeeks();
+      }
     } else if (t.dataset.act === 'pick-check') {
       const id = t.dataset.id;
       const wi = +t.dataset.week;
@@ -3495,7 +3568,7 @@
       const rawK = t.dataset.kpi;
       const k = (rawK === 'other') ? 'other' : +rawK;
       if (!state.todos[k]) state.todos[k] = [];
-      state.todos[k].push({ id: newId(), text: '', done: false, priority: 'none' });
+      state.todos[k].push({ id: newId(), text: '', done: false, priority: 'none', completedAt: null });
       save(); renderTodos();
       setTimeout(() => {
         const containerId = (k === 'other') ? 'todo-other' : `todo-${k}`;
@@ -3515,6 +3588,12 @@
         found.todo.priority = PRIORITY_NEXT[cur];
         save(); renderTodos(); renderWeeks();
       }
+    } else if (t.dataset.act === 'toggle-history' && t.dataset.kpi !== undefined) {
+      e.stopPropagation();
+      const k = t.dataset.kpi;
+      if (openHistory.has(k)) openHistory.delete(k);
+      else openHistory.add(k);
+      renderTodos();
     } else if (t.dataset.act === 'cycle-chip-priority' && t.dataset.todoid) {
       e.stopPropagation();
       const found = findTodoById(t.dataset.todoid);
@@ -3543,6 +3622,7 @@
         const found = findTodoById(id);
         if (found && found.todo.done) {
           found.todo.done = false;
+          found.todo.completedAt = null;
           count++;
         }
       });
@@ -3598,7 +3678,7 @@
     }
     if (!confirm(`${total}件のTodoのチェックを外します。\n（Todoの内容は消えません）`)) return;
     TODO_KEYS.forEach(k => {
-      (state.todos[k] || []).forEach(t => { t.done = false; });
+      (state.todos[k] || []).forEach(t => { t.done = false; t.completedAt = null; });
     });
     save();
     renderTodos();
@@ -3709,7 +3789,7 @@
     // but keep KGI/KPI structure, Todo list, and week framework
     KPI_KEYS.forEach(k => { if (state.results[k]) state.results[k].actual = ''; });
     TODO_KEYS.forEach(k => {
-      (state.todos[k] || []).forEach(t => { t.done = false; });
+      (state.todos[k] || []).forEach(t => { t.done = false; t.completedAt = null; });
     });
     state.weeks.forEach(w => {
       w.done = '';
@@ -4006,7 +4086,7 @@
         };
         // normalize todos / weeks
         TODO_KEYS.forEach(k => {
-          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none' }));
+          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null }));
         });
         state.weeks = state.weeks.map((w, i) => ({
           week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
@@ -4060,7 +4140,7 @@
         archives: Array.isArray(data.archives) ? data.archives : [],
       };
       TODO_KEYS.forEach(k => {
-        newState.todos[k] = (newState.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none' }));
+        newState.todos[k] = (newState.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null }));
       });
       newState.weeks = newState.weeks.map((w, i) => ({
         week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
@@ -4231,7 +4311,7 @@
           archives: Array.isArray(data.archives) ? data.archives : [],
         };
         TODO_KEYS.forEach(k => {
-          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none' }));
+          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null }));
         });
         state.weeks = state.weeks.map((w, i) => ({
           week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
