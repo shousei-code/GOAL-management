@@ -844,6 +844,53 @@
   .priority-btn:hover {
     filter: brightness(0.95);
   }
+  .routine-btn {
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    color: var(--muted);
+    font-family: inherit;
+    line-height: 1.4;
+    opacity: 0.4;
+  }
+  .routine-btn.active {
+    opacity: 1;
+    background: #eff6ff;
+    border-color: #3b82f6;
+    color: #2563eb;
+  }
+  .routine-btn:hover { filter: brightness(0.95); opacity: 1; }
+  .done-auto-list {
+    background: #f9fafb;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .done-auto-list.empty { color: var(--muted); font-style: italic; padding: 10px 12px; }
+  .done-auto-item { padding: 5px 0; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .done-auto-item + .done-auto-item { border-top: 1px solid var(--border); }
+  .done-auto-item .check { color: #16a34a; font-weight: 700; flex-shrink: 0; }
+  .done-auto-item .label { flex: 1; min-width: 0; word-break: break-word; }
+  .done-auto-item .ts { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+  .done-auto-item .kpi-tag { font-size: 10px; padding: 1px 6px; border-radius: 4px; background: var(--panel-2); color: var(--muted); flex-shrink: 0; }
+  .week-restore-btn {
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    color: var(--muted);
+    font-family: inherit;
+  }
+  .week-restore-btn:hover { background: #eff6ff; border-color: #3b82f6; color: #2563eb; }
   .todo-item input[type="checkbox"] { flex-shrink: 0; cursor: pointer; }
   .todo-item input[type="text"],
   .todo-item textarea.todo-text {
@@ -2153,10 +2200,12 @@
         <ol>
           <li>各カラム下の <strong>「＋ Todo追加」</strong> をクリックしてTodoを追加</li>
           <li>各Todoの右にある <strong>「—」ボタン</strong> をクリックすると優先順位が切り替わります（大→中→小→なし）</li>
+          <li>その隣の <strong>「🔁」ボタン</strong> でルーティンTodoとして登録できます（後述）</li>
           <li>左の <strong>「⋮⋮」</strong> をドラッグするとTodoの順番を入れ替えられます</li>
           <li>その他の業務のTodoが必要なら、下の <strong>「📁 その他の業務のTodo ▼」</strong> を開いて追加</li>
         </ol>
         <div class="tip">💡 優先順位「大」は赤、「中」は橙、「小」は緑で枠が色付きます。</div>
+        <div class="info">🔁 <strong>ルーティンTodo</strong>：「毎月絶対やる業務」（月次レポート/定例MTG準備など）を <strong>🔁 ボタンON</strong> にしておくと、新期に切り替えたとき <strong>自動で全週にセット</strong> されます。毎期ゼロから組み直す必要なし。</div>
 
         <h4>🗓 ⑤ 週次行動目標を設定する</h4>
         <p>週カードのタイトルは「<strong>4月1週 - 4/1〜4/7</strong>」のように日付付きで自動表示されます。</p>
@@ -2165,9 +2214,13 @@
           <li><strong>「＋ Todoから選ぶ」</strong> でその週に取り組むTodoを選択（KPI①②③＋その他から選べます）</li>
           <li>選んだTodoは <strong>KPIごとにグループ化</strong> されて表示</li>
           <li>KPIヘッダー（色付き帯）を <strong>ドラッグ</strong> で、その週のKPI優先順位を変更可能</li>
-          <li>週が終わったら「実行できたこと」「振り返り」を記入</li>
+          <li>週中に <strong>Todoのチェックボックス</strong> をONにすると、自動で「✅ 実際実行できたこと」欄に表示</li>
+          <li>週末に <strong>「💭 振り返り」</strong> 欄に「何を消し込めたか／なぜできなかったか／改善案」を記入（手入力）</li>
         </ol>
-        <div class="info">📋 <strong>「先週分を引き継ぐ」</strong> ボタンで、前の週のTodoをそのままコピーできます。継続案件に便利。</div>
+        <div class="info">✅ <strong>「実際実行できたこと」は完全自動表示</strong>：その週のチェック済みTodoがKPIタグ＋日付付きで自動リスト化されます。手で書き起こす必要なし。</div>
+        <div class="info">💭 <strong>振り返り欄は引き続き手入力</strong>：「何を実行したか」は自動で見えるので、その上で<strong>「なぜそれをやったか／なぜできなかったか／次にどう活かすか」</strong> を考えて書きます。思考と気付きはここに残してください。</div>
+        <div class="info">📋 <strong>「先週分を引き継ぐ」</strong>：前の週のTodoをそのままこの週にコピー。継続案件に便利。</div>
+        <div class="info">📋 <strong>「前期の同じ週分を復元」</strong>：直近の過去の期から、同じインデックスの週のTodoを復元します（例：今期の「4月1週」⇐ 前期の「1月1週」）。前期のリズムを再現したい時に。</div>
         <div class="info">☐ <strong>「レ点を外す」</strong> ボタンでその週のTodoのチェックを一括で外せます。</div>
 
         <h4>📊 ⑥ 結果を見る</h4>
@@ -2189,9 +2242,11 @@
           <li>現在の期のデータがアーカイブとして保存されます</li>
           <li><strong>KGI/KPI/Todoはそのまま引き継がれます</strong>（ゼロから入力し直す必要なし）</li>
           <li>実績・週次の振り返り・Todoのチェックはリセット</li>
+          <li>🔁 <strong>ルーティンON のTodoは新期の全週に自動セット</strong>（毎月のベース業務が即座に復活）</li>
           <li>期間フィールド（年/月〜月）を新しい期に書き換えて新期スタート</li>
           <li>過去の期を見たい時は <strong>「📂 過去の期を見る…」</strong> から選択（読み取り専用で表示）</li>
         </ol>
+        <div class="tip">💡 <strong>運用のコツ</strong>：定例業務は 🔁 ON にしておけば、新期切替後もそのままリズム継続。スポット案件は 🔁 OFF のまま追加→ 期末に振り返って必要なら次期も継続するか判断。</div>
 
         <h4>🤖 AIサポート機能</h4>
         <p>ChatGPT / Claude / Gemini にKGI/KPIの内容を渡して相談できる機能です。</p>
@@ -2747,7 +2802,7 @@
       }
       if (old.todos) {
         [1,2,3].forEach(k => {
-          d.todos[k] = (old.todos[k] || []).map(t => ({ id: newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null }));
+          d.todos[k] = (old.todos[k] || []).map(t => ({ id: newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine }));
         });
       }
       if (old.weeks) {
@@ -2829,7 +2884,7 @@
         derivePeriodFields(merged, merged.period);
         // ensure todo ids
         TODO_KEYS.forEach(k => {
-          merged.todos[k] = (merged.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null }));
+          merged.todos[k] = (merged.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine }));
         });
         // ensure week shape
         merged.weeks = merged.weeks.map((w, i) => ({
@@ -2957,6 +3012,7 @@
       <input type="checkbox" data-id="${t.id}" data-act="check" ${t.done ? 'checked' : ''} />
       <textarea class="autosize todo-text" data-id="${t.id}" data-act="text" placeholder="Todoを入力" rows="1">${esc(t.text)}</textarea>
       <button class="priority-btn ${priClass}" data-id="${t.id}" data-act="cycle-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
+      <button class="routine-btn ${t.routine ? 'active' : ''}" data-id="${t.id}" data-act="cycle-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックでON/OFF）">🔁</button>
       ${completedMeta}
       <button data-id="${t.id}" data-act="del" title="削除"
         style="border:none;background:transparent;cursor:pointer;color:var(--muted);font-size:14px;">×</button>
@@ -2996,8 +3052,22 @@
   const openWeeks = new Set();
 
   function weekHasContent(w) {
+    const hasDoneAuto = (w.planTodoIds || []).some(id => {
+      const f = findTodoById(id);
+      return f && f.todo.done;
+    });
     return (w.planTodoIds && w.planTodoIds.length > 0) ||
-           !!w.planNote || !!w.done || !!w.review;
+           !!w.planNote || hasDoneAuto || !!w.review;
+  }
+
+  function getDoneTodosForWeek(w) {
+    return (w.planTodoIds || [])
+      .map(id => {
+        const f = findTodoById(id);
+        return f && f.todo.done ? { todo: f.todo, kpi: f.kpi } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => (a.todo.completedAt || 0) - (b.todo.completedAt || 0));
   }
 
   function renderWeeks() {
@@ -3049,10 +3119,19 @@
       }).join('');
       const isOpen = openWeeks.has(wi);
       const todoCount = (w.planTodoIds || []).length;
+      const doneTodosForWeek = getDoneTodosForWeek(w);
       const summaryParts = [];
       if (todoCount) summaryParts.push(`Todo ${todoCount}`);
-      if (w.done) summaryParts.push('実行済');
+      if (doneTodosForWeek.length) summaryParts.push(`${doneTodosForWeek.length}件実行済`);
       if (w.review) summaryParts.push('振り返り済');
+      const doneListHTML = doneTodosForWeek.length
+        ? `<div class="done-auto-list">${doneTodosForWeek.map(({todo, kpi}) => {
+            const kpiLabel = kpi === 'other' ? 'その他' : `KPI${['①','②','③'][kpi-1]}`;
+            const ts = todo.completedAt ? `<span class="ts">${fmtCompletedDate(todo.completedAt)}</span>` : '';
+            return `<div class="done-auto-item"><span class="check">✓</span><span class="kpi-tag">${kpiLabel}</span><span class="label">${esc(todo.text || '(未入力)')}</span>${ts}</div>`;
+          }).join('')}</div>`
+        : `<div class="done-auto-list empty">この週でチェックを入れたTodoがあると、ここに自動表示されます</div>`;
+      const hasArchives = (state.archives || []).length > 0;
       const summary = summaryParts.length ? summaryParts.join(' · ') : '未記入';
       const dot = weekHasContent(w) ? '<span class="week-dot"></span>' : '';
       return `
@@ -3070,6 +3149,7 @@
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
                   <button class="ai-help-btn" data-act="ai-help-week" data-ai-mode="week-priority" data-week="${wi}" title="この週のTodoの優先順位（インパクト×簡単さ）と追加Todoの提案をAIに相談">🤖 AIに優先順位相談</button>
                   ${wi > 0 ? `<button class="week-carry-btn" data-week="${wi}" data-act="carry-over" title="前の週のTodoをこの週にコピー">📋 先週分を引き継ぐ</button>` : ''}
+                  ${hasArchives ? `<button class="week-restore-btn" data-week="${wi}" data-act="restore-prev-period" title="直近の過去の期から、同じ週のTodoを復元（前期の同じ週のリズムを再現）">📋 前期の同じ週分を復元</button>` : ''}
                   ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="ics-download" title="この週のTodoをカレンダー形式(.ics)でダウンロード（Googleカレンダー/Apple/Outlookに対応）">📅 カレンダーに登録</button>` : ''}
                   ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="uncheck-week" title="この週のTodoのチェックを外す">☐ レ点を外す</button>` : ''}
                 </div>
@@ -3079,8 +3159,8 @@
               <textarea class="note autosize" data-week="${wi}" data-field="planNote" placeholder="自由メモ（任意）">${esc(w.planNote)}</textarea>
             </div>
             <div class="week-field">
-              <div class="week-field-label">✅ 実際実行できたこと</div>
-              <textarea class="autosize" data-week="${wi}" data-field="done" placeholder="実際にできたこと">${esc(w.done)}</textarea>
+              <div class="week-field-label">✅ 実際実行できたこと <span style="font-weight:400;color:var(--muted);font-size:11px;">（チェックしたTodoから自動表示）</span></div>
+              ${doneListHTML}
             </div>
             <div class="week-field">
               <div class="week-field-label">💭 振り返り（理由・改善案・気付き）</div>
@@ -3568,7 +3648,7 @@
       const rawK = t.dataset.kpi;
       const k = (rawK === 'other') ? 'other' : +rawK;
       if (!state.todos[k]) state.todos[k] = [];
-      state.todos[k].push({ id: newId(), text: '', done: false, priority: 'none', completedAt: null });
+      state.todos[k].push({ id: newId(), text: '', done: false, priority: 'none', completedAt: null, routine: false });
       save(); renderTodos();
       setTimeout(() => {
         const containerId = (k === 'other') ? 'todo-other' : `todo-${k}`;
@@ -3587,6 +3667,12 @@
         const cur = found.todo.priority || 'none';
         found.todo.priority = PRIORITY_NEXT[cur];
         save(); renderTodos(); renderWeeks();
+      }
+    } else if (t.dataset.act === 'cycle-routine' && t.dataset.id) {
+      const found = findTodoById(t.dataset.id);
+      if (found) {
+        found.todo.routine = !found.todo.routine;
+        save(); renderTodos();
       }
     } else if (t.dataset.act === 'toggle-history' && t.dataset.kpi !== undefined) {
       e.stopPropagation();
@@ -3649,6 +3735,38 @@
         return;
       }
       if (!confirm(`前の週から ${newIds.length} 件のTodoを引き継ぎます。よろしいですか？`)) return;
+      state.weeks[wi].planTodoIds = [...currentIds, ...newIds];
+      save();
+      renderWeeks();
+    } else if (t.dataset.act === 'restore-prev-period') {
+      e.stopPropagation();
+      const wi = +t.dataset.week;
+      const archives = state.archives || [];
+      if (archives.length === 0) {
+        alert('過去の期がありません');
+        return;
+      }
+      // Use the most recent archive (the just-saved previous period)
+      const lastArc = archives[archives.length - 1];
+      const prevWeeks = (lastArc.snapshot && lastArc.snapshot.weeks) || [];
+      const prevWeek = prevWeeks[wi];
+      if (!prevWeek || !Array.isArray(prevWeek.planTodoIds) || prevWeek.planTodoIds.length === 0) {
+        alert(`前期「${lastArc.period || ''}」の同じ週にTodoが設定されていません`);
+        return;
+      }
+      // Only restore IDs that still exist in current todos (were carried over)
+      const validIds = prevWeek.planTodoIds.filter(id => findTodoById(id));
+      if (validIds.length === 0) {
+        alert('前期の同じ週のTodoは現在のTodoリストに存在しません（削除された可能性があります）');
+        return;
+      }
+      const currentIds = state.weeks[wi].planTodoIds || [];
+      const newIds = validIds.filter(id => !currentIds.includes(id));
+      if (newIds.length === 0) {
+        alert('前期の同じ週のTodoはすべてこの週に設定済みです');
+        return;
+      }
+      if (!confirm(`前期「${lastArc.period || ''}」の同じ週から ${newIds.length} 件のTodoを復元します。よろしいですか？`)) return;
       state.weeks[wi].planTodoIds = [...currentIds, ...newIds];
       save();
       renderWeeks();
@@ -3770,7 +3888,15 @@
       return;
     }
     const periodLabel = state.period || '期間未設定';
-    if (!confirm(`現在の期「${periodLabel}」をアーカイブとして保存し、内容をそのまま新しい期に引き継ぎます。\n\n・現在のKGI/KPI/Todo/週次/結果のスナップショットが「過去の期」として保存されます\n・現在の画面の内容はそのまま残ります（前期と同じ内容を引き継いで継続）\n・期間フィールドを新期に変更すれば、そのまま新しい期として運用開始\n（保存したデータは「📂過去の期を見る」から閲覧できます）\n\nよろしいですか？`)) return;
+    // Count routine todos to inform user
+    let routineCount = 0;
+    TODO_KEYS.forEach(k => {
+      (state.todos[k] || []).forEach(t => { if (t.routine) routineCount++; });
+    });
+    const routineMsg = routineCount > 0
+      ? `\n・🔁 ルーティン指定の ${routineCount} 件のTodoは、新期の全週に自動セットされます`
+      : '\n・🔁 ルーティン指定のTodoはありません（個々のTodoの「🔁」をONにすると、次回切替時に自動復元されます）';
+    if (!confirm(`現在の期「${periodLabel}」をアーカイブとして保存し、内容をそのまま新しい期に引き継ぎます。\n\n・現在のKGI/KPI/Todo/週次/結果のスナップショットが「過去の期」として保存されます\n・現在の画面の内容はそのまま残ります（前期と同じ内容を引き継いで継続）${routineMsg}\n・期間フィールドを新期に変更すれば、そのまま新しい期として運用開始\n（保存したデータは「📂過去の期を見る」から閲覧できます）\n\nよろしいですか？`)) return;
     const id = 'arc-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     const snapshot = {
       period: state.period,
@@ -3791,15 +3917,25 @@
     TODO_KEYS.forEach(k => {
       (state.todos[k] || []).forEach(t => { t.done = false; t.completedAt = null; });
     });
+    // Collect routine todo IDs across all KPI keys
+    const routineIds = [];
+    TODO_KEYS.forEach(k => {
+      (state.todos[k] || []).forEach(t => { if (t.routine) routineIds.push(t.id); });
+    });
     state.weeks.forEach(w => {
       w.done = '';
       w.review = '';
       w.planNote = '';
+      // Auto-restore routine todos to each week (clean week + routine baseline)
+      w.planTodoIds = [...routineIds];
     });
     save();
     renderAll();
     updateArchiveSelect();
-    alert('✅ 今期を保存しました。\n\n・KGI/KPI/Todoはそのまま引き継がれています\n・実績/週次の振り返り/Todoのチェックはリセットされました\n・期間フィールドを新期（例: 2026年7-9月）に書き換えれば新期スタートです');
+    const routineDoneMsg = routineIds.length > 0
+      ? `\n・🔁 ルーティン指定の ${routineIds.length} 件のTodoが新期の全週に自動セットされました`
+      : '';
+    alert(`✅ 今期を保存しました。\n\n・KGI/KPI/Todoはそのまま引き継がれています\n・実績/週次の振り返り/Todoのチェックはリセットされました${routineDoneMsg}\n・期間フィールドを新期（例: 2026年7-9月）に書き換えれば新期スタートです`);
   });
 
   $('archive-select').addEventListener('change', (e) => {
@@ -4086,7 +4222,7 @@
         };
         // normalize todos / weeks
         TODO_KEYS.forEach(k => {
-          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null }));
+          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine }));
         });
         state.weeks = state.weeks.map((w, i) => ({
           week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
@@ -4140,7 +4276,7 @@
         archives: Array.isArray(data.archives) ? data.archives : [],
       };
       TODO_KEYS.forEach(k => {
-        newState.todos[k] = (newState.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null }));
+        newState.todos[k] = (newState.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine }));
       });
       newState.weeks = newState.weeks.map((w, i) => ({
         week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
@@ -4311,7 +4447,7 @@
           archives: Array.isArray(data.archives) ? data.archives : [],
         };
         TODO_KEYS.forEach(k => {
-          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null }));
+          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine }));
         });
         state.weeks = state.weeks.map((w, i) => ({
           week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
