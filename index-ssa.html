@@ -2144,11 +2144,11 @@
         <div class="other-card-body">
           <div class="kpi-row">
             <div class="lbl">目標</div>
-            <textarea data-goal="other" data-field="target" placeholder="その他の業務の目標（KPI①〜③に該当しない業務、定性的でもOK）"></textarea>
+            <textarea class="autosize" data-goal="other" data-field="target" placeholder="その他の業務の目標（KPI①〜③に該当しない業務、定性的でもOK）" rows="2"></textarea>
           </div>
           <div class="kpi-row">
             <div class="lbl">現状</div>
-            <textarea data-goal="other" data-field="current" placeholder="現状（数字を入れなくても良い）"></textarea>
+            <textarea class="autosize" data-goal="other" data-field="current" placeholder="現状（数字を入れなくても良い）" rows="2"></textarea>
           </div>
           <div style="text-align:right;margin-top:8px;">
             <button class="ai-help-btn" data-act="ai-help-other" title="KPI①②③以外で優先してやるべきことをAIに分析依頼">🔬 AI分析</button>
@@ -3715,8 +3715,8 @@
     const og = state.goals.other || { target: '', current: '' };
     const otT = document.querySelector('[data-goal="other"][data-field="target"]');
     const otC = document.querySelector('[data-goal="other"][data-field="current"]');
-    if (otT) otT.value = og.target || '';
-    if (otC) otC.value = og.current || '';
+    if (otT) { otT.value = og.target || ''; autoResize(otT); }
+    if (otC) { otC.value = og.current || ''; autoResize(otC); }
     // Annual Goal (static HTML)
     const ag = state.annualGoal || defaultGoal();
     const agT = document.querySelector('[data-goal="annualGoal"][data-field="target"]');
@@ -4088,8 +4088,13 @@
       const found = findTodoById(t.dataset.id);
       if (found) {
         const cur = found.todo.priority || 'none';
-        found.todo.priority = PRIORITY_NEXT[cur];
-        save(); renderTodos(); renderWeeks();
+        const next = PRIORITY_NEXT[cur];
+        found.todo.priority = next;
+        save();
+        // Update the badge in-place for immediate visual feedback (no jump)
+        updatePriorityVisualInPlace(found.todo.id, next);
+        // Schedule sort+rerender after 3 seconds so the user can see what they did before it moves
+        scheduleSortAfterDelay();
       }
     } else if (t.dataset.act === 'cycle-routine' && t.dataset.id) {
       const found = findTodoById(t.dataset.id);
@@ -5144,7 +5149,28 @@
     if (mode === 'kgi-consult') {
       title = '🎯 AIにKGI設定+戦略を相談';
       const periodLabel = state.period || '今期';
-      prompt = `あなたは経営戦略のコンサルタントです。以下の年間最終ゴールと現状を踏まえて、対象期間「${periodLabel}」のKGI（最重要目標）の設定と達成戦略を一緒に提案してください。\n\n${ctx}\n\n【対象期間】${periodLabel}\nこの期間内に現実的に実行・達成できる範囲で提案してください。\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: 期間「${periodLabel}」のKGI設定\n1. 年間最終ゴールから逆算して、この期間に達成すべきKGIの妥当な目安を提案\n2. その数値根拠（なぜその値が妥当か）を示す（年間ゴールに対する割合・進捗段階など）\n3. 期間の長さを踏まえ、過大すぎず過小すぎない適切な「ストレッチ目標」を意識\n\n■ Part 2: 期間「${periodLabel}」内で実行する達成戦略\n1. この期間内で実行可能な「3つの戦略の柱」を提示\n2. 各戦略について、期間内に着手・完了できる具体的な施策を3つずつ\n3. 優先順位（期間の前半・中盤・後半でどう進めるか）を明示\n\n■ Part 3: 期間終了時の到達ゴール（期待される結果）\n1. この期間が終わった時点で、どんな状態に到達しているか具体的に描写\n2. 数値目標の達成度（例: 年商目標の40%達成 など）\n3. 次の期間にどう繋げるかの橋渡し提案${AI_OUTPUT_GUIDE}`;
+      // Detect what's already filled to make the prompt adaptive
+      const kgi = state.goals.kgi || {};
+      const kgiFilled = !!(kgi.target || kgi.targetValue);
+      const kpis = [1,2,3].map(n => state.goals['kpi'+n] || {});
+      const kpiFilledCount = kpis.filter(k => k.target || k.targetValue).length;
+      // Build mode-specific instruction
+      let kgiPart = '';
+      if (kgiFilled) {
+        kgiPart = `■ Part 1: 既に入力されている KGI の精度向上\n（既に「${(kgi.target || '').slice(0, 60)}」というKGIが入力されています）\n1. 入力済みのKGIが「年間最終ゴールから逆算して妥当か」評価\n2. <strong>より具体的・測定可能・期限付きにする修正案</strong> を提示（SMART原則を意識）\n3. 数値目標が曖昧 or 抽象的な場合、定量化できる修正案を3つ提示\n4. 「このままでもOK」と判断できる場合はその理由を明示`;
+      } else {
+        kgiPart = `■ Part 1: KGI（最重要目標）の提案 — まだ未入力なので3パターン提案\n（KGIは現在空欄です）\n1. 年間最終ゴールから逆算して、対象期間「${periodLabel}」に達成すべきKGI候補を <strong>3パターン</strong> で提示\n   - 【保守プラン】着実に達成可能な数値\n   - 【標準プラン】適度なストレッチを含む現実的な数値\n   - 【挑戦プラン】成長加速を狙う拡張的な数値\n2. 各プランに数値根拠（年間ゴールに対する割合・段階・季節性 等）を明示\n3. 推奨プランを1つ選び、選定理由を述べる\n4. KGIテキストの書き方の例（"いつまでに何をどれだけ"形式）を3例提示`;
+      }
+      // KPI part: depends on KPI fill state
+      let kpiPart = '';
+      if (kpiFilledCount === 0) {
+        kpiPart = `■ Part 2: KGIを達成する KPI（行動指標）の提案 — まだ全て未入力なので新規提案\n（KPI①②③はすべて空欄です）\n<strong>KGI達成のレバーとなる「KPI① / KPI② / KPI③」をセットで提案してください。</strong>\n1. KGIを「数式に分解」する（例: 売上 = 客数 × 客単価 × 来店回数）\n2. 分解した3つの要素を、それぞれKPI①②③として提示\n3. 各KPIに：\n   - <strong>目標文章</strong>（例: 客数を月100人増やす）\n   - <strong>数値目標</strong>（現状値と目標値）\n   - <strong>なぜこのKPIが効くか</strong>（KGIへの貢献度・レバレッジ）\n   を必ず添える\n4. 3つのKPIが互いに <strong>独立した行動軸</strong> になっているか（重複/冗長を避ける）\n5. 自分でコントロールできる範囲で設計されているか確認`;
+      } else if (kpiFilledCount < 3) {
+        kpiPart = `■ Part 2: KPIの精度向上＋足りないKPIの提案\n（KPI①②③のうち ${kpiFilledCount}/3 が入力済み）\n<strong>入力済みのKPIは精度を上げ、空欄のKPIは新規提案してください。</strong>\n1. <strong>入力済みKPI</strong>の評価：KGIへの貢献度・測定可能性・コントロール可能性をチェック\n2. 各入力済みKPIに対して、より具体的にする修正案を3つ提示\n3. <strong>空欄のKPI枠</strong>に対しては、KGIを達成するために必要な行動軸を新規提案\n4. 入力済みKPIと提案KPIが「3つ揃ってKGIを構成する」ロジックになっているか確認\n5. KPI同士の連動性（あるKPIが上がれば他のKPIも上がる/下がる）を分析`;
+      } else {
+        kpiPart = `■ Part 2: 既に入力されている KPI①②③ の精度向上\n（KPI①②③すべて入力済み）\n<strong>3つのKPIをより具体的・行動可能・測定可能にしてください。</strong>\n1. 各KPIについて、KGI達成への貢献度を計算（例: KPI①が10%上がったらKGIに○%寄与）\n2. 各KPIの目標数値が「適切なストレッチ」になっているか評価（甘い/厳しすぎる）\n3. 各KPIの「課題」「解決策」テキストの書き方を改善する具体例\n4. 3つのKPIが <strong>互いに独立かつ網羅的</strong>（MECE）に組まれているかチェック\n5. 入れ替え／統合／分割すべきKPIがあれば理由付きで提案\n6. KPI同士の連動性（相乗効果）を分析`;
+      }
+      prompt = `あなたは経営戦略のコンサルタントです。以下の入力情報を踏まえて、対象期間「${periodLabel}」の <strong>KGI（最重要目標）の設定／改善</strong> と、それを達成するための <strong>KPI①②③のセット提案／改善</strong> を一緒に行ってください。\n\n${ctx}\n\n【対象期間】${periodLabel}\nこの期間内に現実的に実行・達成できる範囲で提案してください。\n\n【現在の入力状況】\n- KGI: ${kgiFilled ? '✅ 入力済み（精度向上が必要）' : '❌ 未入力（新規提案が必要）'}\n- KPI①②③: ${kpiFilledCount}/3 が入力済み（${kpiFilledCount === 0 ? '全て新規提案' : kpiFilledCount === 3 ? '全て精度向上' : '一部精度向上＋一部新規提案'}）\n\n【お願い（必ず以下の順序で回答）】\n\n${kgiPart}\n\n${kpiPart}\n\n■ Part 3: KGI と KPI①②③ の整合性チェック\n1. 提案した（または改善した）KGIに対して、KPI①②③が <strong>因果関係を持って繋がっている</strong> か確認\n2. KPI①②③をすべて達成すれば、KGIは <strong>論理的に達成される構造</strong> になっているか\n3. 数値の整合性（例: KPI①の客数増 × KPI②の客単価増 = KGIの売上増 が成立する）を計算式で示す\n4. ズレや矛盾があれば修正提案\n\n■ Part 4: 期間「${periodLabel}」内の達成戦略（具体行動レベル）\n1. KPI①②③それぞれに対して、期間内に実行すべき施策を3つずつ提示\n2. 期間の前半・中盤・後半でどう進めるか時系列で明示\n3. 期間終了時に到達しているべき状態を具体的に描写（数値達成度＋定性的なあるべき姿）\n\n【重要】\n- このボタンは「KGIを決める／改善する」相談用ですが、必ず <strong>KGIとセットでKPIも提案</strong> してください。KGI単体では行動に繋がらないため。\n- 一般論NG。入力されている年間最終ゴール・KGI・KPIテキストから具体的に引用しながら論理展開すること\n- 数値はすべて計算式と一緒に提示（例: 「年商10億 ÷ 4期 = 1期あたり2.5億」）\n- ユーザーが <strong>そのまま入力欄にコピペできる粒度</strong> で提案する${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'annual-goal-consult') {
       title = '🌟 AIに年間ゴール相談';
       prompt = `あなたは経営戦略のコンサルタントです。以下の入力済みのKGI/KPIをもとに、年間最終ゴール（1年通しての最終目標・ビジョン）の設定をサポートしてください。\n\n${ctx}\n\n【相談の前提】\nユーザーは既に「今期のKGI」「KPI①②③」を入力しています。これらの内容と数値から逆算・拡張して、年間でどんな最終ゴールを目指すべきかを一緒に考えてください。\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: 現状の入力から見える「年間で目指すべき方向性」\n1. 入力されているKGI/KPIから読み取れる、ユーザーの事業ステージや志向性を読み解く\n2. その方向性を踏まえた「年間で達成すべきテーマ」を提示\n3. 現状値と目標値の数値ギャップから、年間でどのスケールが妥当か逆算\n\n■ Part 2: 年間最終ゴールの具体案（3パターン）\n1. 【保守的プラン】今期KGIの延長線で着実に達成可能な年間ゴール\n2. 【標準プラン】適度なストレッチを含む現実的な年間ゴール\n3. 【挑戦プラン】ビジョンを広げた拡張的な年間ゴール\n各プランに、数値目標と達成シナリオの概略を添える\n\n■ Part 3: 推奨案と根拠\n1. 上記3案のうち、入力情報から最も推奨できるプランを選択\n2. なぜそれが妥当か、数値根拠と論理を提示\n3. その年間ゴールに到達した時のあるべき姿（定性的な描写）\n\n■ Part 4: 年間ゴール → 今期KGIの整合性チェック\n1. 提案した年間ゴールに対して、現在入力されている今期KGIが妥当か評価\n2. 修正提案があれば具体的に\n3. 4半期ごとのマイルストーン目安${AI_OUTPUT_GUIDE}`;
@@ -5308,6 +5334,10 @@
       const willOpen = !otherCard.classList.contains('show');
       otherCard.classList.toggle('show', willOpen);
       otherCardToggle.textContent = willOpen ? '📁 その他の業務 ▲（クリックで閉じる）' : '📁 その他の業務 ▼（クリックで開く）';
+      // Re-fit textareas after expanding (scrollHeight is 0 while hidden)
+      if (willOpen) {
+        otherCard.querySelectorAll('textarea').forEach(autoResize);
+      }
     });
   }
   if (otherCardClose) {
@@ -5323,6 +5353,10 @@
       const willOpen = !otherTodoCol.classList.contains('show');
       otherTodoCol.classList.toggle('show', willOpen);
       otherTodoToggle.textContent = willOpen ? '📁 その他の業務のTodo ▲（クリックで閉じる）' : '📁 その他の業務のTodo ▼（クリックで開く）';
+      // Re-fit textareas after expanding
+      if (willOpen) {
+        otherTodoCol.querySelectorAll('textarea').forEach(autoResize);
+      }
     });
   }
 
