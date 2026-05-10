@@ -1368,6 +1368,53 @@
   }
 
   /* ===== 結果 ===== */
+  /* ===== 期限内Todo 進捗統計 ===== */
+  .overdue-stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+  }
+  .overdue-stats.warning { border-color: #f59e0b; background: linear-gradient(135deg, #fffbeb, #fef3c7); }
+  .overdue-stats.danger { border-color: #dc2626; background: linear-gradient(135deg, #fef2f2, #fee2e2); }
+  .overdue-stat-card { flex: 1; min-width: 110px; }
+  .overdue-stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: 0.04em;
+  }
+  .overdue-stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #1f2937;
+  }
+  .overdue-stat-value.bad { color: #dc2626; }
+  .overdue-stat-value.mid { color: #d97706; }
+  .overdue-stat-value.good { color: #16a34a; }
+  .overdue-stat-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .overdue-bar {
+    flex-basis: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .overdue-bar-fill { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); border-radius: 999px; transition: width 0.4s ease; }
+  .overdue-stats.warning .overdue-bar-fill { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .overdue-stats.danger .overdue-bar-fill { background: linear-gradient(90deg, #dc2626, #ef4444); }
+  @media (max-width: 720px) {
+    .overdue-stats { padding: 10px 12px; }
+    .overdue-stat-card { min-width: 80px; }
+    .overdue-stat-value { font-size: 18px; }
+  }
+
   .result-cta {
     background: linear-gradient(135deg, #fef3c7, #fce7f3);
     border: 2px solid #f59e0b;
@@ -2220,6 +2267,7 @@
       <span class="sub">「+ Todoから選ぶ」でTodoを紐付け／自由メモも追加可能</span>
     </div>
     <div class="sec-body">
+      <div id="overdue-stats" class="overdue-stats" style="display:none;"></div>
       <div class="week-controls">
         <button class="week-ctrl-btn" id="week-expand-all">全て開く</button>
         <button class="week-ctrl-btn" id="week-collapse-all">全て閉じる</button>
@@ -2432,6 +2480,25 @@
         <div class="info">📋 <strong>「先週分を引き継ぐ」</strong>：前の週のTodoをそのままこの週にコピー。継続案件に便利。</div>
         <div class="info">📋 <strong>「前期の同じ週分を復元」</strong>：直近の過去の期から、同じインデックスの週のTodoを復元します（例：今期の「4月1週」⇐ 前期の「1月1週」）。前期のリズムを再現したい時に。</div>
         <div class="info">☐ <strong>「レ点を外す」</strong> ボタンでその週のTodoのチェックを一括で外せます。</div>
+
+        <h5>📊 完了率／未完了率の見える化</h5>
+        <p>「🗓 週次行動目標」セクションの最上部に、Todoの消化状況がリアルタイムで表示されます。</p>
+        <ul>
+          <li><strong>📊 完了率（今日まで）</strong> — 期の開始から今日までに到来した全週のTodoを <strong>合算</strong> した完了率。「過去ずっとサボってる週がある」と数字に表れる<strong>累積指標</strong></li>
+          <li><strong>📊 直近2週</strong> — 直近14日以内に始まった週だけを集計した完了率。「ここ最近の調子」を見るための<strong>直近指標</strong>。期が長くなっても感度が鈍らない</li>
+          <li><strong>⚠️ 未完了率</strong> — 100% − 完了率（今日まで）。残っているTodo件数も表示</li>
+          <li><strong>🗓 対象</strong> — 集計に入っている週の数（=「今日までに到来した週」の数）</li>
+          <li><strong>進捗バー</strong> — 完了率を視覚的に示すゲージ</li>
+        </ul>
+        <div class="info">🚦 <strong>色で「ヤバさ」を可視化</strong>：未完了率に応じてカード全体の色が変わります。
+          <ul style="margin-top:6px;">
+            <li>🟢 0〜24%: 緑（達成順調）</li>
+            <li>🟠 25〜49%: 黄（注意 - 取り戻したい）</li>
+            <li>🔴 50%以上: 赤（危機 - 仕切り直しの合図）</li>
+          </ul>
+        </div>
+        <div class="tip">💡 <strong>「今日まで」と「直近2週」の使い分け</strong>：「今日まで」が悪くても「直近2週」が良ければ最近改善傾向 → そのまま継続。逆に「今日まで」は良いのに「直近2週」が悪ければ最近失速 → 早めに立て直し。</div>
+        <div class="info">📌 <strong>未来の週は集計対象外</strong>：まだ開始日が来ていない週（来週など）に紐付けたTodoは、その週が来るまで未完了扱いになりません。だから安心して未来の週にTodoを仕込んでOK。</div>
 
         <h4>📊 ⑥ 結果を見る</h4>
         <p>KGI/KPIで入力した数字が <strong>結果テーブル</strong> に自動連動して表示されます。</p>
@@ -3371,6 +3438,35 @@
   // Track which "history" sections are open (in-memory)
   const openHistory = new Set();
 
+  // ===== Priority change: 3-second delay before re-sort =====
+  // When user clicks a priority button, we update visuals in-place immediately,
+  // then re-render (which triggers sort) after 3 seconds. This prevents the Todo
+  // from "jumping" away while the user is still cycling through 大→中→小.
+  let _priorityResortTimer = null;
+  const PRIORITY_RESORT_DELAY_MS = 3000;
+  function scheduleSortAfterDelay() {
+    if (_priorityResortTimer) clearTimeout(_priorityResortTimer);
+    _priorityResortTimer = setTimeout(() => {
+      _priorityResortTimer = null;
+      renderTodos();
+      renderWeeks();
+    }, PRIORITY_RESORT_DELAY_MS);
+  }
+  function updatePriorityVisualInPlace(todoId, p) {
+    const label = PRIORITY_LABELS[p] || '—';
+    // Update all priority buttons + chip prio buttons for this todoId
+    document.querySelectorAll(`[data-act="cycle-priority"][data-id="${todoId}"], [data-act="cycle-chip-priority"][data-todoid="${todoId}"]`).forEach(btn => {
+      btn.textContent = label;
+      btn.classList.remove('priority-high', 'priority-medium', 'priority-low');
+      if (p !== 'none') btn.classList.add('priority-' + p);
+    });
+    // Update parent .todo-item / .plan-chip border/background color
+    document.querySelectorAll(`.todo-item[data-id="${todoId}"], .plan-chip[data-todoid="${todoId}"]`).forEach(parent => {
+      parent.classList.remove('priority-high', 'priority-medium', 'priority-low');
+      if (p !== 'none') parent.classList.add('priority-' + p);
+    });
+  }
+
   function fmtCompletedDate(ts) {
     if (!ts) return '';
     const d = new Date(ts);
@@ -3430,6 +3526,99 @@
       container.querySelectorAll('textarea.todo-text').forEach(autoResize);
     });
     $('todo-summary').textContent = totalAll ? `全体 ${totalDone} / ${totalAll} 完了` : '—';
+    // Refresh the overdue/today stats card
+    renderOverdueStats();
+  }
+
+  // Render the stats card showing completion of past+today weeks' Todos
+  function renderOverdueStats() {
+    const el = $('overdue-stats');
+    if (!el) return;
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    const year = state.periodYear || today.getFullYear();
+    // Cumulative stats (today まで全週合算)
+    let total = 0, done = 0, weekCount = 0;
+    // Recent 2 weeks stats: weeks whose start is within the last 14 days (and <= today)
+    const recentCutoff = new Date(today);
+    recentCutoff.setDate(recentCutoff.getDate() - 13);  // last 14 days inclusive
+    recentCutoff.setHours(0, 0, 0, 0);
+    let recTotal = 0, recDone = 0, recWeekCount = 0;
+    (state.weeks || []).forEach((w) => {
+      const parsed = parseWeekLabel(w.week);
+      if (!parsed) return;
+      const wkStart = getWeekStartDate(year, parsed.month, parsed.weekIdx);
+      // Only count weeks that have started (week start <= today)
+      if (wkStart.getTime() > today.getTime()) return;
+      const ids = w.planTodoIds || [];
+      if (ids.length === 0) return;
+      weekCount++;
+      const inRecent = wkStart.getTime() >= recentCutoff.getTime();
+      if (inRecent) recWeekCount++;
+      ids.forEach(id => {
+        const f = findTodoById(id);
+        if (!f) return;
+        total++;
+        if (f.todo.done) done++;
+        if (inRecent) {
+          recTotal++;
+          if (f.todo.done) recDone++;
+        }
+      });
+    });
+    if (total === 0) {
+      el.style.display = 'none';
+      return;
+    }
+    const remaining = total - done;
+    const completionRate = total > 0 ? (done / total * 100) : 0;
+    const incompleteRate = 100 - completionRate;
+    // Recent 2-week rates
+    const recCompletionRate = recTotal > 0 ? (recDone / recTotal * 100) : null;
+    // Tier (based on cumulative)
+    let tier = '';
+    let valueCls = 'good';
+    if (incompleteRate >= 50) { tier = 'danger'; valueCls = 'bad'; }
+    else if (incompleteRate >= 25) { tier = 'warning'; valueCls = 'mid'; }
+    // Tier for recent (independent color tier)
+    let recValueCls = 'good';
+    if (recCompletionRate !== null) {
+      const recIncomplete = 100 - recCompletionRate;
+      if (recIncomplete >= 50) recValueCls = 'bad';
+      else if (recIncomplete >= 25) recValueCls = 'mid';
+    }
+    el.className = 'overdue-stats ' + tier;
+    el.style.display = 'flex';
+    const recentSection = recCompletionRate !== null && recTotal > 0
+      ? `<div class="overdue-stat-card">
+           <div class="overdue-stat-label">📊 直近2週</div>
+           <div class="overdue-stat-value ${recValueCls}">${recCompletionRate.toFixed(0)}%</div>
+           <div class="overdue-stat-sub">${recDone} / ${recTotal} 完了</div>
+         </div>`
+      : `<div class="overdue-stat-card">
+           <div class="overdue-stat-label">📊 直近2週</div>
+           <div class="overdue-stat-value" style="font-size:18px;color:var(--muted);">—</div>
+           <div class="overdue-stat-sub">対象なし</div>
+         </div>`;
+    el.innerHTML = `
+      <div class="overdue-stat-card">
+        <div class="overdue-stat-label">📊 完了率（今日まで）</div>
+        <div class="overdue-stat-value ${valueCls}">${completionRate.toFixed(0)}%</div>
+        <div class="overdue-stat-sub">${done} / ${total} 完了</div>
+      </div>
+      ${recentSection}
+      <div class="overdue-stat-card">
+        <div class="overdue-stat-label">⚠️ 未完了率</div>
+        <div class="overdue-stat-value ${valueCls}">${incompleteRate.toFixed(0)}%</div>
+        <div class="overdue-stat-sub">${remaining} 件未完了</div>
+      </div>
+      <div class="overdue-stat-card">
+        <div class="overdue-stat-label">🗓 対象</div>
+        <div class="overdue-stat-value" style="font-size:18px;">${weekCount}週</div>
+        <div class="overdue-stat-sub">今日までに到来した週</div>
+      </div>
+      <div class="overdue-bar"><div class="overdue-bar-fill" style="width:${completionRate.toFixed(1)}%;"></div></div>
+    `;
   }
 
   // ===== Weeks =====
@@ -3569,6 +3758,7 @@
     }).join('');
     $('week-body').innerHTML = html;
     autoResizeAll();
+    renderOverdueStats();
   }
 
   // ===== Results =====
@@ -4113,8 +4303,12 @@
       const found = findTodoById(t.dataset.todoid);
       if (found) {
         const cur = found.todo.priority || 'none';
-        found.todo.priority = PRIORITY_NEXT[cur];
-        save(); renderTodos(); renderWeeks();
+        const next = PRIORITY_NEXT[cur];
+        found.todo.priority = next;
+        save();
+        // Update visuals in-place for immediate feedback, schedule the sort 3s later
+        updatePriorityVisualInPlace(found.todo.id, next);
+        scheduleSortAfterDelay();
       }
     } else if (t.dataset.act === 'pick') {
       openPicker(+t.dataset.week);
