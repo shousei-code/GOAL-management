@@ -773,12 +773,19 @@
   }
   .todo-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
-    padding: 4px 6px;
+    padding: 6px 6px;
     border-radius: 4px;
     border-left: 3px solid transparent;
     transition: background 0.1s;
+  }
+  .todo-item > input[type="checkbox"],
+  .todo-item > .drag-handle,
+  .todo-item > .priority-btn,
+  .todo-item > .routine-btn,
+  .todo-item > button[data-act="del"] {
+    margin-top: 2px;
   }
   .todo-item:hover { background: var(--panel-2); }
   .todo-item.priority-high {
@@ -903,9 +910,11 @@
     font-family: inherit;
     resize: none;
     overflow: hidden;
-    line-height: 1.4;
+    line-height: 1.5;
     word-break: break-word;
     color: var(--text);
+    min-height: 1.5em;
+    white-space: pre-wrap;
   }
   .todo-item input[type="text"]:focus,
   .todo-item textarea.todo-text:focus {
@@ -3417,6 +3426,8 @@
       container.innerHTML = activeHTML + historyHTML;
       const prog = $(progId);
       if (prog) prog.textContent = `${done.length} / ${list.length} 完了`;
+      // Auto-resize the rendered todo textareas so long text isn't clipped to 1 line
+      container.querySelectorAll('textarea.todo-text').forEach(autoResize);
     });
     $('todo-summary').textContent = totalAll ? `全体 ${totalDone} / ${totalAll} 完了` : '—';
   }
