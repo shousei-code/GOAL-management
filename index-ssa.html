@@ -1001,6 +1001,80 @@
   }
   .week-restore-btn:hover { background: #eff6ff; border-color: #3b82f6; color: #2563eb; }
   .todo-item input[type="checkbox"] { flex-shrink: 0; cursor: pointer; }
+  /* Todo detail toggle button (▶/▼ + ＋/📝) */
+  .todo-detail-toggle {
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--muted);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .todo-detail-toggle:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .todo-detail-toggle.has-content {
+    border-color: #f59e0b;
+    color: #d97706;
+    background: #fffbeb;
+    font-weight: 700;
+  }
+  .todo-detail-toggle.has-content:hover {
+    background: #d97706;
+    color: #fff;
+    border-color: #d97706;
+  }
+  /* Detail panel (hidden by default, shown when open) */
+  .todo-item-wrap {
+    margin-bottom: 4px;
+  }
+  .todo-detail-panel {
+    display: none;
+    margin: 0 0 6px 32px;
+    padding: 8px 10px;
+    background: #f9fafb;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+  }
+  .todo-detail-panel.show { display: block; }
+  .todo-detail-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 4px;
+    letter-spacing: 0.02em;
+  }
+  .todo-detail-panel .rich-field-wrap {
+    border: 1px solid var(--border);
+    background: #fff;
+  }
+  .todo-detail-panel .rich-display {
+    min-height: 40px;
+    padding: 8px 50px 8px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .todo-detail-panel .rich-input {
+    min-height: 40px;
+    padding: 8px 50px 8px 10px;
+    font-size: 12px;
+  }
+  .todo-detail-panel .rich-expand-btn {
+    top: 3px;
+    right: 3px;
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+  @media (max-width: 720px) {
+    .todo-detail-panel { margin-left: 24px; padding: 6px 8px; }
+  }
   .todo-item input[type="text"],
   .todo-item textarea.todo-text {
     flex: 1;
@@ -1283,6 +1357,29 @@
     color: #fff;
     border-color: #0369a1;
   }
+  .plan-chip .chip-detail {
+    border: 1px solid var(--border);
+    background: #f9fafb;
+    color: var(--muted);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+    line-height: 1;
+    font-family: inherit;
+  }
+  .plan-chip .chip-detail.has-content {
+    background: #fffbeb;
+    border-color: #f59e0b;
+    color: #d97706;
+    font-weight: 700;
+  }
+  .plan-chip .chip-detail:hover {
+    background: #f59e0b;
+    color: #fff;
+    border-color: #f59e0b;
+  }
   .plan-chip .chip-drag {
     cursor: grab;
     color: var(--muted);
@@ -1499,14 +1596,15 @@
   }
   .rich-display {
     min-height: 60px;
-    padding: 10px 60px 10px 12px;
+    padding: 10px 12px;
     font-size: 13px;
     line-height: 1.6;
     color: var(--text);
-    cursor: text;
+    cursor: pointer;
     border-radius: 6px;
     word-break: break-word;
     white-space: normal;
+    position: relative;
   }
   .rich-display:hover { background: #f9fafb; }
   .rich-display strong { font-weight: 700; color: #111827; }
@@ -1519,8 +1617,9 @@
   }
   .rich-display a.rich-link:hover,
   .rich-preview a.rich-link:hover { color: #1e40af; }
-  .rich-display ul, .rich-preview ul { margin: 4px 0 4px 20px; padding: 0; }
-  .rich-display li, .rich-preview li { margin: 2px 0; }
+  .rich-display ul, .rich-preview ul { margin: 6px 0 6px 22px; padding: 0; list-style: disc; }
+  .rich-display ol, .rich-preview ol { margin: 6px 0 6px 24px; padding: 0; list-style: decimal; }
+  .rich-display li, .rich-preview li { margin: 3px 0; }
   .rich-display code, .rich-preview code {
     background: #f3f4f6;
     border-radius: 3px;
@@ -1528,6 +1627,47 @@
     font-family: 'SFMono-Regular', Consolas, monospace;
     font-size: 12px;
   }
+  /* Headings inside rich text — give clear hierarchy */
+  .rich-display .rich-h, .rich-preview .rich-h { font-weight: 800; line-height: 1.3; margin: 12px 0 6px; color: #111827; }
+  .rich-display .rich-h:first-child, .rich-preview .rich-h:first-child { margin-top: 0; }
+  .rich-display .rich-h1, .rich-preview .rich-h1 { font-size: 1.6em; border-bottom: 2px solid #d1d5db; padding-bottom: 4px; }
+  .rich-display .rich-h2, .rich-preview .rich-h2 { font-size: 1.35em; border-bottom: 1px solid #e5e7eb; padding-bottom: 3px; color: #1e3a8a; }
+  .rich-display .rich-h3, .rich-preview .rich-h3 { font-size: 1.18em; color: #1f2937; }
+  .rich-display .rich-h4, .rich-preview .rich-h4 { font-size: 1.05em; color: #374151; }
+  .rich-display .rich-h5, .rich-preview .rich-h5 { font-size: 1em; color: #4b5563; }
+  .rich-display .rich-h6, .rich-preview .rich-h6 { font-size: 0.95em; color: #6b7280; font-weight: 700; }
+  .rich-display .rich-hr, .rich-preview .rich-hr { border: 0; border-top: 1px dashed #d1d5db; margin: 10px 0; }
+  /* Collapsed preview: clamp to 4 lines with fade gradient */
+  .rich-display.collapsed {
+    max-height: calc(1.6em * 4 + 20px); /* 4 lines + padding */
+    overflow: hidden;
+    position: relative;
+  }
+  .rich-display.collapsed::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 32px;
+    background: linear-gradient(to bottom, transparent, #fff 90%);
+    pointer-events: none;
+  }
+  .rich-display:hover.collapsed::after { background: linear-gradient(to bottom, transparent, #f9fafb 90%); }
+  .rich-display.collapsed .rich-expand-hint {
+    position: absolute;
+    bottom: 4px;
+    right: 8px;
+    font-size: 11px;
+    color: #2563eb;
+    font-weight: 700;
+    background: rgba(255,255,255,0.9);
+    padding: 1px 8px;
+    border-radius: 999px;
+    border: 1px solid #93c5fd;
+    z-index: 2;
+  }
+  .rich-display:not(.collapsed) .rich-expand-hint { display: none; }
   .rich-placeholder {
     color: var(--muted);
     font-style: italic;
@@ -1537,14 +1677,14 @@
     width: 100%;
     border: none;
     background: #fff;
-    padding: 10px 60px 10px 12px;
+    padding: 10px 12px;
     font-size: 13px;
     font-family: inherit;
     resize: none;
     overflow: hidden;
     line-height: 1.5;
     color: var(--text);
-    min-height: 60px;
+    min-height: 80px;
     border-radius: 6px;
     box-sizing: border-box;
     outline: 1.5px solid var(--accent);
@@ -1565,6 +1705,15 @@
   }
   .rich-preview strong { font-weight: 700; color: #111827; }
   .rich-preview em { font-style: italic; }
+  .rich-preview .rich-h { font-weight: 800; line-height: 1.3; margin: 14px 0 8px; color: #111827; }
+  .rich-preview .rich-h:first-child { margin-top: 0; }
+  .rich-preview .rich-h1 { font-size: 1.7em; border-bottom: 2px solid #d1d5db; padding-bottom: 6px; }
+  .rich-preview .rich-h2 { font-size: 1.4em; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; color: #1e3a8a; }
+  .rich-preview .rich-h3 { font-size: 1.2em; color: #1f2937; }
+  .rich-preview .rich-h4 { font-size: 1.08em; color: #374151; }
+  .rich-preview .rich-h5 { font-size: 1em; color: #4b5563; }
+  .rich-preview .rich-h6 { font-size: 0.95em; color: #6b7280; font-weight: 700; }
+  .rich-preview .rich-hr { border: 0; border-top: 1px dashed #d1d5db; margin: 12px 0; }
   .rich-modal-hint {
     font-size: 12px;
     color: var(--muted);
@@ -3475,7 +3624,7 @@
       }
       if (old.todos) {
         [1,2,3].forEach(k => {
-          d.todos[k] = (old.todos[k] || []).map(t => ({ id: newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine }));
+          d.todos[k] = (old.todos[k] || []).map(t => ({ id: newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
         });
       }
       if (old.weeks) {
@@ -3557,7 +3706,7 @@
         derivePeriodFields(merged, merged.period);
         // ensure todo ids
         TODO_KEYS.forEach(k => {
-          merged.todos[k] = (merged.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine }));
+          merged.todos[k] = (merged.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
         });
         // ensure week shape
         merged.weeks = merged.weeks.map((w, i) => ({
@@ -3622,15 +3771,21 @@
         <div class="kpi-card-body">
           <div class="kpi-row">
             <div class="lbl">現状</div>
-            <textarea data-goal="${k}" data-field="current" placeholder="今の状態（文章）">${esc(g.current)}</textarea>
+            <div class="rich-field-wrap goal-rich-field" data-goal="${k}" data-field="current" data-label="現状" data-act="goal-text-expand">
+              <div class="rich-display collapsed">${g.current ? renderRichText(g.current) : '<span class="rich-placeholder">今の状態を入力（クリックで全文表示・編集）。**太字** / # 見出し / URL自動リンクなど対応</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+            </div>
           </div>
           <div class="kpi-row">
             <div class="lbl">課題</div>
-            <textarea data-goal="${k}" data-field="issue" placeholder="目標達成を阻む課題">${esc(g.issue)}</textarea>
+            <div class="rich-field-wrap goal-rich-field" data-goal="${k}" data-field="issue" data-label="課題" data-act="goal-text-expand">
+              <div class="rich-display collapsed">${g.issue ? renderRichText(g.issue) : '<span class="rich-placeholder">目標達成を阻む課題を入力（クリックで全文表示・編集）</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+            </div>
           </div>
           <div class="kpi-row">
             <div class="lbl">解決策</div>
-            <textarea data-goal="${k}" data-field="solution" placeholder="課題を解決する方法・アクション">${esc(g.solution)}</textarea>
+            <div class="rich-field-wrap goal-rich-field" data-goal="${k}" data-field="solution" data-label="解決策" data-act="goal-text-expand">
+              <div class="rich-display collapsed">${g.solution ? renderRichText(g.solution) : '<span class="rich-placeholder">課題を解決する方法・アクションを入力（クリックで全文表示・編集）</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+            </div>
           </div>
           <div class="metric-block">
             <div class="mlabel">
@@ -3678,43 +3833,70 @@
   }
   // Track which "history" sections are open (in-memory)
   const openHistory = new Set();
+  // Track which Todo detail panels are open (in-memory; not persisted)
+  const openTodoDetails = new Set();
 
   // ===== Rich text rendering (markdown subset + URL auto-link) =====
-  // Supports: **bold**, *italic*, `code`, lines starting with "- " or "* " as list, URLs auto-linkified, newlines → <br>
+  // Supports: H1-H6, **bold**, *italic*, `code`, lines starting with "- " or "* " as ul,
+  // numbered lists "1. xxx" as ol, horizontal rules "---", URLs auto-linkified, newlines → <br>
   function renderRichText(text) {
     if (text === null || text === undefined || text === '') return '';
     let s = String(text);
     // 1) HTML escape first
     s = s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-    // 2) URL auto-link (must precede bold to allow URLs with ** inside not to break)
-    s = s.replace(/(https?:\/\/[^\s<>"']+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="rich-link">$1</a>');
-    // 3) Code spans `...`
-    s = s.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
-    // 4) Bold **...**  (non-greedy, single line)
-    s = s.replace(/\*\*([^*\n][^*\n]*?)\*\*/g, '<strong>$1</strong>');
-    // 5) Italic *...* (single line, avoid matching ** that survived)
-    s = s.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>');
-    // 6) Lists: lines starting with "- " or "* "
+    // 2) Process line-by-line for block-level elements (heading / list / hr)
     const lines = s.split('\n');
-    let inList = false;
+    let listType = null; // 'ul' | 'ol' | null
     const out = [];
-    for (const line of lines) {
-      const m = line.match(/^[\s]*[-*][\s]+(.+)$/);
-      if (m) {
-        if (!inList) { out.push('<ul>'); inList = true; }
-        out.push('<li>' + m[1] + '</li>');
-      } else {
-        if (inList) { out.push('</ul>'); inList = false; }
-        out.push(line);
+    const closeList = () => { if (listType) { out.push(`</${listType}>`); listType = null; } };
+    for (let line of lines) {
+      // Horizontal rule: "---" or "***" on its own line
+      if (/^\s*(---|\*\*\*|___)\s*$/.test(line)) {
+        closeList();
+        out.push('<hr class="rich-hr">');
+        continue;
       }
+      // Heading: 1-6 #
+      const h = line.match(/^(#{1,6})\s+(.+)$/);
+      if (h) {
+        closeList();
+        const level = h[1].length;
+        out.push(`<h${level} class="rich-h rich-h${level}">${h[2]}</h${level}>`);
+        continue;
+      }
+      // Unordered list: "- " or "* " or "・ "
+      const ul = line.match(/^[\s]*[-*・][\s]+(.+)$/);
+      if (ul) {
+        if (listType !== 'ul') { closeList(); out.push('<ul>'); listType = 'ul'; }
+        out.push('<li>' + ul[1] + '</li>');
+        continue;
+      }
+      // Ordered list: "1. " "2) " etc.
+      const ol = line.match(/^[\s]*\d+[.)][\s]+(.+)$/);
+      if (ol) {
+        if (listType !== 'ol') { closeList(); out.push('<ol>'); listType = 'ol'; }
+        out.push('<li>' + ol[1] + '</li>');
+        continue;
+      }
+      // Regular line: close any active list
+      closeList();
+      out.push(line);
     }
-    if (inList) out.push('</ul>');
+    closeList();
     s = out.join('\n');
-    // 7) Newlines → <br> (but not inside <ul>...</ul> blocks where we already structured them)
-    // Replace remaining \n outside of list blocks with <br>
-    s = s.replace(/\n(?!<\/?(?:ul|li))/g, '<br>');
-    // Clean up extra <br> right after </ul> or before <ul>
-    s = s.replace(/<\/ul><br>/g, '</ul>').replace(/<br><ul>/g, '<ul>');
+    // 3) URL auto-link (must precede inline emphasis)
+    s = s.replace(/(https?:\/\/[^\s<>"']+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="rich-link">$1</a>');
+    // 4) Code spans `...`
+    s = s.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
+    // 5) Bold **...**
+    s = s.replace(/\*\*([^*\n][^*\n]*?)\*\*/g, '<strong>$1</strong>');
+    // 6) Italic *...*
+    s = s.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>');
+    // 7) Newlines → <br> (outside of structured block elements)
+    s = s.replace(/\n(?!<\/?(?:ul|ol|li|h[1-6]|hr))/g, '<br>');
+    // Clean up extra <br> adjacent to block elements
+    s = s.replace(/<\/(ul|ol|h[1-6]|hr)><br>/g, '</$1>');
+    s = s.replace(/<br>(<(?:ul|ol|h[1-6]|hr))/g, '$1');
     return s;
   }
 
@@ -3764,16 +3946,27 @@
     const completedMeta = isHistory && t.completedAt
       ? `<span class="todo-completed-meta">✓ ${fmtCompletedDate(t.completedAt)}</span>`
       : '';
+    const isOpen = openTodoDetails.has(t.id);
+    const hasDetails = !!(t.details && t.details.trim());
     return `
-    <div class="todo-item ${t.done ? 'done' : ''} ${priClass} ${otherCls}" draggable="true" data-id="${t.id}" data-kpi="${k}">
-      <span class="drag-handle" title="ドラッグで並び替え">⋮⋮</span>
-      <input type="checkbox" data-id="${t.id}" data-act="check" ${t.done ? 'checked' : ''} />
-      <textarea class="autosize todo-text" data-id="${t.id}" data-act="text" placeholder="Todoを入力" rows="1">${esc(t.text)}</textarea>
-      <button class="priority-btn ${priClass}" data-id="${t.id}" data-act="cycle-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
-      <button class="routine-btn ${t.routine ? 'active' : ''}" data-id="${t.id}" data-act="cycle-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックでON/OFF）">🔁</button>
-      ${completedMeta}
-      <button data-id="${t.id}" data-act="del" title="削除"
-        style="border:none;background:transparent;cursor:pointer;color:var(--muted);font-size:14px;">×</button>
+    <div class="todo-item-wrap ${isOpen ? 'open' : ''}" data-id="${t.id}">
+      <div class="todo-item ${t.done ? 'done' : ''} ${priClass} ${otherCls}" draggable="true" data-id="${t.id}" data-kpi="${k}">
+        <span class="drag-handle" title="ドラッグで並び替え">⋮⋮</span>
+        <input type="checkbox" data-id="${t.id}" data-act="check" ${t.done ? 'checked' : ''} />
+        <textarea class="autosize todo-text" data-id="${t.id}" data-act="text" placeholder="Todoを入力" rows="1">${esc(t.text)}</textarea>
+        <button class="todo-detail-toggle ${hasDetails ? 'has-content' : ''}" data-id="${t.id}" data-act="toggle-detail" title="詳細・リンクを${isOpen ? '閉じる' : '開く'}（クリックで何をどうするか書ける）">${isOpen ? '▼' : '▶'}${hasDetails ? '📝' : '＋'}</button>
+        <button class="priority-btn ${priClass}" data-id="${t.id}" data-act="cycle-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
+        <button class="routine-btn ${t.routine ? 'active' : ''}" data-id="${t.id}" data-act="cycle-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックでON/OFF）">🔁</button>
+        ${completedMeta}
+        <button data-id="${t.id}" data-act="del" title="削除"
+          style="border:none;background:transparent;cursor:pointer;color:var(--muted);font-size:14px;">×</button>
+      </div>
+      <div class="todo-detail-panel ${isOpen ? 'show' : ''}" data-id="${t.id}">
+        <div class="todo-detail-label">📝 何をどうする？（具体メモ・リンク・参考資料 — クリックで全文表示・編集）</div>
+        <div class="rich-field-wrap todo-detail-field" data-todoid="${t.id}" data-field="details" data-act="todo-detail-expand">
+          <div class="rich-display todo-detail-display collapsed">${t.details ? renderRichText(t.details) : '<span class="rich-placeholder">具体的にやることや参考リンクを書く（例: 「○○さんに連絡 - https://example.com の資料を見てから提案」）。**太字** / *斜体* / # 見出し / URL自動リンク 対応</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+        </div>
+      </div>
     </div>
   `;
   }
@@ -3803,7 +3996,7 @@
       const prog = $(progId);
       if (prog) prog.textContent = `${done.length} / ${list.length} 完了`;
       // Auto-resize the rendered todo textareas so long text isn't clipped to 1 line
-      container.querySelectorAll('textarea.todo-text').forEach(autoResize);
+      container.querySelectorAll('textarea.todo-text, textarea.rich-input').forEach(autoResize);
     });
     $('todo-summary').textContent = totalAll ? `全体 ${totalDone} / ${totalAll} 完了` : '—';
     // Refresh the overdue/today stats card
@@ -3965,6 +4158,7 @@
               <input type="checkbox" class="chip-check" data-todoid="${todo.id}" data-act="chip-check" ${todo.done ? 'checked' : ''} title="完了/未完了を切り替え" />
               <span class="chip-text">${esc(todo.text || '(未入力)')}</span>
               <button class="chip-prio ${priClass}" data-todoid="${todo.id}" data-act="cycle-chip-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
+              <button class="chip-detail ${todo.details && todo.details.trim() ? 'has-content' : ''}" data-todoid="${todo.id}" data-act="chip-detail-open" title="このTodoの詳細メモ・リンクを開く（クリックで全文表示・編集）">${todo.details && todo.details.trim() ? '📝' : '＋'}</button>
               <button class="chip-cal" data-week="${wi}" data-todoid="${todo.id}" data-act="todo-calendar" title="このTodoをカレンダーに登録（1時間枠）">📅</button>
               <button class="chip-x" data-week="${wi}" data-todoid="${todo.id}" data-act="unpick" title="この週から外す">×</button>
             </div>
@@ -4023,10 +4217,8 @@
               </div>
               <div class="plan-chips">${chips}</div>
               <button class="plan-pick-btn" data-week="${wi}" data-act="pick">＋ Todoから選ぶ</button>
-              <div class="rich-field-wrap" data-week="${wi}" data-field="planNote">
-                <button type="button" class="rich-expand-btn" data-act="rich-expand" data-week="${wi}" data-field="planNote" data-label="自由メモ" title="拡大表示（全文を大きく見る／編集）">🔍 拡大</button>
-                <div class="rich-display" data-act="rich-edit">${w.planNote ? renderRichText(w.planNote) : '<span class="rich-placeholder">自由メモ（任意） — クリックして入力。**太字** / *斜体* / URLが使えます</span>'}</div>
-                <textarea class="note rich-input" data-week="${wi}" data-field="planNote" placeholder="自由メモ（任意） — **太字** や URLが使えます" style="display:none;">${esc(w.planNote)}</textarea>
+              <div class="rich-field-wrap" data-week="${wi}" data-field="planNote" data-label="自由メモ" data-act="rich-expand">
+                <div class="rich-display collapsed">${w.planNote ? renderRichText(w.planNote) : '<span class="rich-placeholder">自由メモ（任意） — クリックして全文表示・編集。**太字** / # 見出し / URL自動リンクなど対応</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
               </div>
             </div>
             <div class="week-field">
@@ -4034,11 +4226,9 @@
               ${doneListHTML}
             </div>
             <div class="week-field">
-              <div class="week-field-label">💭 振り返り（理由・改善案・気付き）</div>
-              <div class="rich-field-wrap" data-week="${wi}" data-field="review">
-                <button type="button" class="rich-expand-btn" data-act="rich-expand" data-week="${wi}" data-field="review" data-label="振り返り" title="拡大表示（全文を大きく見る／編集）">🔍 拡大</button>
-                <div class="rich-display" data-act="rich-edit">${w.review ? renderRichText(w.review) : '<span class="rich-placeholder">振り返り — クリックして入力。**太字** / *斜体* / URLが使えます</span>'}</div>
-                <textarea class="rich-input" data-week="${wi}" data-field="review" placeholder="振り返り（理由・改善案・気付き）" style="display:none;">${esc(w.review)}</textarea>
+              <div class="week-field-label">💭 振り返り（理由・改善案・気付き — クリックで全文表示・編集）</div>
+              <div class="rich-field-wrap" data-week="${wi}" data-field="review" data-label="振り返り" data-act="rich-expand">
+                <div class="rich-display collapsed">${w.review ? renderRichText(w.review) : '<span class="rich-placeholder">振り返り — クリックして全文表示・編集。**太字** / # 見出し / URL自動リンクなど対応</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
               </div>
             </div>
           </div>
@@ -4550,7 +4740,7 @@
       const rawK = t.dataset.kpi;
       const k = (rawK === 'other') ? 'other' : +rawK;
       if (!state.todos[k]) state.todos[k] = [];
-      state.todos[k].push({ id: newId(), text: '', done: false, priority: 'none', completedAt: null, routine: false });
+      state.todos[k].push({ id: newId(), text: '', done: false, priority: 'none', completedAt: null, routine: false, details: '' });
       save(); renderTodos();
       setTimeout(() => {
         const containerId = (k === 'other') ? 'todo-other' : `todo-${k}`;
@@ -4580,6 +4770,26 @@
       if (found) {
         found.todo.routine = !found.todo.routine;
         save(); renderTodos();
+      }
+    } else if (t.dataset.act === 'toggle-detail' && t.dataset.id) {
+      e.stopPropagation();
+      const id = t.dataset.id;
+      // Toggle open state
+      if (openTodoDetails.has(id)) openTodoDetails.delete(id);
+      else openTodoDetails.add(id);
+      // Toggle DOM in-place (avoid re-render so user doesn't lose focus on textareas)
+      const wrap = document.querySelector(`.todo-item-wrap[data-id="${id}"]`);
+      if (wrap) {
+        const isOpen = openTodoDetails.has(id);
+        wrap.classList.toggle('open', isOpen);
+        const panel = wrap.querySelector('.todo-detail-panel');
+        if (panel) panel.classList.toggle('show', isOpen);
+        const toggleBtn = wrap.querySelector('[data-act="toggle-detail"]');
+        if (toggleBtn) {
+          const hasContent = toggleBtn.classList.contains('has-content');
+          toggleBtn.textContent = (isOpen ? '▼' : '▶') + (hasContent ? '📝' : '＋');
+          toggleBtn.title = `詳細・リンクを${isOpen ? '閉じる' : '開く'}（クリックで何をどうするか書ける）`;
+        }
       }
     } else if (t.dataset.act === 'toggle-history' && t.dataset.kpi !== undefined) {
       e.stopPropagation();
@@ -4611,6 +4821,9 @@
       const wi = +t.dataset.week;
       const id = t.dataset.todoid;
       openCalendarModalForTodo(wi, id);
+    } else if (t.dataset.act === 'chip-detail-open') {
+      e.stopPropagation();
+      openTodoDetailModal(t.dataset.todoid);
     } else if (t.dataset.act === 'uncheck-week') {
       e.stopPropagation();
       const wi = +t.dataset.week;
@@ -5166,7 +5379,7 @@
         };
         // normalize todos / weeks
         TODO_KEYS.forEach(k => {
-          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine }));
+          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
         });
         state.weeks = state.weeks.map((w, i) => ({
           week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
@@ -5220,7 +5433,7 @@
         archives: Array.isArray(data.archives) ? data.archives : [],
       };
       TODO_KEYS.forEach(k => {
-        newState.todos[k] = (newState.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine }));
+        newState.todos[k] = (newState.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
       });
       newState.weeks = newState.weeks.map((w, i) => ({
         week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
@@ -5411,7 +5624,7 @@
           archives: Array.isArray(data.archives) ? data.archives : [],
         };
         TODO_KEYS.forEach(k => {
-          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine }));
+          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
         });
         state.weeks = state.weeks.map((w, i) => ({
           week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
@@ -5622,7 +5835,7 @@
   }
 
   // Common output instruction template (structured + step-by-step + concrete examples + grounded reasoning)
-  const AI_OUTPUT_GUIDE = `\n\n【回答フォーマット（必ず守ってください）】\n■ まず「結論」を最初に2〜3行で明示\n■ その後、見出し付き箇条書きで構造化（マークダウン記法OK）\n■ 各項目は「具体例×3つ」を必ず含める（抽象論NG）\n■ 各提案には「なぜそうするか」の根拠（数値・理由・経験則）を必ず添える\n■ 重要なポイントは太字や絵文字で強調\n■ 中学生でも分かる平易な言葉で（専門用語使う場合は注釈）\n■ 各見出しの本文は400字程度を目安に、しっかり情報量を入れる\n■ 最後に「💡 次の一歩（今日できる1つの行動）」で締める\n\n【NG事項】\n× 「重要です」「考えましょう」など抽象的・薄い断定\n× 根拠のない提案（必ず「なぜなら〜だから」を入れる）\n× 一般論で終わる（その人の状況に合わせた具体性が必要）\n× 専門用語の羅列\n× 短すぎる回答（情報が薄い）`;
+  const AI_OUTPUT_GUIDE = `\n\n【回答スタイル（必ず守ってください）— 短く・観点で・コピペしやすく】\n\n■ 全体ボリューム：<strong>長すぎNG</strong>。読み返すのに30秒で済む量で。各項目の本文は <strong>2〜3文（合計150〜200字程度）</strong> で十分。文章を膨らませない。\n\n■ 構成（この順番で）：\n  1. <strong>結論</strong>（2行以内）— 何をすべきか1文で。\n  2. <strong>定量</strong>（数字で見る）— 現状値／目標値／ギャップを計算式で1行。\n  3. <strong>定性</strong>（意味で見る）— なぜそれが効くか1〜2行で。\n  4. <strong>観点リスト</strong>（3項目）— ユーザーが自分で判断・記入できる観点を3つ提示。各観点に：\n     - 「何を書く?」（具体的に何を埋めるか1行）\n     - 「順番」（どの順で考えるか1行）\n     - 「例」（短いサンプル1つ）\n  5. <strong>💡 次の一歩</strong>（1行）— 今日／今週やる1つの行動。\n\n■ 表現：\n  - 重要ポイントは <strong>太字</strong> や絵文字で強調\n  - マークダウン見出し（##・###）で階層化、コピペしてそのまま使える形に\n  - 数値は <strong>計算式付き</strong>（例: 「100万 ÷ 4週 = 25万/週」）\n  - 専門用語は使う場合のみ括弧で平易な注釈\n\n■ 定量と定性の分離：\n  - 「定量」セクションは <strong>数字だけ</strong>（達成率／件数／時間など）\n  - 「定性」セクションは <strong>意味・背景・理由</strong>（数字なし）\n  - ごちゃまぜにしない。受講生が「数字を見る／意味を考える」の往復をしやすく。\n\n【NG事項】\n× 1項目で400字超えるような長文\n× 「重要です」「考えましょう」など中身のない断言\n× 根拠なし／一般論／専門用語の羅列\n× 観点を5つ以上挙げる（必ず3つに絞る）`;
 
   function openAIModal(mode, ctx) {
     const titleEl = $('ai-modal-title');
@@ -5716,47 +5929,60 @@
     targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
-  // ===== Rich text inline editing (click display → textarea, blur → preview) =====
-  // Click on .rich-display: switch to textarea editing
+  // ===== Rich text fields: click anywhere on the field → opens modal =====
+  // (Replaces old inline edit-in-place. The field is now always a click-to-expand preview.)
   document.addEventListener('click', (e) => {
-    const display = e.target.closest('.rich-display[data-act="rich-edit"]');
-    if (!display) return;
-    // If user clicked a link inside the display, let the link fire normally
+    // Ignore clicks on links inside the preview (let them open the URL)
     if (e.target.closest('a')) return;
-    const wrap = display.closest('.rich-field-wrap');
-    const textarea = wrap?.querySelector('.rich-input');
-    if (!textarea) return;
-    display.style.display = 'none';
-    textarea.style.display = '';
-    textarea.focus();
-    // Move caret to end
-    try { textarea.setSelectionRange(textarea.value.length, textarea.value.length); } catch {}
-    autoResize(textarea);
-  });
-  // Blur on .rich-input: switch back to rendered preview
-  document.addEventListener('focusout', (e) => {
-    if (!e.target.matches || !e.target.matches('.rich-input')) return;
-    const textarea = e.target;
-    const wrap = textarea.closest('.rich-field-wrap');
-    const display = wrap?.querySelector('.rich-display');
-    if (!display) return;
-    const val = textarea.value;
-    const field = textarea.dataset.field;
-    const placeholder = field === 'planNote'
-      ? '自由メモ（任意） — クリックして入力。**太字** / *斜体* / URLが使えます'
-      : '振り返り — クリックして入力。**太字** / *斜体* / URLが使えます';
-    display.innerHTML = val ? renderRichText(val) : `<span class="rich-placeholder">${placeholder}</span>`;
-    display.style.display = '';
-    textarea.style.display = 'none';
+    // Match the wrap element itself, which carries the data-act
+    const wrap = e.target.closest('.rich-field-wrap[data-act="rich-expand"], .rich-field-wrap[data-act="todo-detail-expand"], .rich-field-wrap[data-act="goal-text-expand"]');
+    if (!wrap) return;
+    e.stopPropagation();
+    const act = wrap.dataset.act;
+    if (act === 'rich-expand') {
+      const wi = +wrap.dataset.week;
+      const field = wrap.dataset.field;
+      const label = wrap.dataset.label || (field === 'planNote' ? '自由メモ' : '振り返り');
+      openRichModal(wi, field, label);
+    } else if (act === 'todo-detail-expand') {
+      openTodoDetailModal(wrap.dataset.todoid);
+    } else if (act === 'goal-text-expand') {
+      openGoalTextModal(wrap.dataset.goal, wrap.dataset.field, wrap.dataset.label);
+    }
   });
 
   // ===== Rich text expand modal =====
-  let richModalCtx = null;  // { wi, field, label }
+  // ctx: { type: 'week', wi, field, label }  OR  { type: 'todo', todoId, label }
+  let richModalCtx = null;
   function openRichModal(wi, field, label) {
-    richModalCtx = { wi, field, label };
+    richModalCtx = { type: 'week', wi, field, label };
     const w = state.weeks[wi];
     const val = (w && w[field]) || '';
     $('rich-modal-title').textContent = `📝 ${label} - 拡大表示（${w?.week || ''}）`;
+    $('rich-modal-textarea').value = val;
+    $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
+    $('rich-modal').classList.add('show');
+    setTimeout(() => $('rich-modal-textarea').focus(), 50);
+  }
+  function openTodoDetailModal(todoId) {
+    const found = findTodoById(todoId);
+    if (!found) return;
+    richModalCtx = { type: 'todo', todoId, label: '何をどうする？' };
+    const val = found.todo.details || '';
+    const todoText = found.todo.text || '(未入力)';
+    $('rich-modal-title').textContent = `📝 ${todoText.slice(0, 30)}${todoText.length > 30 ? '…' : ''} - 詳細メモ`;
+    $('rich-modal-textarea').value = val;
+    $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
+    $('rich-modal').classList.add('show');
+    setTimeout(() => $('rich-modal-textarea').focus(), 50);
+  }
+  // Open modal for a state.goals[goalKey][field] text field (現状 / 課題 / 解決策 etc.)
+  function openGoalTextModal(goalKey, field, label) {
+    const g = state.goals[goalKey] || {};
+    richModalCtx = { type: 'goal', goalKey, field, label };
+    const val = g[field] || '';
+    const kpiLabel = goalKey === 'kgi' ? 'KGI' : goalKey === 'kpi1' ? 'KPI①' : goalKey === 'kpi2' ? 'KPI②' : goalKey === 'kpi3' ? 'KPI③' : goalKey;
+    $('rich-modal-title').textContent = `📝 ${kpiLabel} - ${label}`;
     $('rich-modal-textarea').value = val;
     $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
     $('rich-modal').classList.add('show');
@@ -5770,24 +5996,82 @@
   $('rich-modal-textarea').addEventListener('input', (e) => {
     if (!richModalCtx) return;
     const val = e.target.value;
-    const { wi, field } = richModalCtx;
-    if (state.weeks[wi]) {
-      state.weeks[wi][field] = val;
-      save();
-    }
-    $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
-    // Also sync the inline display below
-    const wrap = document.querySelector(`.rich-field-wrap[data-week="${wi}"][data-field="${field}"]`);
-    if (wrap) {
-      const display = wrap.querySelector('.rich-display');
-      const inlineTa = wrap.querySelector('.rich-input');
-      if (display) {
-        const placeholder = field === 'planNote'
-          ? '自由メモ（任意） — クリックして入力。**太字** / *斜体* / URLが使えます'
-          : '振り返り — クリックして入力。**太字** / *斜体* / URLが使えます';
-        display.innerHTML = val ? renderRichText(val) : `<span class="rich-placeholder">${placeholder}</span>`;
+    if (richModalCtx.type === 'week') {
+      const { wi, field } = richModalCtx;
+      if (state.weeks[wi]) {
+        state.weeks[wi][field] = val;
+        save();
       }
-      if (inlineTa) inlineTa.value = val;
+      $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
+      const wrap = document.querySelector(`.rich-field-wrap[data-week="${wi}"][data-field="${field}"]`);
+      if (wrap) {
+        const display = wrap.querySelector('.rich-display');
+        const inlineTa = wrap.querySelector('.rich-input');
+        if (display) {
+          const placeholder = field === 'planNote'
+            ? '自由メモ（任意） — クリックして入力。**太字** / *斜体* / URLが使えます'
+            : '振り返り — クリックして入力。**太字** / *斜体* / URLが使えます';
+          display.innerHTML = val ? renderRichText(val) : `<span class="rich-placeholder">${placeholder}</span>`;
+        }
+        if (inlineTa) inlineTa.value = val;
+      }
+    } else if (richModalCtx.type === 'todo') {
+      const found = findTodoById(richModalCtx.todoId);
+      if (!found) return;
+      found.todo.details = val;
+      save();
+      $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
+      // Sync inline display
+      const wrap = document.querySelector(`.rich-field-wrap[data-todoid="${richModalCtx.todoId}"][data-field="details"]`);
+      if (wrap) {
+        const display = wrap.querySelector('.rich-display');
+        const inlineTa = wrap.querySelector('.rich-input');
+        if (display) {
+          display.innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">具体的にやることや参考リンクを書く（例: 「○○さんに連絡 - https://example.com の資料を見てから提案」）。**太字** / *斜体* / URL自動リンク 対応</span>';
+        }
+        if (inlineTa) inlineTa.value = val;
+      }
+      // Update toggle button "has-content" state
+      const itemWrap = document.querySelector(`.todo-item-wrap[data-id="${richModalCtx.todoId}"]`);
+      if (itemWrap) {
+        const btn = itemWrap.querySelector('[data-act="toggle-detail"]');
+        if (btn) {
+          const has = !!(val && val.trim());
+          btn.classList.toggle('has-content', has);
+          const isOpen = itemWrap.classList.contains('open');
+          btn.textContent = (isOpen ? '▼' : '▶') + (has ? '📝' : '＋');
+        }
+      }
+      // Sync the chip-detail buttons in week cards too
+      const has = !!(val && val.trim());
+      document.querySelectorAll(`.chip-detail[data-todoid="${richModalCtx.todoId}"]`).forEach(btn => {
+        btn.classList.toggle('has-content', has);
+        btn.textContent = has ? '📝' : '＋';
+      });
+    } else if (richModalCtx.type === 'goal') {
+      const { goalKey, field } = richModalCtx;
+      if (state.goals[goalKey]) {
+        state.goals[goalKey][field] = val;
+        save();
+        // Trigger derived re-renders for fields that affect results (target etc.)
+        if (field === 'target') {
+          if (typeof updateKpiNames === 'function') updateKpiNames();
+          if (typeof renderResults === 'function') renderResults();
+        }
+      }
+      $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
+      // Sync inline display
+      const wrap = document.querySelector(`.rich-field-wrap[data-goal="${goalKey}"][data-field="${field}"]`);
+      if (wrap) {
+        const display = wrap.querySelector('.rich-display');
+        if (display) {
+          const placeholderText = field === 'current' ? '今の状態を入力（クリックで全文表示・編集）。**太字** / # 見出し / URL自動リンクなど対応'
+            : field === 'issue' ? '目標達成を阻む課題を入力（クリックで全文表示・編集）'
+            : field === 'solution' ? '課題を解決する方法・アクションを入力（クリックで全文表示・編集）'
+            : 'クリックで全文表示・編集';
+          display.innerHTML = (val ? renderRichText(val) : `<span class="rich-placeholder">${placeholderText}</span>`) + '<span class="rich-expand-hint">クリックで全文＋編集</span>';
+        }
+      }
     }
   });
   $('rich-modal-close').addEventListener('click', closeRichModal);
@@ -5795,17 +6079,6 @@
   $('rich-modal').addEventListener('click', (e) => {
     if (e.target.id === 'rich-modal') closeRichModal();
   });
-  // Hook expand button clicks via delegation
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-act="rich-expand"]');
-    if (!btn) return;
-    e.stopPropagation();
-    const wi = +btn.dataset.week;
-    const field = btn.dataset.field;
-    const label = btn.dataset.label || (field === 'planNote' ? '自由メモ' : '振り返り');
-    openRichModal(wi, field, label);
-  });
-
   // Calendar modal handlers
   $('cal-close').addEventListener('click', closeCalModal);
   $('cal-modal').addEventListener('click', (e) => {
