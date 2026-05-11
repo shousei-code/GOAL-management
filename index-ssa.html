@@ -69,7 +69,59 @@
   }
   .toolbar button:hover { background: var(--accent-soft); border-color: var(--accent); }
   .toolbar button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px; scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; }
+  /* Section anchor offset (so sticky banners don't cover headings) */
+  section[id^="sec-"], #sec-kgi { scroll-margin-top: 72px; }
+  /* セクションジャンプナビゲーション */
+  .section-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border: 1.5px solid #93c5fd;
+    border-radius: 10px;
+    position: sticky;
+    top: 8px;
+    z-index: 20;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+  }
+  .section-nav-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e40af;
+    white-space: nowrap;
+  }
+  .section-nav button {
+    background: #fff;
+    border: 1.5px solid #93c5fd;
+    color: #1e40af;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .section-nav button:hover {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  }
+  .section-nav button:active { transform: translateY(0); }
+  @media (max-width: 720px) {
+    .section-nav { padding: 8px 10px; gap: 6px; top: 4px; }
+    .section-nav-label { font-size: 11px; }
+    .section-nav button { padding: 5px 10px; font-size: 11px; }
+  }
   section {
     background: var(--panel);
     border: 1px solid var(--border);
@@ -295,6 +347,56 @@
     font-family: inherit;
   }
   .ai-help-btn:hover { filter: brightness(1.1); }
+  /* AI button placed inside a colored hero block (annual-goal / kgi-hero / kpi-card) — top-right */
+  .block-ai-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 3;
+    background: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: #fff;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .block-ai-btn:hover {
+    background: rgba(255, 255, 255, 0.95);
+    color: #1e40af;
+    filter: none;
+  }
+  .kgi-hero .block-ai-btn:hover { color: #6d28d9; }
+  .kpi-card .block-ai-btn {
+    background: rgba(255, 255, 255, 0.85);
+    color: #1f2937;
+    border-color: rgba(0, 0, 0, 0.08);
+    backdrop-filter: none;
+  }
+  .kpi-card .block-ai-btn:hover {
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    color: #fff;
+    border-color: transparent;
+  }
+  @media (max-width: 720px) {
+    .block-ai-btn { top: 8px; right: 8px; padding: 5px 10px; font-size: 10px; }
+  }
+  /* AI button in a todo-col head (each KPI column) */
+  .col-ai-btn {
+    margin-left: auto;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    color: #fff;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    border-radius: 6px;
+    border: none;
+  }
+  .col-ai-btn:hover { filter: brightness(1.1); }
   .ai-modal-services {
     display: flex;
     gap: 8px;
@@ -1368,6 +1470,115 @@
   }
 
   /* ===== 結果 ===== */
+  /* ===== Rich text fields (自由メモ・振り返り) ===== */
+  .rich-field-wrap {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+  }
+  .rich-field-wrap .rich-expand-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 2;
+    border: 1px solid var(--border);
+    background: #f9fafb;
+    color: var(--muted);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    line-height: 1.2;
+  }
+  .rich-field-wrap .rich-expand-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .rich-display {
+    min-height: 60px;
+    padding: 10px 60px 10px 12px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+    cursor: text;
+    border-radius: 6px;
+    word-break: break-word;
+    white-space: normal;
+  }
+  .rich-display:hover { background: #f9fafb; }
+  .rich-display strong { font-weight: 700; color: #111827; }
+  .rich-display em { font-style: italic; }
+  .rich-display a.rich-link,
+  .rich-preview a.rich-link {
+    color: #2563eb;
+    text-decoration: underline;
+    word-break: break-all;
+  }
+  .rich-display a.rich-link:hover,
+  .rich-preview a.rich-link:hover { color: #1e40af; }
+  .rich-display ul, .rich-preview ul { margin: 4px 0 4px 20px; padding: 0; }
+  .rich-display li, .rich-preview li { margin: 2px 0; }
+  .rich-display code, .rich-preview code {
+    background: #f3f4f6;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 12px;
+  }
+  .rich-placeholder {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 12px;
+  }
+  .rich-input {
+    width: 100%;
+    border: none;
+    background: #fff;
+    padding: 10px 60px 10px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: none;
+    overflow: hidden;
+    line-height: 1.5;
+    color: var(--text);
+    min-height: 60px;
+    border-radius: 6px;
+    box-sizing: border-box;
+    outline: 1.5px solid var(--accent);
+    outline-offset: -1.5px;
+  }
+  .rich-input:focus { background: #fff; }
+  /* Modal preview area */
+  .rich-preview {
+    background: #f9fafb;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    word-break: break-word;
+    min-height: 100px;
+  }
+  .rich-preview strong { font-weight: 700; color: #111827; }
+  .rich-preview em { font-style: italic; }
+  .rich-modal-hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 8px 0;
+    line-height: 1.5;
+  }
+  .rich-modal-hint code {
+    background: #f3f4f6;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 11px;
+  }
+
   /* ===== 期限内Todo 進捗統計 ===== */
   .overdue-stats {
     display: flex;
@@ -2127,11 +2338,22 @@
 </div>
 
 <main>
+  <!-- セクション間ジャンプナビゲーション -->
+  <nav class="section-nav" id="section-nav">
+    <span class="section-nav-label">📍 セクションに移動：</span>
+    <button type="button" data-jump="sec-annual">🎯 年間ゴール</button>
+    <button type="button" data-jump="sec-kgi">⭐ KGI/KPI</button>
+    <button type="button" data-jump="sec-todo">✅ Todo</button>
+    <button type="button" data-jump="sec-weekly">🗓 週次</button>
+    <button type="button" data-jump="sec-results">📊 結果</button>
+  </nav>
+
   <!-- 年間目標 -->
-  <section>
+  <section id="sec-annual">
     <div class="sec-body">
       <!-- 年間最終ゴール -->
       <div class="annual-goal">
+        <button class="ai-help-btn block-ai-btn" data-act="ai-help" data-ai-mode="annual-goal-consult" title="既に入力したKGI/KPIをもとに、年間最終ゴールの設定をAIにサポートしてもらう">🌟 AIに年間ゴール相談</button>
         <div class="annual-goal-label">🎯 年間最終ゴール — ANNUAL GOAL</div>
         <div class="annual-target-wrap">
           <span class="icon">🌟</span>
@@ -2143,14 +2365,9 @@
         </div>
       </div>
 
-      <!-- KGI関連 AIサポート（年間最終ゴール ⇄ KGI Hero の間） -->
-      <div style="margin-bottom:10px;display:flex;justify-content:flex-end;gap:6px;flex-wrap:wrap;">
-        <button class="ai-help-btn" data-act="ai-help" data-ai-mode="annual-goal-consult" title="既に入力したKGI/KPIをもとに、年間最終ゴールの設定をAIにサポートしてもらう">🌟 AIに年間ゴール相談</button>
-        <button class="ai-help-btn" data-act="ai-help" data-ai-mode="kgi-consult" title="今期KGIの設定と達成戦略をまとめてAIに相談">🎯 AIにKGI設定+戦略を相談</button>
-      </div>
-
       <!-- KGI Hero -->
-      <div class="kgi-hero">
+      <div class="kgi-hero" id="sec-kgi">
+        <button class="ai-help-btn block-ai-btn" data-act="ai-help" data-ai-mode="kgi-consult" title="今期KGIの設定と達成戦略をAIに相談（入力済み内容に応じて自動で「提案」「精度向上」を切り替え）">🎯 AIにKGI設定+戦略を相談</button>
         <div class="kgi-label">⭐ KGI — KEY GOAL INDICATOR</div>
         <div class="kgi-period-display" id="kgi-period-display">期間：—</div>
         <div class="kgi-target-wrap">
@@ -2206,12 +2423,11 @@
   </section>
 
   <!-- Todo -->
-  <section>
+  <section id="sec-todo">
     <div class="sec-head">
       <h2>✅ KPIをTodoに落とし込む</h2>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <span class="sub" id="todo-summary">—</span>
-        <button class="ai-help-btn" data-act="ai-help" data-ai-mode="todo-suggest" title="AIにTodo提案を相談">🤖 AIにTodo提案</button>
         <button id="todo-uncheck-all" class="week-ctrl-btn" title="全てのチェックを外す">☐ 全てのレ点を外す</button>
       </div>
     </div>
@@ -2221,6 +2437,7 @@
           <div class="todo-col-head">
             <div><span class="num">KPI①</span></div>
             <div class="name" id="kpi1-name"></div>
+            <button class="ai-help-btn col-ai-btn" data-act="ai-help-todo-kpi" data-kpi-num="1" title="KPI①を達成するためのTodoをAIに提案してもらう">🤖 AIにKPI①のTodo提案</button>
           </div>
           <div class="todo-list" id="todo-1"></div>
           <button class="todo-add" data-kpi="1" data-act="add">＋ Todo追加</button>
@@ -2230,6 +2447,7 @@
           <div class="todo-col-head">
             <div><span class="num">KPI②</span></div>
             <div class="name" id="kpi2-name"></div>
+            <button class="ai-help-btn col-ai-btn" data-act="ai-help-todo-kpi" data-kpi-num="2" title="KPI②を達成するためのTodoをAIに提案してもらう">🤖 AIにKPI②のTodo提案</button>
           </div>
           <div class="todo-list" id="todo-2"></div>
           <button class="todo-add" data-kpi="2" data-act="add">＋ Todo追加</button>
@@ -2239,6 +2457,7 @@
           <div class="todo-col-head">
             <div><span class="num">KPI③</span></div>
             <div class="name" id="kpi3-name"></div>
+            <button class="ai-help-btn col-ai-btn" data-act="ai-help-todo-kpi" data-kpi-num="3" title="KPI③を達成するためのTodoをAIに提案してもらう">🤖 AIにKPI③のTodo提案</button>
           </div>
           <div class="todo-list" id="todo-3"></div>
           <button class="todo-add" data-kpi="3" data-act="add">＋ Todo追加</button>
@@ -2261,7 +2480,7 @@
   </section>
 
   <!-- 週次 -->
-  <section>
+  <section id="sec-weekly">
     <div class="sec-head">
       <h2>🗓 週次行動目標</h2>
       <span class="sub">「+ Todoから選ぶ」でTodoを紐付け／自由メモも追加可能</span>
@@ -2277,7 +2496,7 @@
   </section>
 
   <!-- 結果 -->
-  <section>
+  <section id="sec-results">
     <div class="sec-head">
       <h2>📊 結果</h2>
       <span class="sub">※半角の数字で記入</span>
@@ -2304,6 +2523,28 @@
 </main>
 
 <!-- AI サポート Modal -->
+<!-- リッチテキスト 拡大表示 Modal -->
+<div class="modal-backdrop" id="rich-modal">
+  <div class="modal" style="max-width:720px;">
+    <div class="modal-head">
+      <h3 id="rich-modal-title">📝 拡大表示</h3>
+      <button class="modal-close" id="rich-modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="rich-modal-hint">
+        💡 <strong>使える書式</strong>： <code>**太字**</code> ／ <code>*斜体*</code> ／ <code>- 箇条書き</code> ／ <code>`コード`</code> ／ URL（https://〜）を貼ると自動でリンク化
+      </div>
+      <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">✏️ 編集</label>
+      <textarea id="rich-modal-textarea" rows="10" style="width:100%;resize:vertical;font-size:14px;padding:12px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;box-sizing:border-box;line-height:1.6;"></textarea>
+      <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 4px;">📖 プレビュー（リンクは押せます）</label>
+      <div id="rich-modal-preview" class="rich-preview"></div>
+      <div style="text-align:right;margin-top:14px;">
+        <button id="rich-modal-done" style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">閉じる（自動保存済み）</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- カレンダー登録 Modal -->
 <div class="modal-backdrop" id="cal-modal">
   <div class="modal" style="max-width:420px;">
@@ -3438,6 +3679,45 @@
   // Track which "history" sections are open (in-memory)
   const openHistory = new Set();
 
+  // ===== Rich text rendering (markdown subset + URL auto-link) =====
+  // Supports: **bold**, *italic*, `code`, lines starting with "- " or "* " as list, URLs auto-linkified, newlines → <br>
+  function renderRichText(text) {
+    if (text === null || text === undefined || text === '') return '';
+    let s = String(text);
+    // 1) HTML escape first
+    s = s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+    // 2) URL auto-link (must precede bold to allow URLs with ** inside not to break)
+    s = s.replace(/(https?:\/\/[^\s<>"']+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="rich-link">$1</a>');
+    // 3) Code spans `...`
+    s = s.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
+    // 4) Bold **...**  (non-greedy, single line)
+    s = s.replace(/\*\*([^*\n][^*\n]*?)\*\*/g, '<strong>$1</strong>');
+    // 5) Italic *...* (single line, avoid matching ** that survived)
+    s = s.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>');
+    // 6) Lists: lines starting with "- " or "* "
+    const lines = s.split('\n');
+    let inList = false;
+    const out = [];
+    for (const line of lines) {
+      const m = line.match(/^[\s]*[-*][\s]+(.+)$/);
+      if (m) {
+        if (!inList) { out.push('<ul>'); inList = true; }
+        out.push('<li>' + m[1] + '</li>');
+      } else {
+        if (inList) { out.push('</ul>'); inList = false; }
+        out.push(line);
+      }
+    }
+    if (inList) out.push('</ul>');
+    s = out.join('\n');
+    // 7) Newlines → <br> (but not inside <ul>...</ul> blocks where we already structured them)
+    // Replace remaining \n outside of list blocks with <br>
+    s = s.replace(/\n(?!<\/?(?:ul|li))/g, '<br>');
+    // Clean up extra <br> right after </ul> or before <ul>
+    s = s.replace(/<\/ul><br>/g, '</ul>').replace(/<br><ul>/g, '<ul>');
+    return s;
+  }
+
   // ===== Priority change: 3-second delay before re-sort =====
   // When user clicks a priority button, we update visuals in-place immediately,
   // then re-render (which triggers sort) after 3 seconds. This prevents the Todo
@@ -3735,6 +4015,7 @@
                 <span>📋 アクションプラン（計画）</span>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
                   <button class="ai-help-btn" data-act="ai-help-week" data-ai-mode="week-priority" data-week="${wi}" title="この週のTodoの優先順位（インパクト×簡単さ）と追加Todoの提案をAIに相談">🤖 AIに優先順位相談</button>
+                  <button class="ai-help-btn" data-act="ai-help-week" data-ai-mode="week-focus" data-week="${wi}" title="この週で何をAIに相談したらいいかパッと思いつかない時 — 状況に応じた相談テーマを提案">💡 AIに何を相談すべき？</button>
                   ${wi > 0 ? `<button class="week-carry-btn" data-week="${wi}" data-act="carry-over" title="前の週のTodoをこの週にコピー">📋 先週分を引き継ぐ</button>` : ''}
                   ${hasArchives ? `<button class="week-restore-btn" data-week="${wi}" data-act="restore-prev-period" title="直近の過去の期から、同じ週のTodoを復元（前期の同じ週のリズムを再現）">📋 前期の同じ週分を復元</button>` : ''}
                   ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="uncheck-week" title="この週のTodoのチェックを外す">☐ レ点を外す</button>` : ''}
@@ -3742,7 +4023,11 @@
               </div>
               <div class="plan-chips">${chips}</div>
               <button class="plan-pick-btn" data-week="${wi}" data-act="pick">＋ Todoから選ぶ</button>
-              <textarea class="note autosize" data-week="${wi}" data-field="planNote" placeholder="自由メモ（任意）">${esc(w.planNote)}</textarea>
+              <div class="rich-field-wrap" data-week="${wi}" data-field="planNote">
+                <button type="button" class="rich-expand-btn" data-act="rich-expand" data-week="${wi}" data-field="planNote" data-label="自由メモ" title="拡大表示（全文を大きく見る／編集）">🔍 拡大</button>
+                <div class="rich-display" data-act="rich-edit">${w.planNote ? renderRichText(w.planNote) : '<span class="rich-placeholder">自由メモ（任意） — クリックして入力。**太字** / *斜体* / URLが使えます</span>'}</div>
+                <textarea class="note rich-input" data-week="${wi}" data-field="planNote" placeholder="自由メモ（任意） — **太字** や URLが使えます" style="display:none;">${esc(w.planNote)}</textarea>
+              </div>
             </div>
             <div class="week-field">
               <div class="week-field-label">✅ 実際実行できたこと <span style="font-weight:400;color:var(--muted);font-size:11px;">（チェックしたTodoから自動表示）</span></div>
@@ -3750,7 +4035,11 @@
             </div>
             <div class="week-field">
               <div class="week-field-label">💭 振り返り（理由・改善案・気付き）</div>
-              <textarea class="autosize" data-week="${wi}" data-field="review" placeholder="振り返り">${esc(w.review)}</textarea>
+              <div class="rich-field-wrap" data-week="${wi}" data-field="review">
+                <button type="button" class="rich-expand-btn" data-act="rich-expand" data-week="${wi}" data-field="review" data-label="振り返り" title="拡大表示（全文を大きく見る／編集）">🔍 拡大</button>
+                <div class="rich-display" data-act="rich-edit">${w.review ? renderRichText(w.review) : '<span class="rich-placeholder">振り返り — クリックして入力。**太字** / *斜体* / URLが使えます</span>'}</div>
+                <textarea class="rich-input" data-week="${wi}" data-field="review" placeholder="振り返り（理由・改善案・気付き）" style="display:none;">${esc(w.review)}</textarea>
+              </div>
             </div>
           </div>
         </div>
@@ -5371,6 +5660,15 @@
     } else if (mode === 'todo-suggest') {
       title = '✅ AIにTodo提案を相談';
       prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIを達成するために、各KPIを実行可能なTodo（行動レベル）に分解してください。\n\n${ctx}\n\n【お願い】\n1. KPI①〜③それぞれに対して、5〜8個のTodoを提案\n2. Todoは「動詞」で始まる具体的な行動形式（例：「〇〇に営業電話する」「LP原稿を書く」）\n3. 優先順位（大/中/小）も提案\n4. 1週間で着手できる粒度に${AI_OUTPUT_GUIDE}`;
+    } else if (mode && mode.startsWith('todo-suggest-kpi-')) {
+      const n = +mode.split('-').pop();
+      const label = ['①','②','③'][n - 1];
+      const k = 'kpi' + n;
+      const kpi = state.goals[k] || {};
+      // Existing todos for this KPI
+      const existing = (state.todos[n] || []).map(t => `  - ${t.text || '(未入力)'} [優先${t.priority === 'high' ? '大' : t.priority === 'medium' ? '中' : t.priority === 'low' ? '小' : 'なし'}]${t.done ? ' ✓' : ''}`).join('\n') || '  （まだ登録なし）';
+      title = `🤖 AIにKPI${label}のTodo提案を相談`;
+      prompt = `あなたは目標達成の伴走コーチです。以下のKPI${label}に絞って、達成のために必要な行動Todoを提案してください。\n\n${ctx}\n\n【分析対象】KPI${label}\n  目標: ${kpi.target || '(未入力)'}\n  現状: ${kpi.current || '(未入力)'}\n  課題: ${kpi.issue || '(未入力)'}\n  解決策: ${kpi.solution || '(未入力)'}\n\n【現在登録されているKPI${label}のTodo】\n${existing}\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: 既存Todoの評価\n1. すでに登録されているTodoがKPI${label}達成にどれだけ寄与するか評価（A/B/C）\n2. 重複や曖昧なTodoがあれば指摘\n3. 「これは効果的」「これは外していい」を明示\n\n■ Part 2: 追加すべき新規Todoの提案（5〜8個）\n1. KPI${label}の <strong>課題と解決策</strong> から逆算して、まだカバーされていない行動を提案\n2. Todoは「動詞」で始まる具体的な行動形式（例: 「〇〇に営業電話する」「LP原稿を書く」「定例MTGの議事録テンプレートを作る」）\n3. 各Todoに：\n   - <strong>優先順位</strong>（大／中／小）— インパクト×簡単さで判定\n   - <strong>週あたりの所要時間目安</strong>（例: 週2h）\n   - <strong>1週間で着手できる粒度</strong>（巨大すぎるTodoは分割する）\n4. ルーティン化すべきTodo（🔁マークで毎期復元したいもの）を明示\n\n■ Part 3: KPI${label}達成への道筋\n1. 提案したTodoを実行すると、KPI${label}の現状値→目標値にどう近づくかロードマップ\n2. 1ヶ月後・2ヶ月後・3ヶ月後の中間チェックポイント\n3. KPI${label}が他のKPI（${label === '①' ? '②③' : label === '②' ? '①③' : '①②'}）とどう連動するか相乗効果も考慮\n\n【重要】\n- KPI${label}だけに集中。他のKPIのTodoは提案しない。\n- 入力されている課題・解決策テキストから具体的に引用しながら論理展開${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'review') {
       title = '🔍 AIに振り返り相談';
       prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIと進捗を踏まえて、改善ポイントと次の一手を提案してください。\n\n${ctx}\n\n【お願い】\n1. 達成率の評価\n2. 進捗が遅れているKPIに対して、改善のヒント\n3. 来週優先すべきTodoの再提案\n4. モチベーション維持のためのコメント${AI_OUTPUT_GUIDE}`;
@@ -5390,6 +5688,9 @@
     } else if (mode === 'week-priority') {
       title = '🎯 AIに今週の優先順位を相談';
       prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIと、今週この受講生が考えているTodoリストを見て、最適な優先順位と他に追加すべきTodoがないかを提案してください。\n\n${ctx}\n\n【最優先の判断基準】\n優先順位の定義は「インパクト（成果の大きさ） × 簡単さ（着手しやすさ）」のマトリクスです。\n  - インパクト大 × 簡単 = 最優先（すぐやる）\n  - インパクト大 × 難しい = 計画的に着手\n  - インパクト小 × 簡単 = スキマ時間で\n  - インパクト小 × 難しい = やらない判断もアリ\n\n【お願い】\n1. 今週登録されている各Todoについて「インパクト」「簡単さ」の2軸で評価（5段階）\n2. その評価をもとに、今週の優先順位を1位から並べ直して提案\n3. KGI/KPI達成のために「他に追加すべきTodo」があれば3〜5個提案（具体的な行動レベルで）\n4. 逆に「今週は外しても良いTodo」があれば理由付きで指摘\n5. 1週間で現実的に実行できる量に絞り込む${AI_OUTPUT_GUIDE}`;
+    } else if (mode === 'week-focus') {
+      title = '💡 AIに「今週何を相談すべきか」を提案してもらう';
+      prompt = `あなたは目標達成の伴走コーチです。受講生が「今週は何をAIに相談すべきかパッと思いつかない」状態です。以下のKGI/KPI・今週のTodo・進捗状況を読み取って、<strong>今この週で相談すべきテーマ</strong>を提案し、そのまま使えるプロンプトの例も提示してください。\n\n${ctx}\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: 今週の状況サマリー（あなたの読み取り）\n1. 今週のTodo数・完了状況・優先度バランスから読み取れる「いまの状態」を3行で要約\n2. KGI/KPI達成に向けて「今週特に注目すべきポイント」を1つ指摘\n3. ボトルネックになりそうな兆候があれば明示\n\n■ Part 2: 今週相談すべきテーマ TOP5\n受講生がパッと思いつかない時のために、以下のような切り口で5つ提示してください：\n1. 「優先順位を見直す」系（例: インパクト×簡単さの再評価）\n2. 「Todoの粒度を見直す」系（例: 巨大なTodoを分割する）\n3. 「KPIへの貢献度を確認する」系（例: 今週のTodoでKPIにどれだけ近づくか）\n4. 「障害・つまづきを解消する」系（例: 進まないTodoがあるなら原因分析）\n5. 「次の一手を見つける」系（例: 達成後の次にやるべきこと）\n\n各テーマに：\n- なぜ今この受講生に必要か（根拠）\n- 期待される成果\n- そのままAIにコピペできる<strong>具体的なプロンプト文例</strong>\nを付けてください。\n\n■ Part 3: 1つだけ選ぶならコレ（今日のおすすめ）\n上記5つから、入力情報を踏まえて<strong>今日この瞬間に最も効果的な1つ</strong>を選び、なぜそれが最優先かを論理的に説明。さらに「そのまま実行して相談に進めるプロンプト全文」を提示。\n\n【重要】\n- 一般論ではなく、入力されているKGI/KPI・Todo・進捗・週次の振り返りから具体的に引用しながら論理展開\n- 「相談するテーマ」自体を提案するのが目的。受講生が「あ、それ気付かなかった」と思える視点を出す\n- プロンプト例は<strong>そのままコピペで動く完成形</strong>で${AI_OUTPUT_GUIDE}`;
     }
     titleEl.textContent = title;
     promptBox.textContent = prompt;
@@ -5403,6 +5704,106 @@
   $('ai-done').addEventListener('click', () => $('ai-modal').classList.remove('show'));
   $('ai-modal').addEventListener('click', (e) => {
     if (e.target.id === 'ai-modal') $('ai-modal').classList.remove('show');
+  });
+
+  // ===== Section navigation (jump links above 年間最終ゴール) =====
+  document.addEventListener('click', (e) => {
+    const navBtn = e.target.closest('.section-nav button[data-jump]');
+    if (!navBtn) return;
+    const targetId = navBtn.dataset.jump;
+    const targetEl = document.getElementById(targetId);
+    if (!targetEl) return;
+    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // ===== Rich text inline editing (click display → textarea, blur → preview) =====
+  // Click on .rich-display: switch to textarea editing
+  document.addEventListener('click', (e) => {
+    const display = e.target.closest('.rich-display[data-act="rich-edit"]');
+    if (!display) return;
+    // If user clicked a link inside the display, let the link fire normally
+    if (e.target.closest('a')) return;
+    const wrap = display.closest('.rich-field-wrap');
+    const textarea = wrap?.querySelector('.rich-input');
+    if (!textarea) return;
+    display.style.display = 'none';
+    textarea.style.display = '';
+    textarea.focus();
+    // Move caret to end
+    try { textarea.setSelectionRange(textarea.value.length, textarea.value.length); } catch {}
+    autoResize(textarea);
+  });
+  // Blur on .rich-input: switch back to rendered preview
+  document.addEventListener('focusout', (e) => {
+    if (!e.target.matches || !e.target.matches('.rich-input')) return;
+    const textarea = e.target;
+    const wrap = textarea.closest('.rich-field-wrap');
+    const display = wrap?.querySelector('.rich-display');
+    if (!display) return;
+    const val = textarea.value;
+    const field = textarea.dataset.field;
+    const placeholder = field === 'planNote'
+      ? '自由メモ（任意） — クリックして入力。**太字** / *斜体* / URLが使えます'
+      : '振り返り — クリックして入力。**太字** / *斜体* / URLが使えます';
+    display.innerHTML = val ? renderRichText(val) : `<span class="rich-placeholder">${placeholder}</span>`;
+    display.style.display = '';
+    textarea.style.display = 'none';
+  });
+
+  // ===== Rich text expand modal =====
+  let richModalCtx = null;  // { wi, field, label }
+  function openRichModal(wi, field, label) {
+    richModalCtx = { wi, field, label };
+    const w = state.weeks[wi];
+    const val = (w && w[field]) || '';
+    $('rich-modal-title').textContent = `📝 ${label} - 拡大表示（${w?.week || ''}）`;
+    $('rich-modal-textarea').value = val;
+    $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
+    $('rich-modal').classList.add('show');
+    setTimeout(() => $('rich-modal-textarea').focus(), 50);
+  }
+  function closeRichModal() {
+    $('rich-modal').classList.remove('show');
+    richModalCtx = null;
+  }
+  // Live sync: textarea input → state + preview + inline display
+  $('rich-modal-textarea').addEventListener('input', (e) => {
+    if (!richModalCtx) return;
+    const val = e.target.value;
+    const { wi, field } = richModalCtx;
+    if (state.weeks[wi]) {
+      state.weeks[wi][field] = val;
+      save();
+    }
+    $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
+    // Also sync the inline display below
+    const wrap = document.querySelector(`.rich-field-wrap[data-week="${wi}"][data-field="${field}"]`);
+    if (wrap) {
+      const display = wrap.querySelector('.rich-display');
+      const inlineTa = wrap.querySelector('.rich-input');
+      if (display) {
+        const placeholder = field === 'planNote'
+          ? '自由メモ（任意） — クリックして入力。**太字** / *斜体* / URLが使えます'
+          : '振り返り — クリックして入力。**太字** / *斜体* / URLが使えます';
+        display.innerHTML = val ? renderRichText(val) : `<span class="rich-placeholder">${placeholder}</span>`;
+      }
+      if (inlineTa) inlineTa.value = val;
+    }
+  });
+  $('rich-modal-close').addEventListener('click', closeRichModal);
+  $('rich-modal-done').addEventListener('click', closeRichModal);
+  $('rich-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'rich-modal') closeRichModal();
+  });
+  // Hook expand button clicks via delegation
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-act="rich-expand"]');
+    if (!btn) return;
+    e.stopPropagation();
+    const wi = +btn.dataset.week;
+    const field = btn.dataset.field;
+    const label = btn.dataset.label || (field === 'planNote' ? '自由メモ' : '振り返り');
+    openRichModal(wi, field, label);
   });
 
   // Calendar modal handlers
@@ -5480,6 +5881,10 @@
       e.stopPropagation();
       const n = t.dataset.kpiNum;
       openAIModal('kpi-analysis-' + n, buildKgiKpiContext());
+    } else if (t.dataset.act === 'ai-help-todo-kpi' && t.dataset.kpiNum) {
+      e.stopPropagation();
+      const n = t.dataset.kpiNum;
+      openAIModal('todo-suggest-kpi-' + n, buildKgiKpiContext());
     } else if (t.dataset.act === 'ai-help-result' && t.dataset.resultK) {
       e.stopPropagation();
       const k = t.dataset.resultK;  // 'kgi'|'kpi1'|'kpi2'|'kpi3'
