@@ -2270,6 +2270,24 @@
     border-color: var(--danger);
     color: var(--danger);
   }
+  .admin-link-btn {
+    background: #eff6ff;
+    border: 1px solid #93c5fd;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: pointer;
+    color: #1e40af;
+    font-weight: 600;
+    margin-top: 4px;
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+  .admin-link-btn:hover {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+  }
 
   /* ===== 使い方ガイドモーダル ===== */
   #guide-modal .modal { max-width: 760px; max-height: 88vh; }
@@ -2411,6 +2429,23 @@
   #ro-banner.editing button {
     background: #2563eb;
   }
+  /* Public view link mode — green banner */
+  #ro-banner.public {
+    background: linear-gradient(90deg, #d1fae5, #a7f3d0);
+    border-bottom-color: #059669;
+    color: #064e3b;
+  }
+  #ro-banner.public button {
+    background: #059669;
+  }
+  /* Public-view mode: hide buttons that require login (admin, name edit, mail, logout) */
+  body.public-view #ub-edit-name,
+  body.public-view #ub-email-toggle,
+  body.public-view #ub-admin,
+  body.public-view #ub-logout,
+  body.public-view #ub-copy-link {
+    display: none !important;
+  }
 </style>
 </head>
 <body>
@@ -2459,6 +2494,8 @@
   </div>
   <div class="actions">
     <button id="ub-guide" title="使い方ガイドを開く">📖 使い方</button>
+    <button id="ub-copy-gm" title="このGMシートの全データをコピー（AIに貼って相談用）">📋 GMシート全コピー</button>
+    <button id="ub-copy-link" title="このシートの公開リンクをコピー（誰でも閲覧可・読取専用）">🔗 公開リンクをコピー</button>
     <button id="ub-edit-name">✏️ 名前</button>
     <button id="ub-email-toggle" title="毎週日曜に応援メールを受信するか切り替え">📧 メール</button>
     <button id="ub-admin" style="display:none;">👥 受講生一覧</button>
@@ -5348,6 +5385,54 @@
         }
       }, 500);
     }
+    // Check for ?view=<docId> param — if admin, auto-enter that user's view
+    setTimeout(() => handleViewParam(), 800);
+  }
+
+  // ===== Shared link feature (案A: 公開リンク・ログイン不要) =====
+  // 本関数は「ログイン中のユーザーがリンク経由で開いた場合」のみ呼ばれる。
+  // 未ログインからのアクセスは init 時の loadPublicViewMode に流れる。
+  async function handleViewParam() {
+    const params = new URLSearchParams(window.location.search);
+    const viewDocId = params.get('view');
+    if (!viewDocId) return;
+    if (viewingDocId === viewDocId) return;
+    if (viewDocId === currentDocId) return;
+    try {
+      const ref = doc(db, 'users', viewDocId);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        alert('⚠️ 指定された受講生のデータが見つかりません。リンクが古い／削除されている可能性があります。');
+        window.history.replaceState({}, '', window.location.pathname);
+        return;
+      }
+      const data = snap.data();
+      const email = data._email || '(不明)';
+      const displayName = data._displayName || '';
+      // ログイン中なら管理者かどうかで編集/読み取りが自動分岐 (enterReadOnlyMode 内のロジック)
+      await enterReadOnlyMode(viewDocId, email, displayName);
+    } catch (err) {
+      console.error('handleViewParam error', err);
+      alert('リンクからのデータ取得に失敗しました: ' + (err.message || err));
+    }
+  }
+
+  // Get shareable URL for a docId
+  function getShareableLink(docId) {
+    const url = new URL(window.location.href);
+    url.search = '';
+    url.searchParams.set('view', docId);
+    return url.toString();
+  }
+
+  async function copyShareableLink(docId, name) {
+    const link = getShareableLink(docId);
+    try {
+      await navigator.clipboard.writeText(link);
+      alert(`✅ 公開リンクをコピーしました\n\n${name ? '【' + name + '】' : ''}\n${link}\n\n⚠️ このリンクは <strong>誰でも開けます</strong>（読み取り専用）。共有先には注意してください。`);
+    } catch (err) {
+      prompt('以下のリンクを手動でコピーしてください:', link);
+    }
   }
 
   // ===== Cloud sync =====
@@ -5534,11 +5619,14 @@
         const toggleBtn = canToggle
           ? `<button class="admin-toggle-btn ${r.isAdmin ? 'demote' : ''}" data-act="toggle-admin" data-uid="${r.uid}" data-email="${escAttr(r.email)}" data-isadmin="${r.isAdmin}">${r.isAdmin ? '✕ 管理者解除' : '＋ 管理者にする'}</button>`
           : '';
+        // Share-link button: 公開リンク (誰でも閲覧可・読取専用)
+        const linkBtn = `<button class="admin-link-btn" data-act="copy-share-link" data-uid="${r.uid}" data-name="${escAttr(r.displayName || r.email)}" title="このシートの公開リンクをコピー(誰でも閲覧可・読取専用)">🔗 公開リンクをコピー</button>`;
         return `
           <div class="admin-row ${isSelf ? 'self' : ''}" data-uid="${r.uid}" data-email="${escAttr(r.email)}" data-displayname="${escAttr(r.displayName)}">
             <div style="flex:1;min-width:0;">${nameDisplay}</div>
             <div class="meta" style="text-align:right;flex-shrink:0;">
               最終更新: ${dt}
+              ${linkBtn ? '<br>' + linkBtn : ''}
               ${toggleBtn ? '<br>' + toggleBtn : ''}
             </div>
           </div>
@@ -5551,6 +5639,13 @@
   $('ub-admin').addEventListener('click', loadAdminList);
 
   $('admin-list').addEventListener('click', async (e) => {
+    // Share-link button: copy view URL
+    const linkBtn = e.target.closest('[data-act="copy-share-link"]');
+    if (linkBtn) {
+      e.stopPropagation();
+      await copyShareableLink(linkBtn.dataset.uid, linkBtn.dataset.name || '');
+      return;
+    }
     // Toggle admin button (must check before row click)
     const toggleBtn = e.target.closest('[data-act="toggle-admin"]');
     if (toggleBtn) {
@@ -5661,6 +5756,191 @@
   $('ub-edit-name').addEventListener('click', promptDisplayName);
   $('ub-name').addEventListener('click', promptDisplayName);
   $('ub-email-toggle').addEventListener('click', toggleEmailNotifications);
+
+  // ===== GMシート全コピー（自分も他者も） =====
+  function buildFullGmDump() {
+    const lines = [];
+    const owner = viewingEmail || currentEmail || '(不明)';
+    const ownerName = (viewingEmail && viewingEmail !== currentEmail) ? '（閲覧中の受講生）' : '（自分）';
+    lines.push(`# 📊 ゴールマネジメントシート — 全データ`);
+    lines.push(``);
+    lines.push(`**対象**: ${owner} ${ownerName}`);
+    lines.push(`**期間**: ${state.period || '未設定'}`);
+    lines.push(`**出力日時**: ${new Date().toLocaleString('ja-JP')}`);
+    lines.push(``);
+    lines.push(`---`);
+    lines.push(``);
+    // 年間最終ゴール
+    const ag = state.annualGoal || {};
+    lines.push(`## 🎯 年間最終ゴール`);
+    lines.push(`- **目標**: ${ag.target || '(未入力)'}`);
+    lines.push(`- **現状**: ${ag.current || '(未入力)'}`);
+    if (ag.targetValue || ag.currentValue) {
+      lines.push(`- **数値**: 現状 ${formatLiveValue(ag.currentValue || '', ag.unit)} / 目標 ${formatLiveValue(ag.targetValue || '', ag.unit)}${ag.lowerIsBetter ? ' (↓低い方が良い)' : ''}`);
+    }
+    lines.push(``);
+    // KGI
+    const kgi = state.goals.kgi || {};
+    lines.push(`## ⭐ KGI（最重要目標）`);
+    lines.push(`- **目標**: ${kgi.target || '(未入力)'}`);
+    lines.push(`- **現状**: ${kgi.current || '(未入力)'}`);
+    if (kgi.targetValue || kgi.currentValue) {
+      lines.push(`- **数値**: 現状 ${formatLiveValue(kgi.currentValue || '', kgi.unit)} / 目標 ${formatLiveValue(kgi.targetValue || '', kgi.unit)}${kgi.lowerIsBetter ? ' (↓低い方が良い)' : ''}`);
+    }
+    const kgiResult = state.results.kgi || {};
+    if (kgiResult.actual) {
+      const r = buildResultRow('kgi');
+      const ach = calcAch(r), grw = calcGrw(r);
+      lines.push(`- **実績**: ${formatLiveValue(kgiResult.actual, kgi.unit)} / 達成率 ${calcFmt(ach)} / 成長率 ${calcFmt(grw)}`);
+    }
+    lines.push(``);
+    // KPI①②③
+    [1, 2, 3].forEach(n => {
+      const k = 'kpi' + n;
+      const g = state.goals[k] || {};
+      const label = ['①', '②', '③'][n - 1];
+      lines.push(`## 📊 KPI${label}`);
+      lines.push(`- **目標**: ${g.target || '(未入力)'}`);
+      lines.push(`- **現状**: ${g.current || '(未入力)'}`);
+      lines.push(`- **課題**: ${g.issue || '(未入力)'}`);
+      lines.push(`- **解決策**: ${g.solution || '(未入力)'}`);
+      if (g.targetValue || g.currentValue) {
+        lines.push(`- **数値**: 現状 ${formatLiveValue(g.currentValue || '', g.unit)} / 目標 ${formatLiveValue(g.targetValue || '', g.unit)}${g.lowerIsBetter ? ' (↓低い方が良い)' : ''}`);
+      }
+      const result = state.results[k] || {};
+      if (result.actual) {
+        const r = buildResultRow(k);
+        const ach = calcAch(r), grw = calcGrw(r);
+        lines.push(`- **実績**: ${formatLiveValue(result.actual, g.unit)} / 達成率 ${calcFmt(ach)} / 成長率 ${calcFmt(grw)}`);
+      }
+      lines.push(``);
+    });
+    // その他の業務
+    const og = state.goals.other || {};
+    if (og.target || og.current) {
+      lines.push(`## 📁 その他の業務`);
+      lines.push(`- **目標**: ${og.target || '(未入力)'}`);
+      lines.push(`- **現状**: ${og.current || '(未入力)'}`);
+      lines.push(``);
+    }
+    // Todo一覧（KPI別）
+    lines.push(`---`);
+    lines.push(``);
+    lines.push(`## ✅ Todo一覧`);
+    TODO_KEYS.forEach(k => {
+      const list = state.todos[k] || [];
+      if (list.length === 0) return;
+      const kLabel = k === 'other' ? 'その他' : `KPI${['①','②','③'][k-1]}`;
+      lines.push(``);
+      lines.push(`### ${kLabel}（${list.filter(t=>t.done).length}/${list.length} 完了）`);
+      list.forEach((t, idx) => {
+        const pri = t.priority === 'high' ? '【大】' : t.priority === 'medium' ? '【中】' : t.priority === 'low' ? '【小】' : '';
+        const status = t.done ? '✓' : '☐';
+        const routine = t.routine ? ' 🔁' : '';
+        lines.push(`${idx+1}. ${status} ${pri}${t.text || '(未入力)'}${routine}${t.done && t.completedAt ? ` (完了: ${fmtCompletedDate(t.completedAt)})` : ''}`);
+        if (t.details && t.details.trim()) {
+          // Indent the details
+          const detail = t.details.split('\n').map(l => '   > ' + l).join('\n');
+          lines.push(detail);
+        }
+      });
+    });
+    lines.push(``);
+    // 週次行動目標
+    lines.push(`---`);
+    lines.push(``);
+    lines.push(`## 🗓 週次行動目標`);
+    (state.weeks || []).forEach((w, wi) => {
+      const ids = w.planTodoIds || [];
+      const hasContent = ids.length > 0 || w.planNote || w.review;
+      if (!hasContent) return;
+      lines.push(``);
+      lines.push(`### ${w.week || `週${wi+1}`}`);
+      if (ids.length > 0) {
+        lines.push(`**📋 アクションプラン:**`);
+        ids.forEach(id => {
+          const f = findTodoById(id);
+          if (!f) return;
+          const kLabel = f.kpi === 'other' ? 'その他' : `KPI${['①','②','③'][f.kpi-1]}`;
+          const pri = f.todo.priority === 'high' ? '【大】' : f.todo.priority === 'medium' ? '【中】' : f.todo.priority === 'low' ? '【小】' : '';
+          const status = f.todo.done ? '✓' : '☐';
+          lines.push(`- [${kLabel}] ${status} ${pri}${f.todo.text || '(未入力)'}`);
+        });
+      }
+      if (w.planNote) {
+        lines.push(``);
+        lines.push(`**📝 自由メモ:**`);
+        lines.push(w.planNote);
+      }
+      // ✅実際実行できたこと（自動）
+      const doneTodos = (w.planTodoIds || [])
+        .map(id => findTodoById(id))
+        .filter(f => f && f.todo.done);
+      if (doneTodos.length > 0) {
+        lines.push(``);
+        lines.push(`**✅ 実際実行できたこと:**`);
+        doneTodos.forEach(f => {
+          const kLabel = f.kpi === 'other' ? 'その他' : `KPI${['①','②','③'][f.kpi-1]}`;
+          lines.push(`- ✓ [${kLabel}] ${f.todo.text || '(未入力)'}`);
+        });
+      }
+      if (w.review) {
+        lines.push(``);
+        lines.push(`**💭 振り返り:**`);
+        lines.push(w.review);
+      }
+    });
+    lines.push(``);
+    // 結果テーブル
+    lines.push(`---`);
+    lines.push(``);
+    lines.push(`## 📊 結果テーブル`);
+    lines.push(``);
+    lines.push(`| 項目 | 現状 | 目標 | 実績 | 達成率 | 成長率 |`);
+    lines.push(`|---|---|---|---|---|---|`);
+    KPI_KEYS.forEach(k => {
+      const r = buildResultRow(k);
+      const ach = calcAch(r), grw = calcGrw(r);
+      lines.push(`| ${KPI_LABELS[k]} | ${formatLiveValue(r.current || '', r.unit)} | ${formatLiveValue(r.target || '', r.unit)} | ${formatLiveValue(r.actual || '', r.unit) || '(未入力)'} | ${calcFmt(ach)} | ${calcFmt(grw)} |`);
+    });
+    lines.push(``);
+    lines.push(`---`);
+    lines.push(`*このシートは「ゴールマネジメント」アプリから出力されました。AIに貼り付けて改善提案やアドバイスを相談できます。*`);
+    return lines.join('\n');
+  }
+
+  async function copyGmSheetToClipboard() {
+    const text = buildFullGmDump();
+    try {
+      await navigator.clipboard.writeText(text);
+      const btn = $('ub-copy-gm');
+      const orig = btn.textContent;
+      btn.textContent = '✅ コピー完了';
+      btn.style.background = '#16a34a';
+      btn.style.color = '#fff';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.background = '';
+        btn.style.color = '';
+      }, 2000);
+    } catch (err) {
+      alert('クリップボードへのコピーに失敗しました。\n以下を手動でコピーしてください：\n\n' + text.slice(0, 200) + '...');
+      console.error(err);
+    }
+  }
+  $('ub-copy-gm').addEventListener('click', copyGmSheetToClipboard);
+  $('ub-copy-link').addEventListener('click', () => {
+    // Copy a shareable link for the currently-viewed sheet
+    const targetDocId = viewingDocId || currentDocId;
+    const name = (viewingEmail && viewingEmail !== currentEmail)
+      ? viewingEmail
+      : (currentDisplayName || currentEmail || '');
+    if (!targetDocId) {
+      alert('リンクを生成できませんでした（ログイン情報が見つかりません）');
+      return;
+    }
+    copyShareableLink(targetDocId, name);
+  });
 
   // ===== AI サポート =====
   function buildKgiKpiContext() {
@@ -5835,7 +6115,7 @@
   }
 
   // Common output instruction template (structured + step-by-step + concrete examples + grounded reasoning)
-  const AI_OUTPUT_GUIDE = `\n\n【回答スタイル（必ず守ってください）— 短く・観点で・コピペしやすく】\n\n■ 全体ボリューム：<strong>長すぎNG</strong>。読み返すのに30秒で済む量で。各項目の本文は <strong>2〜3文（合計150〜200字程度）</strong> で十分。文章を膨らませない。\n\n■ 構成（この順番で）：\n  1. <strong>結論</strong>（2行以内）— 何をすべきか1文で。\n  2. <strong>定量</strong>（数字で見る）— 現状値／目標値／ギャップを計算式で1行。\n  3. <strong>定性</strong>（意味で見る）— なぜそれが効くか1〜2行で。\n  4. <strong>観点リスト</strong>（3項目）— ユーザーが自分で判断・記入できる観点を3つ提示。各観点に：\n     - 「何を書く?」（具体的に何を埋めるか1行）\n     - 「順番」（どの順で考えるか1行）\n     - 「例」（短いサンプル1つ）\n  5. <strong>💡 次の一歩</strong>（1行）— 今日／今週やる1つの行動。\n\n■ 表現：\n  - 重要ポイントは <strong>太字</strong> や絵文字で強調\n  - マークダウン見出し（##・###）で階層化、コピペしてそのまま使える形に\n  - 数値は <strong>計算式付き</strong>（例: 「100万 ÷ 4週 = 25万/週」）\n  - 専門用語は使う場合のみ括弧で平易な注釈\n\n■ 定量と定性の分離：\n  - 「定量」セクションは <strong>数字だけ</strong>（達成率／件数／時間など）\n  - 「定性」セクションは <strong>意味・背景・理由</strong>（数字なし）\n  - ごちゃまぜにしない。受講生が「数字を見る／意味を考える」の往復をしやすく。\n\n【NG事項】\n× 1項目で400字超えるような長文\n× 「重要です」「考えましょう」など中身のない断言\n× 根拠なし／一般論／専門用語の羅列\n× 観点を5つ以上挙げる（必ず3つに絞る）`;
+  const AI_OUTPUT_GUIDE = `\n\n【回答スタイル — 短く・定量で・コピペしやすく】\n\n■ 全体ボリューム：<strong>長すぎNG</strong>。読み返すのに30秒で済む量で。各項目は <strong>2〜3文(合計100〜150字程度)</strong> で十分。\n\n■ 構成(この順番で)：\n  1. <strong>結論</strong>(2行以内) — 何をすべきか1文で。\n  2. <strong>定量(数字で見える化)</strong> — 現状値／目標値／ギャップ／件数／時間配分などを <strong>必ず計算式付き</strong>で。「定性的な意味づけ」は最小限。<strong>数字で語る癖</strong>をつけるのが目的。\n  3. <strong>観点・選択肢リスト</strong> — ユーザーが自分で判断できる観点／選択肢を提示。各項目に「何を選ぶ・書くか／数値の目安／短い例」をセット。\n  4. <strong>💡 次の一歩</strong>(1行) — 今日／今週やる1つの行動。\n\n■ 表現：\n  - <strong>太字</strong>や絵文字で強調、マークダウン見出し(##・###)で階層化\n  - 数値は <strong>必ず計算式付き</strong>(例: 「100万 ÷ 4週 = 25万/週」「達成率 70/100 = 70%」)\n  - 専門用語は括弧で平易注釈\n\n■ 視点(重要)：\n  - <strong>経営者視点だけでなく、店長／マネージャー視点も含める</strong>。現場スタッフが「ああなるほど」と思えるレベルの具体性で。\n\n【NG事項】\n× 1項目で400字超えるような長文／定性的・抽象的な断言／数字なしで語る／一般論で終わる`;
 
   function openAIModal(mode, ctx) {
     const titleEl = $('ai-modal-title');
@@ -5866,13 +6146,75 @@
       } else {
         kpiPart = `■ Part 2: 既に入力されている KPI①②③ の精度向上\n（KPI①②③すべて入力済み）\n<strong>3つのKPIをより具体的・行動可能・測定可能にしてください。</strong>\n1. 各KPIについて、KGI達成への貢献度を計算（例: KPI①が10%上がったらKGIに○%寄与）\n2. 各KPIの目標数値が「適切なストレッチ」になっているか評価（甘い/厳しすぎる）\n3. 各KPIの「課題」「解決策」テキストの書き方を改善する具体例\n4. 3つのKPIが <strong>互いに独立かつ網羅的</strong>（MECE）に組まれているかチェック\n5. 入れ替え／統合／分割すべきKPIがあれば理由付きで提案\n6. KPI同士の連動性（相乗効果）を分析`;
       }
-      prompt = `あなたは経営戦略のコンサルタントです。以下の入力情報を踏まえて、対象期間「${periodLabel}」の <strong>KGI（最重要目標）の設定／改善</strong> と、それを達成するための <strong>KPI①②③のセット提案／改善</strong> を一緒に行ってください。\n\n${ctx}\n\n【対象期間】${periodLabel}\nこの期間内に現実的に実行・達成できる範囲で提案してください。\n\n【現在の入力状況】\n- KGI: ${kgiFilled ? '✅ 入力済み（精度向上が必要）' : '❌ 未入力（新規提案が必要）'}\n- KPI①②③: ${kpiFilledCount}/3 が入力済み（${kpiFilledCount === 0 ? '全て新規提案' : kpiFilledCount === 3 ? '全て精度向上' : '一部精度向上＋一部新規提案'}）\n\n【お願い（必ず以下の順序で回答）】\n\n${kgiPart}\n\n${kpiPart}\n\n■ Part 3: KGI と KPI①②③ の整合性チェック\n1. 提案した（または改善した）KGIに対して、KPI①②③が <strong>因果関係を持って繋がっている</strong> か確認\n2. KPI①②③をすべて達成すれば、KGIは <strong>論理的に達成される構造</strong> になっているか\n3. 数値の整合性（例: KPI①の客数増 × KPI②の客単価増 = KGIの売上増 が成立する）を計算式で示す\n4. ズレや矛盾があれば修正提案\n\n■ Part 4: 期間「${periodLabel}」内の達成戦略（具体行動レベル）\n1. KPI①②③それぞれに対して、期間内に実行すべき施策を3つずつ提示\n2. 期間の前半・中盤・後半でどう進めるか時系列で明示\n3. 期間終了時に到達しているべき状態を具体的に描写（数値達成度＋定性的なあるべき姿）\n\n【重要】\n- このボタンは「KGIを決める／改善する」相談用ですが、必ず <strong>KGIとセットでKPIも提案</strong> してください。KGI単体では行動に繋がらないため。\n- 一般論NG。入力されている年間最終ゴール・KGI・KPIテキストから具体的に引用しながら論理展開すること\n- 数値はすべて計算式と一緒に提示（例: 「年商10億 ÷ 4期 = 1期あたり2.5億」）\n- ユーザーが <strong>そのまま入力欄にコピペできる粒度</strong> で提案する${AI_OUTPUT_GUIDE}`;
+      prompt = `あなたは経営戦略のコンサルタント＋店長/マネージャーです。以下の入力をもとに、対象期間「${periodLabel}」の <strong>KGI(最重要目標)の決定／改善</strong> と、それを達成する <strong>KPIのセット提案／改善</strong> を行ってください。
+
+${ctx}
+
+【対象期間】${periodLabel}
+【現状】KGI: ${kgiFilled ? '✅入力済' : '❌未入力'} ／ KPI: ${kpiFilledCount}/3 入力済
+
+## 1. 結論(2行)
+何をKGIにし、KPIをどう設計するか1文ずつ。
+
+## 2. 定量で見える化(数字だけ・計算式付き)
+年間最終ゴールから逆算した「期間内の達成すべき数値」(例: 「年商10億 ÷ 4期 = 2.5億/期」「客数2万 ÷ 3ヶ月 = 6,700人/月」)。
+
+## 3. KGIの選択肢(3パターン)★最重要
+${kgiFilled ? '入力済KGIの精度向上+ストレッチ／保守の代替案も提示' : '未入力なので3つ提案'}
+  - 【保守プラン】着実達成可能な数値+書き方例
+  - 【標準プラン】適度ストレッチの数値+書き方例
+  - 【挑戦プラン】成長加速の数値+書き方例
+各プランに：数値根拠(年間ゴール対比%、季節性、市場前提)／「いつまでに何をどれだけ」形式のテキスト例／<strong>店長/マネージャー視点で「現場で追えるか」評価</strong>
+
+## 4. KPIの選択肢(5〜6個から選ぶ)★重要
+KGIを数式分解し、KPI候補を <strong>5〜6個</strong> 提示(売上=客数×客単価×頻度 → 客数系2/単価系2/頻度系2 など)。各候補に：
+  - 数値目標の目安(現状から+%／絶対値)
+  - KGIへの数値貢献度(計算式)
+  - <strong>現場で測りやすいか</strong>(店長/マネージャー視点)
+  - <strong>★ 推奨組み合わせ(KPI①②③にこの順で)</strong>を1セット明示
+
+## 5. KGIとKPIの整合性チェック
+KPI①②③を全て達成するとKGIが論理的に達成される計算式。
+
+## 6. 💡 次の一歩
+今日決めること1つ。
+
+【重要】KGI＋KPIをセットで／経営者+店長/マネージャー両視点／数値は必ず計算式付き${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'annual-goal-consult') {
       title = '🌟 AIに年間ゴール相談';
-      prompt = `あなたは経営戦略のコンサルタントです。以下の入力済みのKGI/KPIをもとに、年間最終ゴール（1年通しての最終目標・ビジョン）の設定をサポートしてください。\n\n${ctx}\n\n【相談の前提】\nユーザーは既に「今期のKGI」「KPI①②③」を入力しています。これらの内容と数値から逆算・拡張して、年間でどんな最終ゴールを目指すべきかを一緒に考えてください。\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: 現状の入力から見える「年間で目指すべき方向性」\n1. 入力されているKGI/KPIから読み取れる、ユーザーの事業ステージや志向性を読み解く\n2. その方向性を踏まえた「年間で達成すべきテーマ」を提示\n3. 現状値と目標値の数値ギャップから、年間でどのスケールが妥当か逆算\n\n■ Part 2: 年間最終ゴールの具体案（3パターン）\n1. 【保守的プラン】今期KGIの延長線で着実に達成可能な年間ゴール\n2. 【標準プラン】適度なストレッチを含む現実的な年間ゴール\n3. 【挑戦プラン】ビジョンを広げた拡張的な年間ゴール\n各プランに、数値目標と達成シナリオの概略を添える\n\n■ Part 3: 推奨案と根拠\n1. 上記3案のうち、入力情報から最も推奨できるプランを選択\n2. なぜそれが妥当か、数値根拠と論理を提示\n3. その年間ゴールに到達した時のあるべき姿（定性的な描写）\n\n■ Part 4: 年間ゴール → 今期KGIの整合性チェック\n1. 提案した年間ゴールに対して、現在入力されている今期KGIが妥当か評価\n2. 修正提案があれば具体的に\n3. 4半期ごとのマイルストーン目安${AI_OUTPUT_GUIDE}`;
+      prompt = `あなたは経営戦略のコンサルタント＋店長/マネージャーです。入力済みのKGI/KPIをもとに、年間最終ゴールの設定をサポートしてください。
+
+${ctx}
+
+## 1. 結論(2行)
+何を年間ゴールにすべきか1文で。
+
+## 2. 定量で見える化
+現状値・目標値・年間スケールを計算式で。
+
+## 3. 年間ゴールの選択肢(3パターン)
+  - 【保守】着実達成可能な数値+書き方例
+  - 【標準】適度ストレッチの数値+書き方例
+  - 【挑戦】成長加速の数値+書き方例
+
+## 4. 推奨案
+3つから1つ選び、選定理由を計算式で。
+
+## 5. 今期KGIとの整合性
+4半期マイルストーン目安。
+
+## 6. 💡 次の一歩${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'todo-suggest') {
       title = '✅ AIにTodo提案を相談';
-      prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIを達成するために、各KPIを実行可能なTodo（行動レベル）に分解してください。\n\n${ctx}\n\n【お願い】\n1. KPI①〜③それぞれに対して、5〜8個のTodoを提案\n2. Todoは「動詞」で始まる具体的な行動形式（例：「〇〇に営業電話する」「LP原稿を書く」）\n3. 優先順位（大/中/小）も提案\n4. 1週間で着手できる粒度に${AI_OUTPUT_GUIDE}`;
+      prompt = `あなたは目標達成の伴走コーチ＋店長/マネージャーです。各KPIを達成するためのTodoを <strong>種類豊富に</strong> 提案してください。各KPIに5〜10個ずつ。
+
+${ctx}
+
+各KPI(①②③)それぞれに：
+  - 動詞始まりの具体行動(5〜10個)
+  - 各Todoに「なぜ必要か／実行結果どう良くなるか／優先順位／週時間」セット
+  - 営業／マーケ／業務改善／学習／分析／人材／CRM／仕組み化など多角的に
+  - 経営者+店長/マネージャー両視点${AI_OUTPUT_GUIDE}`;
     } else if (mode && mode.startsWith('todo-suggest-kpi-')) {
       const n = +mode.split('-').pop();
       const label = ['①','②','③'][n - 1];
@@ -5881,7 +6223,47 @@
       // Existing todos for this KPI
       const existing = (state.todos[n] || []).map(t => `  - ${t.text || '(未入力)'} [優先${t.priority === 'high' ? '大' : t.priority === 'medium' ? '中' : t.priority === 'low' ? '小' : 'なし'}]${t.done ? ' ✓' : ''}`).join('\n') || '  （まだ登録なし）';
       title = `🤖 AIにKPI${label}のTodo提案を相談`;
-      prompt = `あなたは目標達成の伴走コーチです。以下のKPI${label}に絞って、達成のために必要な行動Todoを提案してください。\n\n${ctx}\n\n【分析対象】KPI${label}\n  目標: ${kpi.target || '(未入力)'}\n  現状: ${kpi.current || '(未入力)'}\n  課題: ${kpi.issue || '(未入力)'}\n  解決策: ${kpi.solution || '(未入力)'}\n\n【現在登録されているKPI${label}のTodo】\n${existing}\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: 既存Todoの評価\n1. すでに登録されているTodoがKPI${label}達成にどれだけ寄与するか評価（A/B/C）\n2. 重複や曖昧なTodoがあれば指摘\n3. 「これは効果的」「これは外していい」を明示\n\n■ Part 2: 追加すべき新規Todoの提案（5〜8個）\n1. KPI${label}の <strong>課題と解決策</strong> から逆算して、まだカバーされていない行動を提案\n2. Todoは「動詞」で始まる具体的な行動形式（例: 「〇〇に営業電話する」「LP原稿を書く」「定例MTGの議事録テンプレートを作る」）\n3. 各Todoに：\n   - <strong>優先順位</strong>（大／中／小）— インパクト×簡単さで判定\n   - <strong>週あたりの所要時間目安</strong>（例: 週2h）\n   - <strong>1週間で着手できる粒度</strong>（巨大すぎるTodoは分割する）\n4. ルーティン化すべきTodo（🔁マークで毎期復元したいもの）を明示\n\n■ Part 3: KPI${label}達成への道筋\n1. 提案したTodoを実行すると、KPI${label}の現状値→目標値にどう近づくかロードマップ\n2. 1ヶ月後・2ヶ月後・3ヶ月後の中間チェックポイント\n3. KPI${label}が他のKPI（${label === '①' ? '②③' : label === '②' ? '①③' : '①②'}）とどう連動するか相乗効果も考慮\n\n【重要】\n- KPI${label}だけに集中。他のKPIのTodoは提案しない。\n- 入力されている課題・解決策テキストから具体的に引用しながら論理展開${AI_OUTPUT_GUIDE}`;
+      prompt = `あなたは目標達成の伴走コーチ＋店長/マネージャーです。KPI${label}達成のための <strong>Todoの種類とヒント</strong>を提示してください。経験の浅いスタッフが「どんなTodoがあるか」をパッと把握できる量で。
+
+${ctx}
+
+【分析対象】KPI${label}
+  目標: ${kpi.target || '(未入力)'}
+  現状: ${kpi.current || '(未入力)'}
+  課題: ${kpi.issue || '(未入力)'}
+  解決策: ${kpi.solution || '(未入力)'}
+
+【既存Todo】
+${existing}
+
+## 1. 結論(2行)
+どんな種類のTodoを揃えるべきか1文。
+
+## 2. 定量で見える化
+KPI${label}の現状値→目標値ギャップを計算式で。「ギャップを埋めるには週○件のTodo必要」など。
+
+## 3. Todo提案 ★ <strong>5〜10個</strong>(種類豊富に)
+各Todoに以下セット：
+
+  📌 <strong>Todoタイトル</strong>(動詞始まり)
+  💡 <strong>なぜ必要か</strong>(1行・KPIへの効き目)
+  📈 <strong>実行結果どう良くなるか</strong>(数値で示せると◎)
+  ⚖️ 優先順位(大/中/小 — インパクト×簡単さ)
+  ⏱️ 週あたり所要時間(例: 週2h)
+  🔁 ルーティン化推奨かスポット対応か
+
+種類のバリエーション(複数角度から):
+  - 営業/顧客接点系  - 情報発信/マーケ系  - 業務改善/効率化系
+  - 学習/インプット系  - 数値把握/分析系  - 人材育成/組織系
+  - 顧客フォロー/CRM系  - 仕組み化/標準化系
+
+## 4. 既存Todoの評価
+A(効果大)/B(普通)/C(外す)で1行ずつ。
+
+## 5. 💡 次の一歩
+今週まずやる1つ。
+
+【重要】KPI${label}だけに集中／経営者+店長/マネージャー両視点／最低5個以上${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'review') {
       title = '🔍 AIに振り返り相談';
       prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIと進捗を踏まえて、改善ポイントと次の一手を提案してください。\n\n${ctx}\n\n【お願い】\n1. 達成率の評価\n2. 進捗が遅れているKPIに対して、改善のヒント\n3. 来週優先すべきTodoの再提案\n4. モチベーション維持のためのコメント${AI_OUTPUT_GUIDE}`;
@@ -5889,21 +6271,153 @@
       const kpiNum = +mode.split('-').pop();
       const kpiLabel = ['①','②','③'][kpiNum - 1];
       title = `🔬 AIにKPI${kpiLabel}分析を相談`;
-      prompt = `あなたは経営戦略のコンサルタントです。以下の情報を踏まえて、KPI${kpiLabel}に焦点を当てた分析と提案を行ってください。\n\n${ctx}\n\n【分析対象】\nKPI${kpiLabel}（上記の【KPI${kpiLabel}】の項目）\n\n【分析の視点】\n1. 数値ギャップ分析：KPI${kpiLabel}の現状値と目標値の差分を計算（％やインパクト換算）\n2. 課題の特定：KPI${kpiLabel}達成を阻んでいる課題を具体的に3つ以上抽出\n3. 解決策の提示：各課題に対する解決策を3つずつ（実行可能なレベル）\n4. KGIへの貢献度：このKPI${kpiLabel}がKGI全体にどう寄与するかを定量的に説明\n5. 他KPIとの連動性：他のKPI（KPI①②③のうちKPI${kpiLabel}以外）と相互作用がある場合、どう連携・補完するかを分析\n6. 短期施策：今週・来週で着手できる具体的な行動を3つ\n\n【重要】\n- 数値（現状値・目標値・差分・%）を計算式と一緒に必ず示す\n- 既に入力されている「課題」「解決策」テキストを参考にしつつ、より深い視点で再提案\n- KPI${kpiLabel}単体ではなく、KGI達成という全体像の中で位置づける${AI_OUTPUT_GUIDE}`;
+      prompt = `あなたは経営戦略のコンサルタント＋店長/マネージャーです。KPI${kpiLabel}の <strong>方向性を決める</strong> ためのアドバイスを。受講生が「現状・課題・解決策」を書き込めるようサポートします。
+
+${ctx}
+
+## 1. 結論(2行)
+このKPIの方向性を1文で。
+
+## 2. 定量で見える化
+現状値・目標値・ギャップを計算式で。「KGIに○%寄与」も明示。
+
+## 3. 現状の書き方ヒント
+受講生が「現状」欄に書くべき内容(1〜2行で十分)の具体例3つ：
+  例) 「現状○○件/月。前期比+/-N%。クレーム原因はAが主」
+事実ベースで <strong>短く</strong> 書く形を提示。
+
+## 4. 課題の書き方ヒント★最重要
+達成を阻む <strong>課題候補を5〜6個</strong> 提示。各課題に：
+  - 課題タイトル(1行)
+  - なぜ課題か(数値や状況で)
+  - 深刻度(大/中/小)
+受講生が選んで書き込めるレベルで。
+
+## 5. 解決策の書き方ヒント★最重要
+上記課題に対する <strong>解決策候補を5〜6個</strong>：
+  - 解決策タイトル(動詞始まり)
+  - 想定効果(数値で)
+  - 実行難易度(難/中/易)
+経営者+店長/マネージャー両視点。
+
+## 6. 他KPIとの連動
+KPI${kpiLabel}が他KPIとどう連動するか1行。
+
+## 7. 💡 次の一歩
+今日決めること1つ。
+
+【重要】現状は1〜2行で十分／課題・解決策は <strong>選択肢から選んで書き込める</strong> 粒度／数値は必ず計算式付き${AI_OUTPUT_GUIDE}`;
     } else if (mode && mode.startsWith('result-analysis-')) {
       const key = mode.split('result-analysis-')[1];  // 'kgi'|'kpi1'|'kpi2'|'kpi3'
       const label = (key === 'kgi') ? 'KGI' : (key === 'kpi1' ? 'KPI①' : key === 'kpi2' ? 'KPI②' : 'KPI③');
       title = `🔬 AIに「${label}」結果分析を相談`;
-      prompt = `あなたは経営戦略のコンサルタントであり、目標達成の伴走コーチです。以下の${label}に関する全ての入力情報（数値・文章・Todo・週次の実行状況・振り返り）を読み取った上で、「数値で見えた未達ギャップは"なぜ"生まれたのか」「どうすれば埋められたのか」「次の期に向けた具体的な改善提案」を分析してください。\n\n${ctx}\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: 数値ギャップの整理（事実）\n1. ${label}の現状値・目標値・実績値・達成率・成長率を再掲し、ギャップの大きさを定量化\n2. 「未達」「超過達成」「完全達成」のいずれかを明示\n3. ギャップを<strong>絶対値・割合・インパクト</strong>の3段階で表現（例: 「目標まで○○○円不足、目標比△%、年間ゴール達成への影響◎%」）\n\n■ Part 2: ギャップが生まれた原因の分析（"なぜ"）\n1. 入力されている「課題」「解決策」のテキストと、実際の週次行動・Todo完了状況を照らし合わせる\n2. <strong>根本原因を3つ以上抽出</strong>（例: ① 計画したTodoの完了率が低い、② 完了Todoがあっても優先順位が低かった、③ そもそも目標数値が高すぎた、④ 解決策が課題に対して的外れだった、⑤ 週次の振り返りで気づきがあったのに行動修正されていない、など）\n3. 各原因について「どの週・どのTodo・どの振り返り記述から読み取れるか」<strong>具体的に引用しながら</strong>論理を示す\n4. ${label === 'KGI' ? 'KGI達成のためにKPI①②③のどれが特にボトルネックになったか' : `${label}が他のKPIや${label === 'KPI①' ? 'KPI②③' : label === 'KPI②' ? 'KPI①③' : 'KPI①②'}とどう連動・競合したか`}も分析\n\n■ Part 3: ギャップを埋めるためにできた選択肢（"どうすれば良かったか"）\n1. 振り返って「もし期の途中で気付けていれば、こう動けば埋められた」という代替シナリオを<strong>3パターン</strong>提示\n2. 各シナリオに「いつ・何を・どれくらい」の粒度で具体行動を提示\n3. なぜその行動が有効か（数値根拠・経験則・ロジック）を必ず添える\n\n■ Part 4: 次の期に向けた改善提案（最重要）\n1. <strong>目標値の見直し</strong>: 次期${label}の数値目標は据え置き／上方修正／下方修正のどれが妥当か、根拠付きで\n2. <strong>課題・解決策テキストの修正提案</strong>: 入力されている「課題」「解決策」をどう書き換えるべきか具体例\n3. <strong>追加すべきTodo（5〜8個）</strong>: 動詞で始まる行動形式で、優先順位（大/中/小）と週あたりの所要時間付き\n4. <strong>削除・統廃合すべき既存Todo</strong>: 達成率に貢献しなかったTodoは何か、なぜ外すべきか\n5. <strong>週次運用の改善</strong>: 「先週の引き継ぎ運用」「ルーティンTodoの見直し」「振り返りの質を上げる工夫」を提案\n6. <strong>早期警告サイン</strong>: 次期で「またギャップが生まれそう」な兆候を察知するための週次チェックポイント\n\n【重要】\n- 一般論は禁止。必ず<strong>入力情報（数値・テキスト・Todo・振り返り）から具体的に引用</strong>して論理展開\n- 「頑張りましょう」のような精神論で締めない\n- 数値はすべて計算式と一緒に提示（例: 「目標200万 - 実績150万 = 50万未達 (25%ギャップ)」）\n- 受講生が次期に「何から手を付けるか」が明確になる粒度で提案${AI_OUTPUT_GUIDE}`;
+      prompt = `あなたは経営戦略のコンサルタント＋店長/マネージャーです。${label}の今期全入力(数値・テキスト・Todo・週次振り返り)を読み取り、<strong>今期総括と次期の約束</strong>を整理してください。
+
+${ctx}
+
+## 1. 結論(2行)
+今期何が起き、次期何を約束するか1文ずつ。
+
+## 2. 定量で振り返り
+  - 現状値／目標値／実績値／達成率／成長率を計算式で再掲
+  - ギャップを「絶対値・割合・年間ゴール影響%」の3段階で
+  - 例: 「目標300万 - 実績240万 = 60万未達(20%ギャップ／年間5%遅延)」
+
+## 3. 今期総括(数字で語る)
+  - 達成 or 未達の <strong>主因3つ</strong> 抽出(各1行)
+  - 各主因に「どの週・どのTodo・どの振り返り」から読み取れるかを引用
+  - 「Todo完了率○%／優先大の達成率○%」など数値で
+
+## 4. もしこうしていたら(代替シナリオ3つ)
+  - いつ・何を・どれくらい(数値)
+  - 効果の見込み(計算式)
+
+## 5. 次期の約束★最重要
+  - <strong>目標値の見直し</strong>: 据置/上方/下方(計算式付き)
+  - <strong>課題・解決策テキストの修正案</strong>: コピペ可な具体例で
+  - <strong>追加Todo</strong>: 5〜10個、優先順位＋週時間付き
+  - <strong>削除Todo</strong>: 貢献しなかったTodoを名指し
+  - <strong>週次運用の改善</strong>: 引き継ぎ／ルーティン／振り返り
+  - <strong>早期警告サイン</strong>: 次期で兆候察知のチェックポイント
+
+## 6. 💡 次の一歩
+次期初日に決めて実行する1つ。
+
+【重要】精神論NG／入力から具体引用／数値は必ず計算式付き／経営者+店長/マネージャー両視点${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'other-analysis') {
       title = '🔬 AIに「その他の業務」分析を相談';
       prompt = `あなたは経営戦略のコンサルタントです。以下のKGI/KPI/その他の業務の入力情報を踏まえて、「KPI①②③以外で優先してやるべきこと」を分析・提案してください。\n\n${ctx}\n\n【分析対象】\n「その他の業務」エリア — KPI①②③に該当しないが、事業継続・成長のために必要な業務領域\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: KPI①②③のスコープ確認\n1. 既に入力されているKPI①②③が「事業の成長ドライバー」として何をカバーしているか整理\n2. 逆に「KPI①②③ではカバーされていない領域」を3〜5領域で具体的に列挙\n   例: バックオフィス／組織づくり／採用／法務・コンプライアンス／資金繰り／長期R&D／自分自身の学習・健康 など\n\n■ Part 2: 「その他の業務」で優先すべきテーマの特定\n1. KGI達成・年間最終ゴール達成に「間接的だが必要不可欠」な業務テーマを3つ提示\n2. 各テーマについて「なぜ優先すべきか」の根拠（リスク回避／土台作り／レバレッジ など）を必ず添える\n3. 「やらないと半年〜1年後にKGI達成を阻害する」という観点で重要度を判定\n\n■ Part 3: 具体的なTodo提案（5〜8個）\n1. 「その他の業務」エリアに追加すべきTodoを5〜8個、動詞で始まる具体的な行動形式で提案\n2. 各Todoに「優先順位（大/中/小）」と「想定所要時間（週あたり何時間）」を付ける\n3. 「ルーティン化すべきもの」と「スポット対応で良いもの」を分けて明示\n\n■ Part 4: 既に入力されている「その他の業務」内容の評価\n1. 現在入力されている「その他の業務」の目標・現状テキストが妥当か評価\n2. 過剰なら削減、不足なら追加の具体提案\n3. KPI①②③とのバランス（時間配分の目安: 例 KPI:その他 = 7:3 など）を提示\n\n【重要】\n- 「KPI①②③に集中すべき」という結論は避ける（その他の業務にも必ず重要なものがある前提で分析）\n- ユーザーが見落としがちな「土台業務」「リスク管理業務」を特に意識して提案\n- 数値や具体例（時間配分%、頻度、優先順位）を必ず添える${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'week-priority') {
       title = '🎯 AIに今週の優先順位を相談';
-      prompt = `あなたは目標達成の伴走コーチです。以下のKGI/KPIと、今週この受講生が考えているTodoリストを見て、最適な優先順位と他に追加すべきTodoがないかを提案してください。\n\n${ctx}\n\n【最優先の判断基準】\n優先順位の定義は「インパクト（成果の大きさ） × 簡単さ（着手しやすさ）」のマトリクスです。\n  - インパクト大 × 簡単 = 最優先（すぐやる）\n  - インパクト大 × 難しい = 計画的に着手\n  - インパクト小 × 簡単 = スキマ時間で\n  - インパクト小 × 難しい = やらない判断もアリ\n\n【お願い】\n1. 今週登録されている各Todoについて「インパクト」「簡単さ」の2軸で評価（5段階）\n2. その評価をもとに、今週の優先順位を1位から並べ直して提案\n3. KGI/KPI達成のために「他に追加すべきTodo」があれば3〜5個提案（具体的な行動レベルで）\n4. 逆に「今週は外しても良いTodo」があれば理由付きで指摘\n5. 1週間で現実的に実行できる量に絞り込む${AI_OUTPUT_GUIDE}`;
+      prompt = `あなたは目標達成の伴走コーチ＋店長/マネージャーです。今週Todoの優先順位を <strong>インパクト×簡単さ</strong> で整理し、必要なら <strong>KGI/KPI自体の見直し</strong> も提案してください。
+
+${ctx}
+
+【判断基準】インパクト×簡単さ：
+  - 大×簡単=最優先  - 大×難=計画的  - 小×簡単=スキマ時間  - 小×難=やらない判断もアリ
+
+## 1. 結論(2行)
+今週やるべきこと1文＋方向性注意があれば1文。
+
+## 2. 定量で見える化
+  - 今週のTodo数／完了数／インパクト大比率を計算式で
+  - 残時間(週単位)とTodo所要時間合計を比較
+
+## 3. 優先順位の並べ替え(I:1〜5/E:1〜5)
+各Todoを2軸スコア化、合計の高い順に並び替え。
+
+## 4. 追加すべきTodo(3〜5個)
+動詞始まり・優先順位・所要時間付き。
+
+## 5. 外していいTodo
+貢献度の低いものを理由付きで。
+
+## 6. ★ KGI/KPI方向性チェック(重要)
+以下の <strong>あからさまな兆候</strong> がないかチェック：
+  - 完了Todoが多いのにKPI数値が動かない
+  - 高優先Todoが何週も連続で未完了
+  - 課題と解決策が噛み合っていない
+  - 振り返りに「これじゃない」記述が複数
+
+あれば：<strong>「KGI/KPIは見直すべき」</strong>とハッキリ提案＋代替候補1〜2個(数値付き)。
+なければ「現在のKGI/KPIは適切」1行で。
+
+## 7. 💡 次の一歩
+今日まずやる1つ。
+
+【重要】KGI/KPI見直しはあからさまな兆候があるときだけ／数値で語る／経営者+店長/マネージャー両視点${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'week-focus') {
       title = '💡 AIに「今週何を相談すべきか」を提案してもらう';
-      prompt = `あなたは目標達成の伴走コーチです。受講生が「今週は何をAIに相談すべきかパッと思いつかない」状態です。以下のKGI/KPI・今週のTodo・進捗状況を読み取って、<strong>今この週で相談すべきテーマ</strong>を提案し、そのまま使えるプロンプトの例も提示してください。\n\n${ctx}\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: 今週の状況サマリー（あなたの読み取り）\n1. 今週のTodo数・完了状況・優先度バランスから読み取れる「いまの状態」を3行で要約\n2. KGI/KPI達成に向けて「今週特に注目すべきポイント」を1つ指摘\n3. ボトルネックになりそうな兆候があれば明示\n\n■ Part 2: 今週相談すべきテーマ TOP5\n受講生がパッと思いつかない時のために、以下のような切り口で5つ提示してください：\n1. 「優先順位を見直す」系（例: インパクト×簡単さの再評価）\n2. 「Todoの粒度を見直す」系（例: 巨大なTodoを分割する）\n3. 「KPIへの貢献度を確認する」系（例: 今週のTodoでKPIにどれだけ近づくか）\n4. 「障害・つまづきを解消する」系（例: 進まないTodoがあるなら原因分析）\n5. 「次の一手を見つける」系（例: 達成後の次にやるべきこと）\n\n各テーマに：\n- なぜ今この受講生に必要か（根拠）\n- 期待される成果\n- そのままAIにコピペできる<strong>具体的なプロンプト文例</strong>\nを付けてください。\n\n■ Part 3: 1つだけ選ぶならコレ（今日のおすすめ）\n上記5つから、入力情報を踏まえて<strong>今日この瞬間に最も効果的な1つ</strong>を選び、なぜそれが最優先かを論理的に説明。さらに「そのまま実行して相談に進めるプロンプト全文」を提示。\n\n【重要】\n- 一般論ではなく、入力されているKGI/KPI・Todo・進捗・週次の振り返りから具体的に引用しながら論理展開\n- 「相談するテーマ」自体を提案するのが目的。受講生が「あ、それ気付かなかった」と思える視点を出す\n- プロンプト例は<strong>そのままコピペで動く完成形</strong>で${AI_OUTPUT_GUIDE}`;
+      prompt = `あなたは目標達成の伴走コーチです。受講生が「今週何を相談すべきかパッと思いつかない」状態。<strong>KGIの問い直しから始めて思考を再起動する壁打ち</strong>を提供してください。
+
+${ctx}
+
+## 1. KGIの問い直し ★最重要(まずここから)
+受講生のKGIを再掲した上で <strong>3つの問い</strong> を投げかける：
+
+  ❓ <strong>「本当にこのゴールでいいですか?」</strong>
+     — 現状の事業課題から見て、このKGIが解決すべき本丸か?
+  ❓ <strong>「このゴールを達成すれば現状の課題は解決しますか?」</strong>
+     — KGI達成=問題解決になっているか?
+  ❓ <strong>「このゴールはあなたの現状に対する解決策ですか?」</strong>
+     — KGIが「行動の指針」として機能しているか?
+
+各問いに：入力情報から読み取った「いまの答え」1〜2行／違和感あれば代替の問い・代替KGI候補。
+
+## 2. 定量で再確認
+KGIの現状値・目標値・今期残り時間を計算式で。
+
+## 3. 今週相談すべきテーマ TOP3
+以下から状況に合わせて3つ：
+  - 優先順位の見直し  - Todoの粒度見直し  - KPIへの貢献度確認
+  - つまづき解消  - 次の一手  - KGI/KPI自体の見直し
+
+各テーマに：なぜ今必要か(1行)／<strong>そのままコピペできるプロンプト全文</strong>。
+
+## 4. 💡 今日のおすすめ1本
+TOP3から最も効果的な1つ＋実行プロンプト全文。
+
+【重要】KGI問い直しを必ず最初に／プロンプト例はコピペで動く完成形／経営者+店長/マネージャー両視点${AI_OUTPUT_GUIDE}`;
     }
     titleEl.textContent = title;
     promptBox.textContent = prompt;
@@ -6264,8 +6778,26 @@
   // ===== Init =====
   renderAll();
 
+  // Check ?view= param FIRST — public read-only view bypass (no login needed)
+  const _viewParam = new URLSearchParams(window.location.search).get('view');
+  const _isPublicView = !!_viewParam;
+
   // Wait for Firebase auth to settle (Google session may auto-restore)
   onAuthStateChanged(auth, async (user) => {
+    // Public view mode: anyone with the link can read (no login required)
+    if (_isPublicView) {
+      // Need anonymous auth for Firestore read (per public-read rules)
+      if (!user) {
+        try { await signInAnonymously(auth); } catch (err) {
+          console.error('Anonymous auth error', err);
+          showLogin('認証エラー: ' + (err.message || err), 'error');
+          return;
+        }
+        return; // onAuthStateChanged will fire again with anonymous user
+      }
+      await loadPublicViewMode(_viewParam);
+      return;
+    }
     if (user && !user.isAnonymous && user.email) {
       // Google session restored
       localStorage.setItem(EMAIL_KEY, user.email);
@@ -6297,6 +6829,71 @@
       showLogin();
     }
   });
+
+  // ===== Public view mode (anyone with ?view=<docId> link can read) =====
+  async function loadPublicViewMode(viewDocId) {
+    try {
+      const ref = doc(db, 'users', viewDocId);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        showLogin('⚠️ このリンクのデータは見つかりませんでした。URLが古い／削除されている可能性があります。', 'error');
+        return;
+      }
+      const data = snap.data();
+      const email = data._email || '(不明)';
+      const displayName = data._displayName || '名前未設定';
+      // Set state without "currentEmail" (no login)
+      isReadOnly = true;
+      viewingDocId = viewDocId;
+      viewingEmail = email;
+      document.body.classList.add('readonly', 'public-view');
+      // Load state from the snapshot
+      state = {
+        ...defaultState(), ...data,
+        annualGoal: normalizeGoal(data.annualGoal, true),
+        goals: normalizeAllGoals(data.goals),
+        todos: { ...defaultState().todos, ...(data.todos || {}) },
+        weeks: Array.isArray(data.weeks) && data.weeks.length ? data.weeks : defaultState().weeks,
+        results: normalizeResults(data.results),
+        archives: Array.isArray(data.archives) ? data.archives : [],
+      };
+      TODO_KEYS.forEach(k => {
+        state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
+      });
+      state.weeks = state.weeks.map((w, i) => ({
+        week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
+        planTodoIds: w.planTodoIds || [],
+        kpiOrder: Array.isArray(w.kpiOrder) && w.kpiOrder.length === 3 ? w.kpiOrder : [1,2,3],
+        planNote: w.planNote ?? (w.plan || ''),
+        done: w.done || '',
+        review: w.review || '',
+      }));
+      // Hide login overlay; show a public-view banner
+      hideLogin();
+      $('user-bar').style.display = 'flex';
+      const ub = $('ub-name');
+      if (ub) ub.textContent = '🔗 公開リンクで閲覧中';
+      const ubEmail = $('ub-email');
+      if (ubEmail) ubEmail.textContent = `${displayName}（${email}）`;
+      // Show banner
+      const banner = $('ro-banner');
+      banner.classList.add('show');
+      banner.classList.remove('editing');
+      banner.classList.add('public');
+      $('ro-email').innerHTML = `🔗 <strong>${esc(displayName)}</strong>（${esc(email)}）の GMシートを <strong>公開リンクで閲覧中</strong>（読み取り専用）`;
+      const roBack = $('ro-back');
+      if (roBack) {
+        roBack.textContent = 'リンクを閉じてログイン画面へ';
+        roBack.onclick = () => {
+          window.location.href = window.location.pathname;
+        };
+      }
+      renderAll();
+    } catch (err) {
+      console.error('loadPublicViewMode error', err);
+      showLogin('⚠️ リンクからの読み込みに失敗しました: ' + (err.message || err), 'error');
+    }
+  }
 </script>
 </body>
 </html>
