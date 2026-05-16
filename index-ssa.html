@@ -4851,7 +4851,29 @@
     } else if (t.dataset.act === 'unpick') {
       const wi = +t.dataset.week;
       const id = t.dataset.todoid;
-      state.weeks[wi].planTodoIds = state.weeks[wi].planTodoIds.filter(x => x !== id);
+      // 同じTodoが紐付いている全ての週インデックスを取得（時系列順）
+      const weeksWithTodo = [];
+      (state.weeks || []).forEach((w, idx) => {
+        if ((w.planTodoIds || []).includes(id)) weeksWithTodo.push(idx);
+      });
+      const isLatest = weeksWithTodo.length > 0 && weeksWithTodo[weeksWithTodo.length - 1] === wi;
+      // 最新週の×で複数週に紐付いている場合、まとめて外すか聞く
+      if (isLatest && weeksWithTodo.length > 1) {
+        const earlierCount = weeksWithTodo.length - 1;
+        const ok = confirm(`このTodoは過去 ${earlierCount} 週にも引き継がれています。\nまとめて全週（${weeksWithTodo.length}週分）から外しますか？\n\nOK: 全週から外す（おすすめ）\nキャンセル: この週だけ外す`);
+        if (ok) {
+          // 全週から削除（過去〜直近まで）
+          weeksWithTodo.forEach(weekIdx => {
+            state.weeks[weekIdx].planTodoIds = (state.weeks[weekIdx].planTodoIds || []).filter(x => x !== id);
+          });
+        } else {
+          // この週だけ削除
+          state.weeks[wi].planTodoIds = state.weeks[wi].planTodoIds.filter(x => x !== id);
+        }
+      } else {
+        // 1週のみ、もしくは途中の週なら、その週だけ削除
+        state.weeks[wi].planTodoIds = state.weeks[wi].planTodoIds.filter(x => x !== id);
+      }
       save(); renderWeeks();
     } else if (t.dataset.act === 'todo-calendar') {
       e.stopPropagation();
