@@ -881,7 +881,30 @@
     border-radius: 4px;
     border-left: 3px solid transparent;
     transition: background 0.1s;
+    flex-wrap: wrap;
+    row-gap: 4px;
   }
+  /* Action buttons go on the top row (order 1) */
+  .todo-item > .todo-detail-toggle,
+  .todo-item > .priority-btn,
+  .todo-item > .routine-btn,
+  .todo-item > .todo-pending-badge,
+  .todo-item > .todo-completed-meta,
+  .todo-item > button[data-act="del"] { order: 1; }
+  /* Force a line break between top buttons and main text row */
+  .todo-item::after {
+    content: "";
+    order: 2;
+    flex-basis: 100%;
+    height: 0;
+  }
+  /* Drag, checkbox, textarea on the bottom row */
+  .todo-item > .drag-handle,
+  .todo-item > input[type="checkbox"],
+  .todo-item > textarea.todo-text { order: 3; }
+  /* History items keep single-row layout (no buttons, simpler view) */
+  .todo-history .todo-item { flex-wrap: nowrap; }
+  .todo-history .todo-item::after { display: none; }
   .todo-item > input[type="checkbox"],
   .todo-item > .drag-handle,
   .todo-item > .priority-btn,
@@ -1311,7 +1334,26 @@
     font-size: 12px;
     border-left: 3px solid;
     background: var(--panel-2);
+    flex-wrap: wrap;
+    row-gap: 4px;
   }
+  /* チップ: ボタン群を上段に配置 */
+  .plan-chip > .chip-prio,
+  .plan-chip > .chip-routine,
+  .plan-chip > .chip-detail,
+  .plan-chip > .chip-cal,
+  .plan-chip > .chip-x { order: 1; }
+  /* 上段と下段の間を改行 */
+  .plan-chip::after {
+    content: "";
+    order: 2;
+    flex-basis: 100%;
+    height: 0;
+  }
+  /* ドラッグ・チェック・テキストは下段 */
+  .plan-chip > .chip-drag,
+  .plan-chip > .chip-check,
+  .plan-chip > .chip-text { order: 3; }
   .plan-chip[data-kpi="1"] { border-color: var(--kpi1); background: var(--kpi1-soft); }
   .plan-chip[data-kpi="2"] { border-color: var(--kpi2); background: var(--kpi2-soft); }
   .plan-chip[data-kpi="3"] { border-color: var(--kpi3); background: var(--kpi3-soft); }
@@ -1330,7 +1372,7 @@
     width: 14px;
     height: 14px;
   }
-  .plan-chip .chip-text { flex: 1; word-break: break-word; }
+  .plan-chip .chip-text { flex: 1; min-width: 0; word-break: break-word; }
   .plan-chip .chip-x {
     background: transparent;
     border: none;
@@ -1408,6 +1450,26 @@
   .plan-chip .chip-prio.priority-high { background: #fef2f2; border-color: #dc2626; color: #dc2626; }
   .plan-chip .chip-prio.priority-medium { background: #fffbeb; border-color: #f59e0b; color: #d97706; }
   .plan-chip .chip-prio.priority-low { background: #f0fdf4; border-color: #16a34a; color: #16a34a; }
+  .plan-chip .chip-routine {
+    border: 1px solid var(--border);
+    background: #fff;
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    color: var(--muted);
+    font-family: inherit;
+    line-height: 1.4;
+    transition: all 0.15s;
+  }
+  .plan-chip .chip-routine.active {
+    background: #fef3c7;
+    border-color: #f59e0b;
+    color: #b45309;
+  }
+  .plan-chip .chip-routine:hover { transform: scale(1.05); }
   .plan-chip.dragging { opacity: 0.4; }
   .plan-chip.drop-target { box-shadow: 0 -2px 0 var(--accent); }
   .plan-kpi-group {
@@ -1455,16 +1517,30 @@
   .plan-kpi-group.drop-target { box-shadow: 0 -3px 0 var(--accent); }
   .plan-pick-btn {
     width: 100%;
-    border: 1px dashed var(--border);
-    background: transparent;
-    padding: 6px;
-    color: var(--muted);
-    font-size: 12px;
+    border: 2px solid #2563eb;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    padding: 10px 14px;
+    color: #1e40af;
+    font-size: 14px;
+    font-weight: 700;
     cursor: pointer;
-    border-radius: 4px;
-    margin-bottom: 6px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.15);
+    transition: all 0.15s;
+    font-family: inherit;
+    letter-spacing: 0.02em;
   }
-  .plan-pick-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .plan-pick-btn:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    border-color: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+  }
+  .plan-pick-btn:active { transform: translateY(0); }
+  .plan-pick-btn-top { margin-top: 4px; margin-bottom: 10px; }
+  .plan-pick-btn-bottom { margin-top: 6px; margin-bottom: 8px; }
   .week-table textarea {
     width: 100%;
     border: 1px solid var(--border);
@@ -1574,6 +1650,54 @@
     border-radius: 6px;
     background: #fff;
   }
+  /* FB欄: オレンジ系で他のフィールドと差別化 */
+  .rich-field-wrap.feedback-field {
+    border-color: #fcd34d;
+    background: #fffbeb;
+  }
+  /* AI相談履歴欄: 青系で差別化 */
+  .rich-field-wrap.ai-history-field {
+    border-color: #93c5fd;
+    background: #eff6ff;
+  }
+  .rich-field-wrap.ai-history-field .rich-display.collapsed::after {
+    background: linear-gradient(to bottom, transparent, #eff6ff 90%);
+  }
+  .rich-field-wrap.ai-history-field .rich-expand-hint {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #93c5fd;
+  }
+  .rich-field-wrap.feedback-field .rich-display.collapsed::after {
+    background: linear-gradient(to bottom, transparent, #fffbeb 90%);
+  }
+  .rich-field-wrap.feedback-field .rich-expand-hint {
+    background: #fef3c7;
+    color: #d97706;
+    border-color: #fcd34d;
+  }
+  .kpi-row.feedback-row .lbl {
+    background: #fef3c7;
+    color: #b45309;
+  }
+  /* KGI Hero 内のFB欄 */
+  .kgi-feedback-wrap {
+    margin-top: 14px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+  .kgi-feedback-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fef3c7;
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+  }
+  .kgi-feedback-wrap .rich-field-wrap {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: #fcd34d;
+  }
   .rich-field-wrap .rich-expand-btn {
     position: absolute;
     top: 4px;
@@ -1637,6 +1761,60 @@
   .rich-display .rich-h5, .rich-preview .rich-h5 { font-size: 1em; color: #4b5563; }
   .rich-display .rich-h6, .rich-preview .rich-h6 { font-size: 0.95em; color: #6b7280; font-weight: 700; }
   .rich-display .rich-hr, .rich-preview .rich-hr { border: 0; border-top: 1px dashed #d1d5db; margin: 10px 0; }
+  /* Markdown table */
+  .rich-display .rich-table, .rich-preview .rich-table {
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 13px;
+    width: auto;
+    max-width: 100%;
+    overflow-x: auto;
+    display: block;
+  }
+  .rich-display .rich-table th, .rich-preview .rich-table th,
+  .rich-display .rich-table td, .rich-preview .rich-table td {
+    border: 1px solid #d1d5db;
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .rich-display .rich-table th, .rich-preview .rich-table th {
+    background: #f3f4f6;
+    font-weight: 700;
+    color: #1f2937;
+  }
+  .rich-display .rich-table tbody tr:nth-child(even),
+  .rich-preview .rich-table tbody tr:nth-child(even) {
+    background: #f9fafb;
+  }
+  /* Blockquote */
+  .rich-display .rich-bq, .rich-preview .rich-bq {
+    border-left: 4px solid #93c5fd;
+    background: #eff6ff;
+    color: #1e3a8a;
+    margin: 8px 0;
+    padding: 6px 12px;
+    font-style: normal;
+    border-radius: 0 6px 6px 0;
+  }
+  /* Code block */
+  .rich-display .rich-code, .rich-preview .rich-code {
+    background: #1f2937;
+    color: #f3f4f6;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    overflow-x: auto;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .rich-display .rich-code code, .rich-preview .rich-code code {
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+  }
   /* Collapsed preview: clamp to 4 lines with fade gradient */
   .rich-display.collapsed {
     max-height: calc(1.6em * 4 + 20px); /* 4 lines + padding */
@@ -1726,6 +1904,32 @@
     padding: 1px 5px;
     font-family: 'SFMono-Regular', Consolas, monospace;
     font-size: 11px;
+  }
+  /* リッチテキスト モーダル: プレビュー/編集 タブ */
+  .rich-modal-tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  .rich-tab {
+    background: transparent;
+    border: none;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .rich-tab:hover { color: var(--accent); }
+  .rich-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(59, 130, 246, 0.05);
   }
 
   /* ===== 期限内Todo 進捗統計 ===== */
@@ -2414,11 +2618,38 @@
   }
   body.readonly input,
   body.readonly textarea,
-  body.readonly select { pointer-events: none; opacity: 0.85; }
-  body.readonly button:not(#ro-banner button):not(.modal-close):not(#picker-done):not(.ai-help-btn):not(.result-ai-btn-big):not([data-act^="ai-help"]):not(#ai-copy-btn):not(#ai-done):not([data-ai-service]) { pointer-events: none; opacity: 0.5; }
+  body.readonly select {
+    /* 入力は禁止、ただしテキスト選択(コピペ)は許可 */
+    pointer-events: none;
+    opacity: 0.85;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  /* readonly 表示でも文字を選択してコピー可能に */
+  body.readonly,
+  body.readonly .rich-display,
+  body.readonly .done-auto-list,
+  body.readonly .week-card,
+  body.readonly .kpi-card,
+  body.readonly .annual-goal,
+  body.readonly .kgi-hero,
+  body.readonly main {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+  }
+  /* readonlyではテキストエリアにpointer-events:noneがあるとフォーカス不可で選択もできない。
+     仕方なくテキストエリアにはinert風: 入力できないが選択可能になるようpointer-events:autoに戻し
+     selectable text + JSでreadonly属性を付ける運用を想定。CSSではcursorだけdefaultに。 */
+  body.readonly textarea, body.readonly input {
+    pointer-events: auto;
+    cursor: default;
+  }
+  body.readonly button:not(#ro-banner button):not(.modal-close):not(#picker-done):not(.ai-help-btn):not(.result-ai-btn-big):not([data-act^="ai-help"]):not(#ai-copy-btn):not(#ai-done):not([data-ai-service]):not(#ub-copy-gm):not(#ub-copy-link):not(.ub-name):not(#ub-name):not(#ub-guide):not([data-act="toggle-week"]):not([data-act="toggle-history"]):not([data-act="toggle-detail"]) { pointer-events: none; opacity: 0.5; }
   body.readonly .ai-help-btn,
   body.readonly .result-ai-btn-big,
-  body.readonly [data-act^="ai-help"] { pointer-events: auto !important; opacity: 1 !important; }
+  body.readonly [data-act^="ai-help"],
+  body.readonly #ub-copy-gm,
+  body.readonly #ub-copy-link { pointer-events: auto !important; opacity: 1 !important; }
 
   /* Primary admin editing another user — different banner color */
   #ro-banner.editing {
@@ -2445,6 +2676,322 @@
   body.public-view #ub-logout,
   body.public-view #ub-copy-link {
     display: none !important;
+  }
+  /* 右クリックコピーメニュー */
+  .copy-context-menu {
+    position: fixed;
+    z-index: 9999;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 4px;
+    min-width: 200px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .copy-context-menu button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--text);
+    font-size: inherit;
+    font-family: inherit;
+  }
+  .copy-context-menu button:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+  .copy-context-menu .menu-divider {
+    border-top: 1px solid #e5e7eb;
+    margin: 4px 0;
+  }
+  /* コメント状態バッジ */
+  .feedback-status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .feedback-status-badge.unread { background: #fee2e2; color: #b91c1c; }
+  .feedback-status-badge.confirmed { background: #fef3c7; color: #b45309; }
+  .feedback-status-badge.resolved { background: #d1fae5; color: #047857; }
+  /* モーダル内のFB状態セレクター */
+  .feedback-status-selector {
+    display: none;
+    margin: 8px 0 12px;
+    padding: 8px 12px;
+    background: #fef3c7;
+    border-radius: 6px;
+    border: 1px solid #fcd34d;
+    font-size: 13px;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .feedback-status-selector.show { display: flex; }
+  .feedback-status-selector label { font-weight: 700; color: #b45309; }
+  .feedback-status-selector .status-btn {
+    border: 1.5px solid #d1d5db;
+    background: #fff;
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .feedback-status-selector .status-btn.active.unread { background: #fee2e2; border-color: #fca5a5; color: #b91c1c; }
+  .feedback-status-selector .status-btn.active.confirmed { background: #fef3c7; border-color: #fcd34d; color: #b45309; }
+  .feedback-status-selector .status-btn.active.resolved { background: #d1fae5; border-color: #86efac; color: #047857; }
+  .feedback-status-selector .status-btn:hover { filter: brightness(0.95); }
+  /* ルーティン一覧ボタン: 目立つオレンジ系 */
+  #routine-list-btn {
+    background: linear-gradient(135deg, #f59e0b, #ea580c);
+    color: #fff;
+    border: 2px solid #d97706;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+  }
+  #routine-list-btn:hover {
+    background: linear-gradient(135deg, #ea580c, #d97706);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.5);
+  }
+  /* ルーティン一覧 バナー (Todoエリア上) */
+  .routine-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    margin: 0 0 16px;
+    background: linear-gradient(135deg, #fef3c7, #fed7aa);
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .routine-banner:hover {
+    background: linear-gradient(135deg, #fed7aa, #fdba74);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  }
+  .routine-banner.empty {
+    background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+    border-color: #d1d5db;
+    box-shadow: none;
+  }
+  .routine-banner .icon {
+    font-size: 28px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .routine-banner .info {
+    flex: 1;
+    min-width: 0;
+  }
+  .routine-banner .label {
+    font-size: 14px;
+    font-weight: 800;
+    color: #92400e;
+    margin-bottom: 2px;
+  }
+  .routine-banner.empty .label { color: var(--muted); }
+  .routine-banner .sub {
+    font-size: 12px;
+    color: #b45309;
+    line-height: 1.4;
+  }
+  .routine-banner.empty .sub { color: var(--muted); }
+  .routine-banner .open-btn {
+    background: #fff;
+    color: #d97706;
+    border: 1.5px solid #f59e0b;
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .routine-banner:hover .open-btn {
+    background: #d97706;
+    color: #fff;
+    border-color: #d97706;
+  }
+  .routine-banner.empty .open-btn { color: var(--muted); border-color: #d1d5db; }
+  /* ルーティン一覧 */
+  .routine-filter-btn {
+    background: #fff;
+    border: 1.5px solid #d1d5db;
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .routine-filter-btn:hover { background: #eff6ff; border-color: #93c5fd; color: #1e40af; }
+  .routine-filter-btn.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+  .routine-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    table-layout: fixed; /* colgroup の幅指定を確実に効かせる */
+  }
+  .routine-list-table th, .routine-list-table td {
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: middle;
+  }
+  .routine-list-table th {
+    background: #f3f4f6;
+    font-weight: 700;
+    color: var(--muted);
+    font-size: 12px;
+    position: sticky; top: 0;
+    z-index: 1;
+    text-align: center;
+  }
+  .routine-list-table tbody tr:hover { background: #eff6ff; cursor: pointer; }
+  .routine-list-table .col-kpi {
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    padding: 6px 4px;
+  }
+  .routine-list-table .col-kpi .kpi-label {
+    font-weight: 700;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  .routine-list-table .col-kpi .kpi-priority {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1;
+  }
+  .routine-list-table .col-text {
+    word-break: break-word;
+    line-height: 1.5;
+  }
+  .routine-list-table .col-freq {
+    text-align: center;
+    font-weight: 700;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .routine-list-table .col-priority {
+    text-align: center;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  /* チェック後5秒猶予の表示 */
+  .todo-item-wrap.pending-complete .todo-item {
+    background: linear-gradient(90deg, #d1fae5, #a7f3d0) !important;
+    border-left-color: #10b981 !important;
+    animation: pendingPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pendingPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+  }
+  .todo-pending-badge {
+    background: #10b981;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.4;
+    margin-left: 4px;
+    letter-spacing: 0.02em;
+  }
+  /* インライン編集: 優先度ボタン */
+  .routine-list-table .kpi-priority-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .routine-list-table .kpi-priority-btn:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+  }
+  /* インライン編集: 頻度ボタン */
+  .routine-list-table .rl-freq-btn {
+    background: linear-gradient(135deg, #fef3c7, #fed7aa);
+    border: 1px solid #f59e0b;
+    border-radius: 4px;
+    padding: 3px 4px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    color: #92400e;
+    white-space: nowrap;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    letter-spacing: -0.02em;
+  }
+  .routine-list-table .rl-freq-btn:hover {
+    filter: brightness(0.95);
+  }
+  /* インライン編集: Todoテキストエリア */
+  .routine-list-table .rl-text-input {
+    width: 100%;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text);
+    resize: none;
+    line-height: 1.5;
+    min-height: 44px;
+    box-sizing: border-box;
+  }
+  .routine-list-table .rl-text-input:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+  }
+  .routine-list-table .rl-text-input:focus {
+    border-color: var(--accent);
+    background: #fff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  }
+  .routine-list-empty {
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-style: italic;
   }
 </style>
 </head>
@@ -2519,6 +3066,7 @@
   </div>
   <button id="archive-save" title="現在の期のデータをスナップショット保存">📦 今期を保存して新期へ</button>
   <button id="reset-btn">🗑 全リセット</button>
+  <button id="routine-list-btn" title="ルーティン化されたTodoの一覧を見る">🔁 ルーティン一覧</button>
   <select id="archive-select" class="archive-select" title="過去の期を選んで閲覧"><option value="">📂 過去の期を見る…</option></select>
   <button id="pdf-btn" class="primary">📄 PDFで保存</button>
 </div>
@@ -2576,6 +3124,12 @@
             <select class="unit-select" data-goal="kgi" data-field="unit"></select>
             <div class="field"><span class="field-label">現状:</span><input type="text" class="num-input" data-goal="kgi" data-field="currentValue" placeholder="0" inputmode="decimal" /></div>
             <div class="field"><span class="field-label">目標:</span><input type="text" class="num-input" data-goal="kgi" data-field="targetValue" placeholder="0" inputmode="decimal" /></div>
+          </div>
+        </div>
+        <div class="kgi-feedback-wrap">
+          <div class="kgi-feedback-label">💬 FB<span id="kgi-feedback-badge"></span></div>
+          <div class="rich-field-wrap goal-rich-field feedback-field" data-goal="kgi" data-field="feedback" data-label="💬 KGIFB" data-act="goal-text-expand">
+            <div class="rich-display collapsed" id="kgi-feedback-display"><span class="rich-placeholder">受講生本人＋管理者の両方が記入できる(クリックで編集)</span><span class="rich-expand-hint">クリックで全文＋編集</span></div>
           </div>
         </div>
       </div>
@@ -2662,6 +3216,15 @@
         <button class="todo-add" data-kpi="other" data-act="add">＋ Todo追加</button>
         <div class="todo-progress" id="todo-other-prog">0 / 0 完了</div>
       </div>
+      <!-- ルーティン一覧バナー（その他の業務Todoの下） -->
+      <div id="routine-banner" class="routine-banner empty" data-act="open-routine-list" style="margin-top:16px;">
+        <div class="icon">🔁</div>
+        <div class="info">
+          <div class="label" id="routine-banner-label">ルーティン管理</div>
+          <div class="sub" id="routine-banner-sub">毎週／月初／月末などのルーティンTodoをまとめて確認・管理できます</div>
+        </div>
+        <button type="button" class="open-btn" data-act="open-routine-list">一覧を開く →</button>
+      </div>
     </div>
   </section>
 
@@ -2670,6 +3233,9 @@
     <div class="sec-head">
       <h2>🗓 週次行動目標</h2>
       <span class="sub">「+ Todoから選ぶ」でTodoを紐付け／自由メモも追加可能</span>
+      <div style="font-size:11px;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:6px 10px;margin-top:6px;line-height:1.5;">
+        💡 各Todoチップの <strong>🔁ボタン</strong> をクリックすると、ここからもルーティン設定を切替できます（毎週／第1〜4週／月初／月末／OFF）。変更内容は今期の各週に自動反映されます。
+      </div>
     </div>
     <div class="sec-body">
       <div id="overdue-stats" class="overdue-stats" style="display:none;"></div>
@@ -2717,16 +3283,55 @@
       <button class="modal-close" id="rich-modal-close">×</button>
     </div>
     <div class="modal-body">
-      <div class="rich-modal-hint">
-        💡 <strong>使える書式</strong>： <code>**太字**</code> ／ <code>*斜体*</code> ／ <code>- 箇条書き</code> ／ <code>`コード`</code> ／ URL（https://〜）を貼ると自動でリンク化
+      <div class="rich-modal-tabs">
+        <button type="button" class="rich-tab active" data-rich-tab="preview" id="rich-tab-preview">📖 プレビュー</button>
+        <button type="button" class="rich-tab" data-rich-tab="edit" id="rich-tab-edit">✏️ 編集</button>
       </div>
-      <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px;">✏️ 編集</label>
-      <textarea id="rich-modal-textarea" rows="10" style="width:100%;resize:vertical;font-size:14px;padding:12px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;box-sizing:border-box;line-height:1.6;"></textarea>
-      <label style="display:block;font-size:12px;font-weight:600;color:var(--muted);margin:14px 0 4px;">📖 プレビュー（リンクは押せます）</label>
+      <div class="feedback-status-selector" id="rich-modal-status-selector">
+        <label>📌 確認状態：</label>
+        <button type="button" class="status-btn unread" data-status="unread">未確認</button>
+        <button type="button" class="status-btn confirmed" data-status="confirmed">確認済</button>
+        <button type="button" class="status-btn resolved" data-status="resolved">解決済</button>
+      </div>
+      <div class="rich-modal-hint" id="rich-modal-edit-hint" style="display:none;">
+        💡 <strong>使える書式</strong>： <code>**太字**</code> ／ <code>*斜体*</code> ／ <code>- 箇条書き</code> ／ <code>`コード`</code> ／ <code># 見出し</code> ／ <code>&gt; 引用</code> ／ <code>| 表 |</code> ／ URL自動リンク
+      </div>
+      <textarea id="rich-modal-textarea" rows="14" style="display:none;width:100%;resize:vertical;font-size:14px;padding:12px;border:1.5px solid var(--accent);border-radius:6px;font-family:inherit;box-sizing:border-box;line-height:1.6;min-height:300px;"></textarea>
       <div id="rich-modal-preview" class="rich-preview"></div>
-      <div style="text-align:right;margin-top:14px;">
-        <button id="rich-modal-done" style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">閉じる（自動保存済み）</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px;flex-wrap:wrap;">
+        <button id="rich-modal-add-feedback" style="display:none;background:linear-gradient(135deg,#16a34a,#059669);color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">✍ 新規FBを追記（署名・日時付き）</button>
+        <button id="rich-modal-done" style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-left:auto;">閉じる（自動保存済み）</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ルーティン一覧 Modal -->
+<div class="modal-backdrop" id="routine-modal">
+  <div class="modal" style="max-width:920px;">
+    <div class="modal-head">
+      <h3>🔁 ルーティン一覧</h3>
+      <button class="modal-close" id="routine-modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:12px;font-size:13px;color:var(--muted);">
+        ルーティン指定（🔁ON）したTodoを一覧表示。フィルターで絞り込み可能。
+      </div>
+      <div id="routine-filter-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;padding:8px;background:#f3f4f6;border-radius:6px;">
+        <button class="routine-filter-btn active" data-filter="all">全部</button>
+        <button class="routine-filter-btn" data-filter="every">毎週</button>
+        <button class="routine-filter-btn" data-filter="w1">第1週</button>
+        <button class="routine-filter-btn" data-filter="w2">第2週</button>
+        <button class="routine-filter-btn" data-filter="w3">第3週</button>
+        <button class="routine-filter-btn" data-filter="w4">第4週</button>
+        <button class="routine-filter-btn" data-filter="first">月初</button>
+        <button class="routine-filter-btn" data-filter="last">月末</button>
+        <button class="routine-filter-btn" data-filter="kpi1">KPI①</button>
+        <button class="routine-filter-btn" data-filter="kpi2">KPI②</button>
+        <button class="routine-filter-btn" data-filter="kpi3">KPI③</button>
+        <button class="routine-filter-btn" data-filter="other">その他</button>
+      </div>
+      <div id="routine-list-content"></div>
     </div>
   </div>
 </div>
@@ -3004,6 +3609,104 @@
         <div class="info">💡 <strong>1時間枠で固定</strong>：開始時刻を入れるだけで、終了時刻は自動で +1時間。終日設定はなくなり、シンプルに使えるようになりました。</div>
         <div class="tip">💡 <strong>初期日付の自動設定</strong>：今日がその週の範囲内ならその日付が自動で入ります。範囲外なら週の初日が入るので、必要に応じて変更できます。</div>
         <div class="tip">💡 <strong>1個ずつの登録</strong>：今までの「週単位で一括」ではなく、Todo毎に個別登録できるようになったので、優先順位の高いものだけカレンダーに入れたり、1日に複数のTodoを別時間で予定したりできます。</div>
+
+        <h4>🔁 ルーティンTodo＋週指定</h4>
+        <p>毎週／月初／月末／第N週など、繰り返しやる業務を簡単に管理。</p>
+        <h5>🎯 設定方法</h5>
+        <ol>
+          <li>各Todoの右側にある <strong>「🔁」ボタン</strong> を押して状態を切り替え</li>
+          <li>8段階で循環： <strong>OFF → 🔁毎(毎週) → 🔁1(第1週) → 🔁2 → 🔁3 → 🔁4 → 🔁初(月初) → 🔁末(月末) → OFF</strong></li>
+          <li>設定した瞬間、<strong>現在の期間内の該当週へ自動的にTodoがセット</strong> されます</li>
+        </ol>
+        <div class="info">⚡ <strong>例: 「🔁3」(第3週) に設定すると</strong>：3か月期間(4-6月)の場合、4月3週・5月3週・6月3週の3つの週に自動でTodoが追加されます。</div>
+        <div class="info">📅 <strong>期切替時の挙動</strong>：「📦 今期を保存して新期へ」を押すと、新期でも同じ設定で自動的に該当週にセットされるので、毎月作り直す必要なし。</div>
+
+        <h4>🔁 ルーティン一覧（オレンジバナー）</h4>
+        <p>「その他の業務のTodo」の下、または ツールバーの「🔁 ルーティン一覧」ボタンから開けます。</p>
+        <h5>📊 一覧でできること</h5>
+        <ul>
+          <li><strong>絞り込みフィルター</strong>：全部 / 毎週 / 第1〜4週 / 月初 / 月末 / KPI①②③ / その他</li>
+          <li><strong>3列テーブル表示</strong>：カテゴリ＋優先度 / Todo内容 / 頻度</li>
+          <li><strong>インライン編集</strong>：
+            <ul>
+              <li>Todo内容を直接書き換え可能</li>
+              <li>優先度ボタンをクリックして循環(大→中→小→なし)</li>
+              <li>頻度ボタンをクリックして循環(毎週→1〜4週→月初→月末→OFF)</li>
+              <li>変更は即座に保存＋現在期間の週にも自動反映</li>
+            </ul>
+          </li>
+          <li><strong>行クリック</strong>：該当のTodoまで自動スクロール＋黄色ハイライト。「その他」のTodoはアコーディオンも自動展開</li>
+        </ul>
+
+        <h4>💬 FB機能（受講生＋管理者の双方向コミュニケーション）</h4>
+        <p>KGI / KPI / Todo / 週次行動目標のそれぞれに「💬 FB」欄を配置。本人も管理者もコメントを書き込めます。</p>
+        <h5>✍ 使い方</h5>
+        <ol>
+          <li>各FB欄をクリック → 拡大モーダル</li>
+          <li>緑色の <strong>「✍ 新規FBを追記」</strong> ボタンを押すと、<strong>署名（名前）＋日時</strong> 付きの見出し（### マーク）が自動挿入</li>
+          <li>その下に本文を入力 → 自動保存</li>
+          <li>複数人のコメントが時系列で蓄積されます</li>
+        </ol>
+        <h5>📌 確認状態（3段階）</h5>
+        <ul>
+          <li>🔴 <strong>未確認</strong>：まだ目を通していない</li>
+          <li>🟡 <strong>確認済</strong>：読んだが対応未完</li>
+          <li>🟢 <strong>解決済</strong>：対応完了</li>
+        </ul>
+        <div class="info">💡 ラベル横にステータスバッジが表示されるので、未確認のFBが一目で分かります。</div>
+
+        <h4>📝 リッチテキスト編集（Markdown対応）</h4>
+        <p>「自由メモ」「振り返り」「FB」「Todo詳細」「AI相談履歴」など、すべての長文入力欄でMarkdownが使えます。</p>
+        <h5>🎨 使える書式</h5>
+        <ul>
+          <li><strong>見出し</strong>： <code># H1</code> ／ <code>## H2</code> ／ <code>### H3</code> 〜 <code>###### H6</code></li>
+          <li><strong>太字</strong>： <code>**重要**</code> → <strong>重要</strong></li>
+          <li><strong>斜体</strong>： <code>*強調*</code> → <em>強調</em></li>
+          <li><strong>箇条書き</strong>： <code>- 項目</code> ／ <code>* 項目</code> ／ <code>1. 項目</code> ／ <code>2. 項目</code></li>
+          <li><strong>引用</strong>： <code>&gt; これは引用</code></li>
+          <li><strong>コード</strong>： <code>`inline code`</code> ／ <code>```js〜```</code> でコードブロック</li>
+          <li><strong>水平線</strong>： <code>---</code></li>
+          <li><strong>テーブル</strong>：
+<pre style="background:#f3f4f6;padding:8px;border-radius:4px;font-size:11px;">| 項目 | 数値 | 改善策 |
+|---|---:|---|
+| 客数 | 100 | SNS強化 |</pre>
+          </li>
+          <li><strong>URL自動リンク</strong>： <code>https://〜</code> を貼ると自動でクリック可能なリンクに</li>
+        </ul>
+        <h5>📖 プレビュー／編集タブ</h5>
+        <p>モーダルを開くと <strong>「📖 プレビュー」「✏️ 編集」のタブ</strong> が表示されます。</p>
+        <ul>
+          <li>内容がある時はプレビューがデフォルト（読みやすさ優先）</li>
+          <li>空の時は編集タブから開始</li>
+          <li>編集中の内容はタブ切替でリアルタイムにプレビュー反映</li>
+        </ul>
+        <div class="tip">💡 <strong>4行プレビュー</strong>：インライン表示は4行までクランプ。長文の時はフェードアウト＋「クリックで全文＋編集」バッジが出ます。</div>
+
+        <h4>🤖 AI相談履歴（各Todoに記録）</h4>
+        <p>各Todoの詳細パネル内に「🤖 AI相談履歴」欄。ChatGPT/Claude/Geminiの回答をそのまま貼り付け → Markdownで自動整形。</p>
+        <ul>
+          <li>表・見出し・太字・コードブロックが正しくレンダリング</li>
+          <li>会議議事録 / KPI分析結果 / AI提案 などをきれいに保存</li>
+          <li>青系の色で他のフィールドと差別化</li>
+        </ul>
+
+        <h4>📋 全文コピー＆共有リンク</h4>
+        <h5>📋 GMシート全コピー</h5>
+        <p>ユーザーバーの「📋 GMシート全コピー」ボタンで、自分のシート全データをMarkdown形式でクリップボードへ。</p>
+        <ul>
+          <li>年間ゴール／KGI／KPI／Todo／週次／結果・FB・AI相談履歴 すべて含まれる</li>
+          <li>そのままAIに貼って相談できる形式</li>
+          <li>管理者が他の受講生のシートを開いた時も、その受講生のデータをコピー可能</li>
+        </ul>
+        <h5>📋 個別セルの右クリックコピー</h5>
+        <p>任意のテキスト欄（KPI / Todo / FB など）を <strong>右クリック</strong> すると、ポップアップメニュー：</p>
+        <ul>
+          <li><strong>📋 この内容をコピー</strong> — その欄の全テキストをコピー</li>
+          <li><strong>✂ 選択範囲だけコピー</strong> — マウスで選択した範囲だけ（選択時のみ表示）</li>
+        </ul>
+        <h5>🔗 公開リンクをコピー</h5>
+        <p>自分のシートのリンクを共有可能。リンクを開いた人は <strong>ログインなしで閲覧</strong> できます（読み取り専用）。</p>
+        <div class="info">⚠️ <strong>注意</strong>：公開リンクは誰でも開けます。共有先には注意してください。</div>
       </div>
 
       <!-- 講師（管理者）向け -->
@@ -3615,6 +4318,8 @@
     targetValue: '',
     currentValue: '',
     lowerIsBetter: false,
+    feedback: '',
+    feedbackStatus: 'unread', // 'unread' | 'confirmed' | 'resolved'
     ...extra,
   });
   const defaultState = () => ({
@@ -3661,7 +4366,7 @@
       }
       if (old.todos) {
         [1,2,3].forEach(k => {
-          d.todos[k] = (old.todos[k] || []).map(t => ({ id: newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
+          d.todos[k] = (old.todos[k] || []).map(t => ({ id: newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, routineWeeks: (t.routineWeeks === 'first' || t.routineWeeks === 'last' || Array.isArray(t.routineWeeks)) ? t.routineWeeks : null, details: t.details || '', feedback: t.feedback || '', feedbackStatus: t.feedbackStatus || 'unread', aiHistory: t.aiHistory || '' }));
         });
       }
       if (old.weeks) {
@@ -3690,6 +4395,8 @@
       targetValue: g.targetValue ?? '',
       currentValue: g.currentValue ?? '',
       lowerIsBetter: !!g.lowerIsBetter,
+      feedback: g.feedback || '',
+      feedbackStatus: g.feedbackStatus || 'unread',
       ...(isKgi ? {} : { issue: g.issue || '', solution: g.solution || '' }),
     };
   }
@@ -3743,7 +4450,7 @@
         derivePeriodFields(merged, merged.period);
         // ensure todo ids
         TODO_KEYS.forEach(k => {
-          merged.todos[k] = (merged.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
+          merged.todos[k] = (merged.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, routineWeeks: (t.routineWeeks === 'first' || t.routineWeeks === 'last' || Array.isArray(t.routineWeeks)) ? t.routineWeeks : null, details: t.details || '', feedback: t.feedback || '', feedbackStatus: t.feedbackStatus || 'unread', aiHistory: t.aiHistory || '' }));
         });
         // ensure week shape
         merged.weeks = merged.weeks.map((w, i) => ({
@@ -3753,6 +4460,7 @@
           planNote: w.planNote ?? (w.plan || ''),
           done: w.done || '',
           review: w.review || '',
+          feedback: w.feedback || '',
         }));
         return merged;
       }
@@ -3824,6 +4532,12 @@
               <div class="rich-display collapsed">${g.solution ? renderRichText(g.solution) : '<span class="rich-placeholder">課題を解決する方法・アクションを入力（クリックで全文表示・編集）</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
             </div>
           </div>
+          <div class="kpi-row feedback-row">
+            <div class="lbl">💬 FB${g.feedback ? feedbackStatusBadge(g.feedbackStatus) : ''}</div>
+            <div class="rich-field-wrap goal-rich-field feedback-field" data-goal="${k}" data-field="feedback" data-label="💬 FB" data-act="goal-text-expand">
+              <div class="rich-display collapsed">${g.feedback ? renderRichText(g.feedback) : '<span class="rich-placeholder">受講生本人＋管理者の両方が記入できるFB欄（クリックで編集／署名・日時自動付与）</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+            </div>
+          </div>
           <div class="metric-block">
             <div class="mlabel">
               <span>📊 数値で測る</span>
@@ -3854,6 +4568,86 @@
 
   // ===== Todos =====
   const PRIORITY_LABELS = { high: '大', medium: '中', low: '小', none: '—' };
+  // Routine button display logic. routineWeeks can be:
+  //  - null/undefined → 毎週 ("🔁毎")
+  //  - [0..3] → 第N週のみ ("🔁1" "🔁2" "🔁3" "🔁4")
+  //  - 'first' → 月初(第1週) ("🔁初") — alias to [0] but visually distinct
+  //  - 'last' → 月末(第4週) ("🔁末") — alias to [3] but visually distinct
+  function routineLabel(t) {
+    if (!t.routine) return '🔁';
+    const rw = t.routineWeeks;
+    if (rw === 'first') return '🔁初';
+    if (rw === 'last') return '🔁末';
+    if (!Array.isArray(rw) || rw.length === 0) return '🔁毎';
+    if (rw.length === 1) return `🔁${rw[0] + 1}`;
+    return '🔁' + rw.map(i => i + 1).join(',');
+  }
+  // 略語でない長いラベル版（チップ用）
+  function routineLabelLong(t) {
+    if (!t.routine) return '🔁';
+    const rw = t.routineWeeks;
+    if (rw === 'first') return '🔁月初';
+    if (rw === 'last') return '🔁月末';
+    if (!Array.isArray(rw) || rw.length === 0) return '🔁毎週';
+    if (rw.length === 1) return `🔁第${rw[0] + 1}週`;
+    return '🔁' + rw.map(i => `第${i + 1}週`).join('・');
+  }
+  // Cycle: off → 毎週 → 第1週 → 第2週 → 第3週 → 第4週 → 月初 → 月末 → off
+  function cycleRoutineState(t) {
+    if (!t.routine) {
+      t.routine = true; t.routineWeeks = null; // 毎週
+      return;
+    }
+    const rw = t.routineWeeks;
+    if (rw === null || rw === undefined || (Array.isArray(rw) && rw.length === 0)) {
+      t.routineWeeks = [0]; return; // 第1週
+    }
+    if (Array.isArray(rw) && rw.length === 1) {
+      const wi = rw[0];
+      if (wi < 3) { t.routineWeeks = [wi + 1]; return; } // 第2/3/4週
+      // 第4週 → 月初
+      t.routineWeeks = 'first'; return;
+    }
+    if (rw === 'first') {
+      t.routineWeeks = 'last'; return; // 月初 → 月末
+    }
+    if (rw === 'last') {
+      t.routine = false; t.routineWeeks = null; return; // 月末 → OFF
+    }
+    // それ以外
+    t.routine = false; t.routineWeeks = null;
+  }
+  // Determine which week indices (0-based across all weeks) this routine Todo should be in
+  function isRoutineApplicableToWeek(routineWeeks, weekIdx) {
+    // routineWeeks: null = every week, [N] = monthly Nth week (wi%4 === N), 'first'/'last' alias
+    if (routineWeeks === null || routineWeeks === undefined || (Array.isArray(routineWeeks) && routineWeeks.length === 0)) return true;
+    if (routineWeeks === 'first') return (weekIdx % 4) === 0;
+    if (routineWeeks === 'last') return (weekIdx % 4) === 3;
+    if (Array.isArray(routineWeeks)) return routineWeeks.includes(weekIdx % 4);
+    return false;
+  }
+  // Apply routine settings to the current period weeks immediately.
+  // - If routine ON & weeks match → ensure Todo is in that week's planTodoIds
+  // - If routine OFF or week doesn't match → remove from that week's planTodoIds (only if it was added by routine)
+  // This keeps the user's manual additions intact: we only auto-add when routine matches,
+  // and remove from non-matching weeks when routine state changes.
+  function applyRoutineToCurrentPeriod(todo) {
+    if (!todo || !todo.id) return;
+    const id = todo.id;
+    const isOn = !!todo.routine;
+    (state.weeks || []).forEach((w, wi) => {
+      const planIds = Array.isArray(w.planTodoIds) ? w.planTodoIds : [];
+      const has = planIds.includes(id);
+      const shouldHave = isOn && isRoutineApplicableToWeek(todo.routineWeeks, wi);
+      if (shouldHave && !has) {
+        w.planTodoIds = [...planIds, id];
+      } else if (!shouldHave && has && isOn) {
+        // OnだがこのwiはNG → 除外（routine設定変更時のクリーンアップ）
+        w.planTodoIds = planIds.filter(x => x !== id);
+      }
+      // routine OFF時はユーザーが手動追加した可能性があるので除外しない
+    });
+  }
   const PRIORITY_NEXT = { none: 'high', high: 'medium', medium: 'low', low: 'none' };
   const PRIORITY_ORDER = { high: 0, medium: 1, low: 2, none: 3 };
   const priorityRank = (p) => PRIORITY_ORDER[p || 'none'] ?? 3;
@@ -3874,66 +4668,162 @@
   const openTodoDetails = new Set();
 
   // ===== Rich text rendering (markdown subset + URL auto-link) =====
-  // Supports: H1-H6, **bold**, *italic*, `code`, lines starting with "- " or "* " as ul,
-  // numbered lists "1. xxx" as ol, horizontal rules "---", URLs auto-linkified, newlines → <br>
+  // Supports: H1-H6, **bold**, *italic*, `code`, ```code blocks```, "- "/"* " ul,
+  // "1. "/"2) " ol, "> " blockquotes, Markdown tables, "---" hr, URL auto-link.
   function renderRichText(text) {
     if (text === null || text === undefined || text === '') return '';
     let s = String(text);
     // 1) HTML escape first
     s = s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-    // 2) Process line-by-line for block-level elements (heading / list / hr)
+    // 2) Process line-by-line for block-level elements
     const lines = s.split('\n');
     let listType = null; // 'ul' | 'ol' | null
+    let inBlockquote = false;
+    let inCodeBlock = false;
+    let codeLang = '';
+    let codeLines = [];
+    let tableBuf = null; // { headers, aligns, rows } when accumulating a table
     const out = [];
     const closeList = () => { if (listType) { out.push(`</${listType}>`); listType = null; } };
-    for (let line of lines) {
-      // Horizontal rule: "---" or "***" on its own line
+    const closeBlockquote = () => { if (inBlockquote) { out.push('</blockquote>'); inBlockquote = false; } };
+    const flushTable = () => {
+      if (!tableBuf) return;
+      const { headers, aligns, rows } = tableBuf;
+      const alignStyle = (i) => aligns[i] && aligns[i] !== 'left' ? ` style="text-align:${aligns[i]};"` : '';
+      let html = '<table class="rich-table"><thead><tr>';
+      headers.forEach((h, i) => { html += `<th${alignStyle(i)}>${h}</th>`; });
+      html += '</tr></thead><tbody>';
+      rows.forEach(r => {
+        html += '<tr>';
+        r.forEach((c, i) => { html += `<td${alignStyle(i)}>${c}</td>`; });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      out.push(html);
+      tableBuf = null;
+    };
+    // Helper: split a markdown table row "| a | b | c |" into ['a','b','c']
+    const splitTableRow = (line) => {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('|')) return null;
+      // Remove leading and trailing pipe, then split by | not preceded by \
+      const body = trimmed.replace(/^\||\|$/g, '');
+      return body.split('|').map(c => c.trim());
+    };
+    // Detect alignment from separator row: |---|:---:|---:|
+    const detectAligns = (sepRow) => {
+      return sepRow.map(c => {
+        const lc = c.startsWith(':');
+        const rc = c.endsWith(':');
+        if (lc && rc) return 'center';
+        if (rc) return 'right';
+        return 'left';
+      });
+    };
+    for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+      let line = lines[lineIdx];
+      // Fenced code block: ```lang
+      const fence = line.match(/^```(\w*)\s*$/);
+      if (fence) {
+        if (inCodeBlock) {
+          out.push(`<pre class="rich-code"><code${codeLang ? ' class="lang-' + codeLang + '"' : ''}>${codeLines.join('\n')}</code></pre>`);
+          inCodeBlock = false; codeLang = ''; codeLines = [];
+        } else {
+          flushTable(); closeList(); closeBlockquote();
+          inCodeBlock = true; codeLang = fence[1] || '';
+        }
+        continue;
+      }
+      if (inCodeBlock) { codeLines.push(line); continue; }
+      // Markdown table detection: if a line looks like "| ... | ..." and next line is separator
+      const isTableRow = /^\s*\|.+\|\s*$/.test(line);
+      const isSeparator = /^\s*\|[\s\-:|]+\|\s*$/.test(line);
+      if (tableBuf) {
+        if (isTableRow && !isSeparator) {
+          const cells = splitTableRow(line);
+          if (cells) { tableBuf.rows.push(cells); continue; }
+        }
+        // End of table — flush
+        flushTable();
+      } else if (isTableRow && lineIdx + 1 < lines.length && /^\s*\|[\s\-:|]+\|\s*$/.test(lines[lineIdx + 1])) {
+        const headers = splitTableRow(line);
+        const sep = splitTableRow(lines[lineIdx + 1]);
+        if (headers && sep) {
+          const aligns = detectAligns(sep);
+          tableBuf = { headers, aligns, rows: [] };
+          lineIdx++; // skip separator
+          closeList(); closeBlockquote();
+          continue;
+        }
+      }
+      // Horizontal rule
       if (/^\s*(---|\*\*\*|___)\s*$/.test(line)) {
-        closeList();
+        closeList(); closeBlockquote(); flushTable();
         out.push('<hr class="rich-hr">');
         continue;
       }
-      // Heading: 1-6 #
+      // Heading
       const h = line.match(/^(#{1,6})\s+(.+)$/);
       if (h) {
-        closeList();
+        closeList(); closeBlockquote(); flushTable();
         const level = h[1].length;
         out.push(`<h${level} class="rich-h rich-h${level}">${h[2]}</h${level}>`);
         continue;
       }
-      // Unordered list: "- " or "* " or "・ "
+      // Blockquote: "> " (note: > has already been escaped to &gt; by step 1)
+      const bq = line.match(/^[\s]*(?:>|&gt;)\s?(.*)$/);
+      if (bq) {
+        closeList(); flushTable();
+        if (!inBlockquote) { out.push('<blockquote class="rich-bq">'); inBlockquote = true; }
+        out.push(bq[1]);
+        continue;
+      }
+      closeBlockquote();
+      // Unordered list
       const ul = line.match(/^[\s]*[-*・][\s]+(.+)$/);
       if (ul) {
+        flushTable();
         if (listType !== 'ul') { closeList(); out.push('<ul>'); listType = 'ul'; }
         out.push('<li>' + ul[1] + '</li>');
         continue;
       }
-      // Ordered list: "1. " "2) " etc.
+      // Ordered list
       const ol = line.match(/^[\s]*\d+[.)][\s]+(.+)$/);
       if (ol) {
+        flushTable();
         if (listType !== 'ol') { closeList(); out.push('<ol>'); listType = 'ol'; }
         out.push('<li>' + ol[1] + '</li>');
         continue;
       }
-      // Regular line: close any active list
+      // Regular line: close active list, output as-is
       closeList();
       out.push(line);
     }
-    closeList();
+    closeList(); closeBlockquote(); flushTable();
+    if (inCodeBlock) {
+      out.push(`<pre class="rich-code"><code${codeLang ? ' class="lang-' + codeLang + '"' : ''}>${codeLines.join('\n')}</code></pre>`);
+    }
     s = out.join('\n');
-    // 3) URL auto-link (must precede inline emphasis)
+    // 3) URL auto-link
     s = s.replace(/(https?:\/\/[^\s<>"']+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="rich-link">$1</a>');
-    // 4) Code spans `...`
+    // 4) Inline code `...`
     s = s.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
-    // 5) Bold **...**
-    s = s.replace(/\*\*([^*\n][^*\n]*?)\*\*/g, '**$1**');
+    // 5) Bold **...** (PROPERLY render as <strong>)
+    s = s.replace(/\*\*([^*\n]+?)\*\*/g, '<strong>$1</strong>');
     // 6) Italic *...*
     s = s.replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>');
-    // 7) Newlines → <br> (outside of structured block elements)
-    s = s.replace(/\n(?!<\/?(?:ul|ol|li|h[1-6]|hr))/g, '<br>');
-    // Clean up extra <br> adjacent to block elements
-    s = s.replace(/<\/(ul|ol|h[1-6]|hr)><br>/g, '</$1>');
-    s = s.replace(/<br>(<(?:ul|ol|h[1-6]|hr))/g, '$1');
+    // 7) Newlines → <br> outside structured blocks
+    // First, protect code blocks: replace their internal \n with placeholder
+    s = s.replace(/<pre class="rich-code"><code([^>]*)>([\s\S]*?)<\/code><\/pre>/g, (m, attrs, body) => {
+      // Keep raw newlines inside code blocks (no <br>)
+      return `<pre class="rich-code"><code${attrs}>${body.replace(/\n/g, '\u0000NL\u0000')}</code></pre>`;
+    });
+    s = s.replace(/\n(?!<\/?(?:ul|ol|li|h[1-6]|hr|blockquote|pre|table|thead|tbody|tr|td|th))/g, '<br>');
+    // Restore code-block newlines
+    s = s.replace(/\u0000NL\u0000/g, '\n');
+    // Clean up extra <br>
+    s = s.replace(/<\/(ul|ol|h[1-6]|hr|blockquote|pre|table)><br>/g, '</$1>');
+    s = s.replace(/<br>(<(?:ul|ol|h[1-6]|hr|blockquote|pre|table))/g, '$1');
     return s;
   }
 
@@ -3985,15 +4875,18 @@
       : '';
     const isOpen = openTodoDetails.has(t.id);
     const hasDetails = !!(t.details && t.details.trim());
+    const isPending = !isHistory && t.done && _pendingComplete.has(t.id);
+    const pendingBadge = isPending ? `<span class="todo-pending-badge" title="5秒以内にチェックを外せば取消可">✓ 5秒以内に取消可</span>` : '';
     return `
-    <div class="todo-item-wrap ${isOpen ? 'open' : ''}" data-id="${t.id}">
+    <div class="todo-item-wrap ${isOpen ? 'open' : ''} ${isPending ? 'pending-complete' : ''}" data-id="${t.id}">
       <div class="todo-item ${t.done ? 'done' : ''} ${priClass} ${otherCls}" draggable="true" data-id="${t.id}" data-kpi="${k}">
         <span class="drag-handle" title="ドラッグで並び替え">⋮⋮</span>
         <input type="checkbox" data-id="${t.id}" data-act="check" ${t.done ? 'checked' : ''} />
         <textarea class="autosize todo-text" data-id="${t.id}" data-act="text" placeholder="Todoを入力" rows="1">${esc(t.text)}</textarea>
         <button class="todo-detail-toggle ${hasDetails ? 'has-content' : ''}" data-id="${t.id}" data-act="toggle-detail" title="詳細・リンクを${isOpen ? '閉じる' : '開く'}（クリックで何をどうするか書ける）">${isOpen ? '▼' : '▶'}${hasDetails ? '📝' : '＋'}</button>
         <button class="priority-btn ${priClass}" data-id="${t.id}" data-act="cycle-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
-        <button class="routine-btn ${t.routine ? 'active' : ''}" data-id="${t.id}" data-act="cycle-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックでON/OFF）">🔁</button>
+        <button class="routine-btn ${t.routine ? 'active' : ''}" data-id="${t.id}" data-act="cycle-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックで状態切替: OFF→毎週→1週目→2週目→3週目→4週目→OFF）">${routineLabel(t)}</button>
+        ${pendingBadge}
         ${completedMeta}
         <button data-id="${t.id}" data-act="del" title="削除"
           style="border:none;background:transparent;cursor:pointer;color:var(--muted);font-size:14px;">×</button>
@@ -4003,18 +4896,49 @@
         <div class="rich-field-wrap todo-detail-field" data-todoid="${t.id}" data-field="details" data-act="todo-detail-expand">
           <div class="rich-display todo-detail-display collapsed">${t.details ? renderRichText(t.details) : '<span class="rich-placeholder">具体的にやることや参考リンクを書く（例: 「○○さんに連絡 - https://example.com の資料を見てから提案」）。**太字** / *斜体* / # 見出し / URL自動リンク 対応</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
         </div>
+        <div class="todo-detail-label" style="margin-top:10px;">💬 FB（受講生・管理者の双方が記入可）${t.feedback ? feedbackStatusBadge(t.feedbackStatus) : ''}</div>
+        <div class="rich-field-wrap todo-detail-field feedback-field" data-todoid="${t.id}" data-field="feedback" data-act="todo-detail-expand">
+          <div class="rich-display todo-detail-display collapsed">${t.feedback ? renderRichText(t.feedback) : '<span class="rich-placeholder">FB欄(クリックで編集／署名・日時自動付与)</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+        </div>
+        <div class="todo-detail-label" style="margin-top:10px;">🤖 AI相談履歴（ChatGPT/Claudeの回答を貼り付けて履歴化）</div>
+        <div class="rich-field-wrap todo-detail-field ai-history-field" data-todoid="${t.id}" data-field="aiHistory" data-act="todo-detail-expand">
+          <div class="rich-display todo-detail-display collapsed">${t.aiHistory ? renderRichText(t.aiHistory) : '<span class="rich-placeholder">AI相談結果を貼り付け(Markdownで自動整形・表/見出し/太字対応)</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+        </div>
       </div>
     </div>
   `;
+  }
+
+  // ===== Todoチェック後の5秒猶予 =====
+  // チェック時、todo.idを_pendingCompleteに登録 → 5秒の間は完了リストへ移動せず active 側に残す
+  // 5秒経過後、自動で renderTodos() し直して移動。途中で uncheck すれば即座に解除。
+  const _pendingComplete = new Map(); // id → timeoutId
+  const PENDING_COMPLETE_MS = 5000;
+  function startPendingComplete(id) {
+    // Clear existing timer
+    if (_pendingComplete.has(id)) clearTimeout(_pendingComplete.get(id));
+    const tid = setTimeout(() => {
+      _pendingComplete.delete(id);
+      renderTodos();
+      renderWeeks();
+    }, PENDING_COMPLETE_MS);
+    _pendingComplete.set(id, tid);
+  }
+  function cancelPendingComplete(id) {
+    if (_pendingComplete.has(id)) {
+      clearTimeout(_pendingComplete.get(id));
+      _pendingComplete.delete(id);
+    }
   }
 
   function renderTodos() {
     let totalDone = 0, totalAll = 0;
     TODO_KEYS.forEach(k => {
       const list = state.todos[k] || [];
-      // Active todos: sort by priority (大→中→小→なし), stable within same priority (drag order preserved)
-      const active = sortByPriorityStable(list.filter(t => !t.done));
-      const done = list.filter(t => t.done);
+      // Pending(チェック後5秒以内)のTodoは active 側に残す
+      const isPending = (t) => _pendingComplete.has(t.id);
+      const active = sortByPriorityStable(list.filter(t => !t.done || isPending(t)));
+      const done = list.filter(t => t.done && !isPending(t));
       // Sort completed by completedAt desc (newest first)
       done.sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
       totalDone += done.length; totalAll += list.length;
@@ -4038,6 +4962,8 @@
     $('todo-summary').textContent = totalAll ? `全体 ${totalDone} / ${totalAll} 完了` : '—';
     // Refresh the overdue/today stats card
     renderOverdueStats();
+    // Refresh the routine banner counts
+    if (typeof updateRoutineBanner === 'function') updateRoutineBanner();
   }
 
   // Render the stats card showing completion of past+today weeks' Todos
@@ -4195,6 +5121,7 @@
               <input type="checkbox" class="chip-check" data-todoid="${todo.id}" data-act="chip-check" ${todo.done ? 'checked' : ''} title="完了/未完了を切り替え" />
               <span class="chip-text">${esc(todo.text || '(未入力)')}</span>
               <button class="chip-prio ${priClass}" data-todoid="${todo.id}" data-act="cycle-chip-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
+              <button class="chip-routine ${todo.routine ? 'active' : ''}" data-todoid="${todo.id}" data-act="cycle-chip-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックで状態切替: OFF→毎週→1週目→2週目→3週目→4週目→月初→月末→OFF）">${routineLabelLong(todo)}</button>
               <button class="chip-detail ${todo.details && todo.details.trim() ? 'has-content' : ''}" data-todoid="${todo.id}" data-act="chip-detail-open" title="このTodoの詳細メモ・リンクを開く（クリックで全文表示・編集）">${todo.details && todo.details.trim() ? '📝' : '＋'}</button>
               <button class="chip-cal" data-week="${wi}" data-todoid="${todo.id}" data-act="todo-calendar" title="このTodoをカレンダーに登録（1時間枠）">📅</button>
               <button class="chip-x" data-week="${wi}" data-todoid="${todo.id}" data-act="unpick" title="この週から外す">×</button>
@@ -4252,8 +5179,9 @@
                   ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="uncheck-week" title="この週のTodoのチェックを外す">☐ レ点を外す</button>` : ''}
                 </div>
               </div>
+              <button class="plan-pick-btn plan-pick-btn-top" data-week="${wi}" data-act="pick">➕ Todoから選ぶ</button>
               <div class="plan-chips">${chips}</div>
-              <button class="plan-pick-btn" data-week="${wi}" data-act="pick">＋ Todoから選ぶ</button>
+              <button class="plan-pick-btn plan-pick-btn-bottom" data-week="${wi}" data-act="pick">➕ Todoから選ぶ</button>
               <div class="rich-field-wrap" data-week="${wi}" data-field="planNote" data-label="自由メモ" data-act="rich-expand">
                 <div class="rich-display collapsed">${w.planNote ? renderRichText(w.planNote) : '<span class="rich-placeholder">自由メモ（任意） — クリックして全文表示・編集。**太字** / # 見出し / URL自動リンクなど対応</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
               </div>
@@ -4266,6 +5194,12 @@
               <div class="week-field-label">💭 振り返り（理由・改善案・気付き — クリックで全文表示・編集）</div>
               <div class="rich-field-wrap" data-week="${wi}" data-field="review" data-label="振り返り" data-act="rich-expand">
                 <div class="rich-display collapsed">${w.review ? renderRichText(w.review) : '<span class="rich-placeholder">振り返り — クリックして全文表示・編集。**太字** / # 見出し / URL自動リンクなど対応</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+              </div>
+            </div>
+            <div class="week-field">
+              <div class="week-field-label">💬 FB（受講生・管理者の双方が記入可 — クリックで全文表示・編集）${w.feedback ? feedbackStatusBadge(w.feedbackStatus) : ''}</div>
+              <div class="rich-field-wrap feedback-field" data-week="${wi}" data-field="feedback" data-label="💬 FB" data-act="rich-expand">
+                <div class="rich-display collapsed">${w.feedback ? renderRichText(w.feedback) : '<span class="rich-placeholder">FB欄(クリックで編集／署名・日時自動付与)</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
               </div>
             </div>
           </div>
@@ -4452,6 +5386,15 @@
     if (kgiCV) kgiCV.value = formatLiveValue(g.currentValue, g.unit || 'none');
     if (kgiTV) kgiTV.value = formatLiveValue(g.targetValue, g.unit || 'none');
     if (kgiLB) kgiLB.checked = !!g.lowerIsBetter;
+    // KGI feedback display
+    const kgiFbDisp = $('kgi-feedback-display');
+    if (kgiFbDisp) {
+      kgiFbDisp.innerHTML = (g.feedback ? renderRichText(g.feedback) : '<span class="rich-placeholder">受講生本人＋管理者の両方が記入できる(クリックで編集)</span>') + '<span class="rich-expand-hint">クリックで全文＋編集</span>';
+    }
+    const kgiFbBadge = $('kgi-feedback-badge');
+    if (kgiFbBadge) {
+      kgiFbBadge.innerHTML = g.feedback ? feedbackStatusBadge(g.feedbackStatus) : '';
+    }
     // Period auto-display
     const periodDisp = $('kgi-period-display');
     if (periodDisp) periodDisp.textContent = '期間：' + (formatPeriodDisplay(state.period) || '—');
@@ -4461,17 +5404,159 @@
     renderResults();
     updateArchiveSelect();
     autoResizeAll();
+    applyReadonlyToInputs();
   }
 
-  // Auto-resize textareas to fit content
+  // Toggle input/textarea readonly attr based on body.readonly state.
+  // CSSのpointer-eventsだけだとフォーカス可能になっているので、ここで readonly属性も付ける。
+  // 結果: 文字選択(コピー)はできるが、編集はできない。
+  // ===== 右クリックコピーメニュー =====
+  // 各テキスト要素を右クリックすると「コピー」メニューが出る。
+  // 通常のブラウザの右クリックメニューはそのまま使えるので追加メニュー扱い。
+  let _copyMenuEl = null;
+  function closeCopyMenu() {
+    if (_copyMenuEl) { _copyMenuEl.remove(); _copyMenuEl = null; }
+  }
+  function getElementCopyText(el) {
+    // Get appropriate text content based on element type
+    if (!el) return '';
+    if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') return el.value || '';
+    // For rich-display: prefer the corresponding state value (preserve markdown)
+    const wrap = el.closest('.rich-field-wrap');
+    if (wrap) {
+      if (wrap.dataset.week !== undefined) {
+        const w = state.weeks[+wrap.dataset.week];
+        return (w && w[wrap.dataset.field]) || el.innerText || '';
+      } else if (wrap.dataset.todoid) {
+        const f = findTodoById(wrap.dataset.todoid);
+        return (f && f.todo[wrap.dataset.field]) || el.innerText || '';
+      } else if (wrap.dataset.goal) {
+        const g = state.goals[wrap.dataset.goal];
+        return (g && g[wrap.dataset.field]) || el.innerText || '';
+      }
+    }
+    return el.innerText || el.textContent || '';
+  }
+  document.addEventListener('contextmenu', (e) => {
+    // Find relevant element: text container or input
+    const el = e.target.closest('textarea, input[type="text"], .rich-display, .chip-text, .week-card-title, .annual-target-input, .kgi-target-input, .kpi-target-input2, .annual-current-input, .kgi-current-input, .done-auto-item .label, .name');
+    if (!el) return;
+    const text = getElementCopyText(el);
+    if (!text || !text.trim()) return; // 空ならスキップ → ブラウザ標準
+    e.preventDefault();
+    closeCopyMenu();
+    const menu = document.createElement('div');
+    menu.className = 'copy-context-menu';
+    // Position
+    menu.style.left = Math.min(e.clientX, window.innerWidth - 240) + 'px';
+    menu.style.top = Math.min(e.clientY, window.innerHeight - 100) + 'px';
+    // Buttons
+    const cBtn = document.createElement('button');
+    cBtn.textContent = '📋 この内容をコピー';
+    cBtn.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(text); } catch {}
+      closeCopyMenu();
+    });
+    menu.appendChild(cBtn);
+    // Selected text (if any) copy
+    const sel = window.getSelection();
+    const selText = sel ? String(sel) : '';
+    if (selText.trim()) {
+      const sBtn = document.createElement('button');
+      sBtn.textContent = '✂ 選択範囲だけコピー';
+      sBtn.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(selText); } catch {}
+        closeCopyMenu();
+      });
+      menu.appendChild(sBtn);
+    }
+    // Divider + "ブラウザの右クリックメニューを使う" (cancel)
+    const div = document.createElement('div');
+    div.className = 'menu-divider';
+    menu.appendChild(div);
+    const xBtn = document.createElement('button');
+    xBtn.textContent = '✕ キャンセル';
+    xBtn.style.color = 'var(--muted)';
+    xBtn.addEventListener('click', closeCopyMenu);
+    menu.appendChild(xBtn);
+    document.body.appendChild(menu);
+    _copyMenuEl = menu;
+  });
+  // Close menu on outside click / scroll / Escape
+  document.addEventListener('click', (e) => {
+    if (_copyMenuEl && !_copyMenuEl.contains(e.target)) closeCopyMenu();
+  });
+  document.addEventListener('scroll', closeCopyMenu, true);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCopyMenu(); });
+
+  // Render the feedback status badge inline
+  function feedbackStatusBadge(status) {
+    const map = {
+      unread: { cls: 'unread', label: '🔴 未確認' },
+      confirmed: { cls: 'confirmed', label: '🟡 確認済' },
+      resolved: { cls: 'resolved', label: '🟢 解決済' },
+    };
+    const s = map[status] || map.unread;
+    return `<span class="feedback-status-badge ${s.cls}">${s.label}</span>`;
+  }
+
+  function applyReadonlyToInputs() {
+    const isRO = document.body.classList.contains('readonly');
+    document.querySelectorAll('main input, main textarea, main select').forEach(el => {
+      if (isRO) {
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+          el.setAttribute('readonly', 'readonly');
+        }
+        if (el.tagName === 'SELECT' || el.type === 'checkbox') {
+          el.setAttribute('disabled', 'disabled');
+        }
+      } else {
+        el.removeAttribute('readonly');
+        // disabled は他の理由で付いている可能性があるので、自分が付けたとわかるケースのみ消す
+        if (el.tagName === 'SELECT' || el.type === 'checkbox') {
+          el.removeAttribute('disabled');
+        }
+      }
+    });
+  }
+
+  // Auto-resize textareas to fit content.
+  // - Clamp height to ~4 rows of line-height by default
+  // - When focused: allow full height (up to 20 rows)
+  // - When blurred: clamp back
   function autoResize(el) {
     if (!el || el.tagName !== 'TEXTAREA') return;
     el.style.height = 'auto';
-    el.style.height = (el.scrollHeight + 2) + 'px';
+    // Approximate single-line height = font-size * 1.5 (line-height baseline)
+    const cs = getComputedStyle(el);
+    const fontSize = parseFloat(cs.fontSize) || 13;
+    const lineH = parseFloat(cs.lineHeight) || (fontSize * 1.5);
+    // Max rows
+    const isFocused = (document.activeElement === el);
+    const maxRows = isFocused ? 20 : 4;
+    const maxPx = lineH * maxRows + 12; // padding
+    const desired = el.scrollHeight + 2;
+    if (desired > maxPx) {
+      el.style.height = maxPx + 'px';
+      el.style.overflowY = 'auto';
+      el.dataset.clamped = '1';
+    } else {
+      el.style.height = desired + 'px';
+      el.style.overflowY = 'hidden';
+      el.dataset.clamped = '';
+    }
   }
   function autoResizeAll() {
     document.querySelectorAll('textarea').forEach(autoResize);
   }
+  // Re-clamp on focus/blur so that single textareas show only ~4 rows by default
+  // but expand when actually being edited.
+  document.addEventListener('focusin', (e) => {
+    if (e.target && e.target.tagName === 'TEXTAREA') autoResize(e.target);
+  });
+  document.addEventListener('focusout', (e) => {
+    if (e.target && e.target.tagName === 'TEXTAREA') autoResize(e.target);
+  });
 
   // ===== Events =====
   // Numeric fields that need half-width conversion
@@ -4606,16 +5691,30 @@
     if (t.dataset.act === 'check' && t.dataset.id) {
       const f = findTodoById(t.dataset.id);
       if (f) {
+        const wasDone = !!f.todo.done;
         f.todo.done = t.checked;
         f.todo.completedAt = t.checked ? Date.now() : null;
+        // チェックON → 5秒猶予を開始（誤チェック取消用）
+        if (t.checked && !wasDone) {
+          startPendingComplete(f.todo.id);
+        } else if (!t.checked) {
+          // 取消 → 猶予タイマーキャンセル
+          cancelPendingComplete(f.todo.id);
+        }
         save(); renderTodos(); renderWeeks();
       }
     } else if (t.dataset.act === 'chip-check' && t.dataset.todoid) {
       // Chip checkbox toggles the underlying Todo (synced with upper Todo list)
       const f = findTodoById(t.dataset.todoid);
       if (f) {
+        const wasDone = !!f.todo.done;
         f.todo.done = t.checked;
         f.todo.completedAt = t.checked ? Date.now() : null;
+        if (t.checked && !wasDone) {
+          startPendingComplete(f.todo.id);
+        } else if (!t.checked) {
+          cancelPendingComplete(f.todo.id);
+        }
         save(); renderTodos(); renderWeeks();
       }
     } else if (t.dataset.act === 'pick-check') {
@@ -4777,7 +5876,7 @@
       const rawK = t.dataset.kpi;
       const k = (rawK === 'other') ? 'other' : +rawK;
       if (!state.todos[k]) state.todos[k] = [];
-      state.todos[k].push({ id: newId(), text: '', done: false, priority: 'none', completedAt: null, routine: false, details: '' });
+      state.todos[k].push({ id: newId(), text: '', done: false, priority: 'none', completedAt: null, routine: false, routineWeeks: null, details: '', feedback: '', feedbackStatus: 'unread', aiHistory: '' });
       save(); renderTodos();
       setTimeout(() => {
         const containerId = (k === 'other') ? 'todo-other' : `todo-${k}`;
@@ -4805,8 +5904,10 @@
     } else if (t.dataset.act === 'cycle-routine' && t.dataset.id) {
       const found = findTodoById(t.dataset.id);
       if (found) {
-        found.todo.routine = !found.todo.routine;
-        save(); renderTodos();
+        cycleRoutineState(found.todo);
+        // 自動: ルーティン設定に従って現在期間の週に反映
+        applyRoutineToCurrentPeriod(found.todo);
+        save(); renderTodos(); renderWeeks();
       }
     } else if (t.dataset.act === 'toggle-detail' && t.dataset.id) {
       e.stopPropagation();
@@ -4845,6 +5946,15 @@
         // Update visuals in-place for immediate feedback, schedule the sort 3s later
         updatePriorityVisualInPlace(found.todo.id, next);
         scheduleSortAfterDelay();
+      }
+    } else if (t.dataset.act === 'cycle-chip-routine' && t.dataset.todoid) {
+      e.stopPropagation();
+      const found = findTodoById(t.dataset.todoid);
+      if (found) {
+        cycleRoutineState(found.todo);
+        // 自動: ルーティン設定に従って現在期間の週に反映
+        applyRoutineToCurrentPeriod(found.todo);
+        save(); renderTodos(); renderWeeks();
       }
     } else if (t.dataset.act === 'pick') {
       openPicker(+t.dataset.week);
@@ -5049,6 +6159,214 @@
     }
   });
 
+  // ===== ルーティン一覧モーダル =====
+  let routineFilterMode = 'all';
+  function renderRoutineList() {
+    const container = $('routine-list-content');
+    if (!container) return;
+    const items = [];
+    TODO_KEYS.forEach(k => {
+      (state.todos[k] || []).forEach(t => {
+        if (!t.routine) return;
+        const kpiLabel = k === 'other' ? 'その他' : `KPI${['①','②','③'][k-1]}`;
+        const rw = t.routineWeeks;
+        let freqLabel = '毎週';
+        let freqKey = 'every';
+        if (rw === 'first') { freqLabel = '月初'; freqKey = 'first'; }
+        else if (rw === 'last') { freqLabel = '月末'; freqKey = 'last'; }
+        else if (Array.isArray(rw) && rw.length === 1) {
+          freqLabel = `第${rw[0]+1}週`;
+          freqKey = `w${rw[0]+1}`;
+        } else if (Array.isArray(rw) && rw.length > 1) {
+          freqLabel = rw.map(i => i+1).join('・') + '週';
+          freqKey = 'multi';
+        }
+        const pri = t.priority === 'high' ? '🔴大' : t.priority === 'medium' ? '🟠中' : t.priority === 'low' ? '🟢小' : '—';
+        items.push({
+          kpiKey: k, kpiLabel, text: t.text || '(未入力)', freqLabel, freqKey,
+          priority: pri, todoId: t.id, done: !!t.done
+        });
+      });
+    });
+    // フィルター適用
+    const filtered = items.filter(it => {
+      if (routineFilterMode === 'all') return true;
+      if (routineFilterMode === 'every') return it.freqKey === 'every';
+      if (routineFilterMode.startsWith('w')) return it.freqKey === routineFilterMode;
+      if (routineFilterMode === 'first') return it.freqKey === 'first';
+      if (routineFilterMode === 'last') return it.freqKey === 'last';
+      if (routineFilterMode === 'kpi1') return it.kpiKey === 1;
+      if (routineFilterMode === 'kpi2') return it.kpiKey === 2;
+      if (routineFilterMode === 'kpi3') return it.kpiKey === 3;
+      if (routineFilterMode === 'other') return it.kpiKey === 'other';
+      return true;
+    });
+    if (filtered.length === 0) {
+      container.innerHTML = `<div class="routine-list-empty">該当するルーティンTodoがありません。<br><small>(${items.length} 件のルーティンが登録されています)</small></div>`;
+      return;
+    }
+    const rows = filtered.map(it => `
+      <tr data-todoid="${it.todoId}" data-kpi="${it.kpiKey}">
+        <td class="col-kpi">
+          <div class="kpi-label">${it.kpiLabel}</div>
+          <button class="kpi-priority-btn" data-act="rl-cycle-priority" data-todoid="${it.todoId}" title="クリックで優先度切替(大→中→小→なし)">${it.priority}</button>
+        </td>
+        <td class="col-text">
+          <textarea class="rl-text-input" data-act="rl-edit-text" data-todoid="${it.todoId}" rows="2">${esc(it.text)}</textarea>
+        </td>
+        <td class="col-freq">
+          <button class="rl-freq-btn" data-act="rl-cycle-freq" data-todoid="${it.todoId}" title="クリックで頻度切替(毎週→1週→2週→3週→4週→月初→月末→OFF)">${it.freqLabel}</button>
+        </td>
+      </tr>
+    `).join('');
+    container.innerHTML = `
+      <table class="routine-list-table">
+        <thead><tr>
+          <th style="width:64px;">カテゴリ<br><span style="font-weight:400;font-size:10px;">/優先</span></th>
+          <th style="width:auto;">Todo内容</th>
+          <th style="width:68px;">頻度</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted);">${filtered.length} / ${items.length} 件表示中</div>
+    `;
+  }
+  function openRoutineListModal() {
+    routineFilterMode = 'all';
+    document.querySelectorAll('.routine-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
+    renderRoutineList();
+    $('routine-modal').classList.add('show');
+  }
+  $('routine-list-btn').addEventListener('click', openRoutineListModal);
+  // バナーのクリック（バナー全体 or ボタン）→ モーダル
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-act="open-routine-list"]');
+    if (trigger) openRoutineListModal();
+  });
+  // バナーの内容を動的に更新（renderAllから呼ばれる）
+  function updateRoutineBanner() {
+    const bn = document.getElementById('routine-banner');
+    if (!bn) return;
+    // Count routines and group by frequency
+    let count = 0;
+    const byFreq = { every: 0, w: [0,0,0,0], first: 0, last: 0, multi: 0 };
+    TODO_KEYS.forEach(k => {
+      (state.todos[k] || []).forEach(t => {
+        if (!t.routine) return;
+        count++;
+        const rw = t.routineWeeks;
+        if (rw === 'first') byFreq.first++;
+        else if (rw === 'last') byFreq.last++;
+        else if (Array.isArray(rw) && rw.length === 1) byFreq.w[rw[0]]++;
+        else if (Array.isArray(rw) && rw.length > 1) byFreq.multi++;
+        else byFreq.every++;
+      });
+    });
+    const label = bn.querySelector('#routine-banner-label');
+    const sub = bn.querySelector('#routine-banner-sub');
+    if (count === 0) {
+      bn.classList.add('empty');
+      if (label) label.textContent = '🔁 ルーティン管理';
+      if (sub) sub.textContent = 'まだルーティン指定のTodoがありません。各Todoの「🔁」ボタンを押すと、ここに集計表示されます。';
+      return;
+    }
+    bn.classList.remove('empty');
+    if (label) label.textContent = `🔁 ルーティンTodo ${count} 件 を管理中`;
+    const parts = [];
+    if (byFreq.every) parts.push(`毎週${byFreq.every}`);
+    byFreq.w.forEach((n, i) => { if (n) parts.push(`第${i+1}週${n}`); });
+    if (byFreq.first) parts.push(`月初${byFreq.first}`);
+    if (byFreq.last) parts.push(`月末${byFreq.last}`);
+    if (byFreq.multi) parts.push(`複数週${byFreq.multi}`);
+    if (sub) sub.textContent = parts.join(' / ') + ' — クリックして全件を一覧表示・絞り込み';
+  }
+  $('routine-modal-close').addEventListener('click', () => $('routine-modal').classList.remove('show'));
+  $('routine-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'routine-modal') $('routine-modal').classList.remove('show');
+  });
+  // Filter buttons
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.routine-filter-btn');
+    if (!btn) return;
+    routineFilterMode = btn.dataset.filter;
+    document.querySelectorAll('.routine-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderRoutineList();
+  });
+  // ルーティン一覧 inline edit handlers
+  // Priority cycle from list
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-act="rl-cycle-priority"]');
+    if (!btn) return;
+    e.stopPropagation();
+    const found = findTodoById(btn.dataset.todoid);
+    if (!found) return;
+    const cur = found.todo.priority || 'none';
+    found.todo.priority = PRIORITY_NEXT[cur];
+    save();
+    renderRoutineList();
+    renderTodos();
+  });
+  // Frequency cycle from list
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-act="rl-cycle-freq"]');
+    if (!btn) return;
+    e.stopPropagation();
+    const found = findTodoById(btn.dataset.todoid);
+    if (!found) return;
+    cycleRoutineState(found.todo);
+    save();
+    // Auto-apply to current period weeks immediately
+    applyRoutineToCurrentPeriod(found.todo);
+    renderRoutineList();
+    renderTodos();
+    renderWeeks();
+  });
+  // Text inline edit
+  document.addEventListener('input', (e) => {
+    if (!e.target || e.target.dataset?.act !== 'rl-edit-text') return;
+    const found = findTodoById(e.target.dataset.todoid);
+    if (!found) return;
+    found.todo.text = e.target.value;
+    save();
+  });
+  document.addEventListener('focusout', (e) => {
+    if (!e.target || e.target.dataset?.act !== 'rl-edit-text') return;
+    // After editing text, refresh todos display once
+    renderTodos();
+    renderWeeks();
+  });
+
+  // Click a row → close modal, expand collapsed section (その他), scroll to Todo
+  document.addEventListener('click', (e) => {
+    // Ignore clicks on inline-edit controls
+    if (e.target.closest('[data-act^="rl-"]')) return;
+    const tr = e.target.closest('.routine-list-table tbody tr');
+    if (!tr) return;
+    const todoId = tr.dataset.todoid;
+    const kpiKey = tr.dataset.kpi;
+    $('routine-modal').classList.remove('show');
+    // Open その他 accordion if needed
+    if (kpiKey === 'other') {
+      const otherTodoCol = document.getElementById('other-todo-col');
+      const otherTodoToggle = document.getElementById('other-todo-toggle');
+      if (otherTodoCol && !otherTodoCol.classList.contains('show')) {
+        otherTodoCol.classList.add('show');
+        if (otherTodoToggle) otherTodoToggle.textContent = '📁 その他の業務のTodo ▲（クリックで閉じる）';
+        // Re-fit textareas
+        otherTodoCol.querySelectorAll('textarea').forEach(autoResize);
+      }
+    }
+    setTimeout(() => {
+      const targetWrap = document.querySelector(`.todo-item-wrap[data-id="${todoId}"]`);
+      if (targetWrap) {
+        targetWrap.scrollIntoView({behavior: 'smooth', block: 'center'});
+        targetWrap.style.transition = 'background 0.3s';
+        targetWrap.style.background = '#fef3c7';
+        setTimeout(() => { targetWrap.style.background = ''; }, 1500);
+      }
+    }, 200);
+  });
+
   // ===== Archive system =====
   let viewingArchiveId = null;  // archive being viewed (or null = current period)
   let savedStateBeforeArchive = null;  // backup when entering archive view
@@ -5133,25 +6451,34 @@
     TODO_KEYS.forEach(k => {
       (state.todos[k] || []).forEach(t => { t.done = false; t.completedAt = null; });
     });
-    // Collect routine todo IDs across all KPI keys
-    const routineIds = [];
+    // Collect routine todos with their week-specific settings.
+    // - routineWeeks: null/empty → all weeks (毎週)
+    // - routineWeeks: [0] → 第1週のみ, [1] → 第2週のみ, etc.
+    // weekIndex in state.weeks: each month has 4 weeks, so for monthly cycle modulo 4.
+    const routineTodos = []; // [{id, routineWeeks}]
     TODO_KEYS.forEach(k => {
-      (state.todos[k] || []).forEach(t => { if (t.routine) routineIds.push(t.id); });
+      (state.todos[k] || []).forEach(t => {
+        if (t.routine) routineTodos.push({ id: t.id, routineWeeks: t.routineWeeks });
+      });
     });
-    state.weeks.forEach(w => {
+    state.weeks.forEach((w, wi) => {
       w.done = '';
       w.review = '';
       w.planNote = '';
-      // Auto-restore routine todos to each week (clean week + routine baseline)
-      w.planTodoIds = [...routineIds];
+      w.feedback = '';
+      const planIds = [];
+      routineTodos.forEach(rt => {
+        if (isRoutineApplicableToWeek(rt.routineWeeks, wi)) planIds.push(rt.id);
+      });
+      w.planTodoIds = planIds;
     });
     save();
     renderAll();
     updateArchiveSelect();
-    const routineDoneMsg = routineIds.length > 0
-      ? `\n・🔁 ルーティン指定の ${routineIds.length} 件のTodoが新期の全週に自動セットされました`
+    const routineDoneMsg = routineTodos.length > 0
+      ? `\n・🔁 ルーティン指定の ${routineTodos.length} 件のTodoが指定の週にセットされました（毎週／第1〜4週など）`
       : '';
-    alert(`✅ 今期を保存しました。\n\n・KGI/KPI/Todoはそのまま引き継がれています\n・実績/週次の振り返り/Todoのチェックはリセットされました${routineDoneMsg}\n・期間フィールドを新期（例: 2026年7-9月）に書き換えれば新期スタートです`);
+    alert(`✅ 今期を保存しました。\n\n・KGI/KPI/Todoはそのまま引き継がれています\n・実績/週次の振り返り/FB/Todoのチェックはリセットされました${routineDoneMsg}\n・期間フィールドを新期（例: 2026年7-9月）に書き換えれば新期スタートです`);
   });
 
   $('archive-select').addEventListener('change', (e) => {
@@ -5486,7 +6813,7 @@
         };
         // normalize todos / weeks
         TODO_KEYS.forEach(k => {
-          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
+          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, routineWeeks: (t.routineWeeks === 'first' || t.routineWeeks === 'last' || Array.isArray(t.routineWeeks)) ? t.routineWeeks : null, details: t.details || '', feedback: t.feedback || '', feedbackStatus: t.feedbackStatus || 'unread', aiHistory: t.aiHistory || '' }));
         });
         state.weeks = state.weeks.map((w, i) => ({
           week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
@@ -5495,6 +6822,7 @@
           planNote: w.planNote ?? (w.plan || ''),
           done: w.done || '',
           review: w.review || '',
+          feedback: w.feedback || '',
         }));
         suppressCloudSave = true;
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
@@ -5540,7 +6868,7 @@
         archives: Array.isArray(data.archives) ? data.archives : [],
       };
       TODO_KEYS.forEach(k => {
-        newState.todos[k] = (newState.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
+        newState.todos[k] = (newState.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, routineWeeks: (t.routineWeeks === 'first' || t.routineWeeks === 'last' || Array.isArray(t.routineWeeks)) ? t.routineWeeks : null, details: t.details || '', feedback: t.feedback || '', feedbackStatus: t.feedbackStatus || 'unread', aiHistory: t.aiHistory || '' }));
       });
       newState.weeks = newState.weeks.map((w, i) => ({
         week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
@@ -5549,6 +6877,8 @@
         planNote: w.planNote ?? (w.plan || ''),
         done: w.done || '',
         review: w.review || '',
+        feedback: w.feedback || '',
+        feedbackStatus: w.feedbackStatus || 'unread',
       }));
       // Only re-render if focus is not on an input (to avoid disrupting typing)
       const active = document.activeElement;
@@ -5741,7 +7071,7 @@
           archives: Array.isArray(data.archives) ? data.archives : [],
         };
         TODO_KEYS.forEach(k => {
-          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
+          state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, routineWeeks: (t.routineWeeks === 'first' || t.routineWeeks === 'last' || Array.isArray(t.routineWeeks)) ? t.routineWeeks : null, details: t.details || '', feedback: t.feedback || '', feedbackStatus: t.feedbackStatus || 'unread', aiHistory: t.aiHistory || '' }));
         });
         state.weeks = state.weeks.map((w, i) => ({
           week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
@@ -5750,6 +7080,7 @@
           planNote: w.planNote ?? (w.plan || ''),
           done: w.done || '',
           review: w.review || '',
+          feedback: w.feedback || '',
         }));
         renderAll();
       }
@@ -5815,6 +7146,10 @@
       const ach = calcAch(r), grw = calcGrw(r);
       lines.push(`- **実績**: ${formatLiveValue(kgiResult.actual, kgi.unit)} / 達成率 ${calcFmt(ach)} / 成長率 ${calcFmt(grw)}`);
     }
+    if (kgi.feedback && kgi.feedback.trim()) {
+      lines.push(`- **💬 FB**:`);
+      kgi.feedback.split('\n').forEach(l => lines.push(`  > ${l}`));
+    }
     lines.push(``);
     // KPI①②③
     [1, 2, 3].forEach(n => {
@@ -5834,6 +7169,10 @@
         const r = buildResultRow(k);
         const ach = calcAch(r), grw = calcGrw(r);
         lines.push(`- **実績**: ${formatLiveValue(result.actual, g.unit)} / 達成率 ${calcFmt(ach)} / 成長率 ${calcFmt(grw)}`);
+      }
+      if (g.feedback && g.feedback.trim()) {
+        lines.push(`- **💬 FB**:`);
+        g.feedback.split('\n').forEach(l => lines.push(`  > ${l}`));
       }
       lines.push(``);
     });
@@ -5864,6 +7203,14 @@
           // Indent the details
           const detail = t.details.split('\n').map(l => '   > ' + l).join('\n');
           lines.push(detail);
+        }
+        if (t.feedback && t.feedback.trim()) {
+          lines.push(`   💬 FB:`);
+          t.feedback.split('\n').forEach(l => lines.push(`   > ${l}`));
+        }
+        if (t.aiHistory && t.aiHistory.trim()) {
+          lines.push(`   🤖 AI相談履歴:`);
+          t.aiHistory.split('\n').forEach(l => lines.push(`   > ${l}`));
         }
       });
     });
@@ -5910,6 +7257,11 @@
         lines.push(``);
         lines.push(`**💭 振り返り:**`);
         lines.push(w.review);
+      }
+      if (w.feedback && w.feedback.trim()) {
+        lines.push(``);
+        lines.push(`**💬 FB:**`);
+        lines.push(w.feedback);
       }
     });
     lines.push(``);
@@ -6481,7 +7833,8 @@ TOP3から最も効果的な1つ＋実行プロンプト全文。
       const label = wrap.dataset.label || (field === 'planNote' ? '自由メモ' : '振り返り');
       openRichModal(wi, field, label);
     } else if (act === 'todo-detail-expand') {
-      openTodoDetailModal(wrap.dataset.todoid);
+      // Pass the data-field if present so we can open details / feedback / aiHistory
+      openTodoDetailModal(wrap.dataset.todoid, wrap.dataset.field || 'details');
     } else if (act === 'goal-text-expand') {
       openGoalTextModal(wrap.dataset.goal, wrap.dataset.field, wrap.dataset.label);
     }
@@ -6490,6 +7843,47 @@ TOP3から最も効果的な1つ＋実行プロンプト全文。
   // ===== Rich text expand modal =====
   // ctx: { type: 'week', wi, field, label }  OR  { type: 'todo', todoId, label }
   let richModalCtx = null;
+  // Show/hide the "✍ 新規FBを追記" button and status selector based on whether the modal is showing a "feedback" field.
+  function updateFeedbackAddBtn(field) {
+    const btn = $('rich-modal-add-feedback');
+    if (btn) btn.style.display = (field === 'feedback') ? '' : 'none';
+    const sel = $('rich-modal-status-selector');
+    if (sel) sel.classList.toggle('show', field === 'feedback');
+  }
+  // Sync the status selector active state from current ctx
+  function updateFeedbackStatusUI() {
+    if (!richModalCtx || richModalCtx.field !== 'feedback') return;
+    let obj = null;
+    if (richModalCtx.type === 'week') obj = state.weeks[richModalCtx.wi];
+    else if (richModalCtx.type === 'todo') {
+      const f = findTodoById(richModalCtx.todoId);
+      obj = f ? f.todo : null;
+    } else if (richModalCtx.type === 'goal') obj = state.goals[richModalCtx.goalKey];
+    const cur = (obj && obj.feedbackStatus) || 'unread';
+    document.querySelectorAll('.feedback-status-selector .status-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.status === cur);
+    });
+  }
+  // Wire status buttons
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.feedback-status-selector .status-btn');
+    if (!btn) return;
+    if (!richModalCtx || richModalCtx.field !== 'feedback') return;
+    const status = btn.dataset.status;
+    let obj = null;
+    if (richModalCtx.type === 'week') obj = state.weeks[richModalCtx.wi];
+    else if (richModalCtx.type === 'todo') {
+      const f = findTodoById(richModalCtx.todoId);
+      obj = f ? f.todo : null;
+    } else if (richModalCtx.type === 'goal') obj = state.goals[richModalCtx.goalKey];
+    if (obj) {
+      obj.feedbackStatus = status;
+      save();
+      updateFeedbackStatusUI();
+      // Also refresh inline display so the badge shows immediately
+      renderAll();
+    }
+  });
   function openRichModal(wi, field, label) {
     richModalCtx = { type: 'week', wi, field, label };
     const w = state.weeks[wi];
@@ -6497,22 +7891,33 @@ TOP3から最も効果的な1つ＋実行プロンプト全文。
     $('rich-modal-title').textContent = `📝 ${label} - 拡大表示（${w?.week || ''}）`;
     $('rich-modal-textarea').value = val;
     $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
+    updateFeedbackAddBtn(field);
+    // Initial tab: 内容がある時はプレビュー / 空の時は編集
+    const valToCheck = $('rich-modal-textarea').value || '';
+    setRichModalTab(valToCheck.trim() ? 'preview' : 'edit');
+    updateFeedbackStatusUI();
     $('rich-modal').classList.add('show');
-    setTimeout(() => $('rich-modal-textarea').focus(), 50);
   }
-  function openTodoDetailModal(todoId) {
+  function openTodoDetailModal(todoId, field) {
     const found = findTodoById(todoId);
     if (!found) return;
-    richModalCtx = { type: 'todo', todoId, label: '何をどうする？' };
-    const val = found.todo.details || '';
+    const f = field || 'details';
+    const labelMap = { feedback: '💬 FB', aiHistory: '🤖 AI相談履歴', details: '📝 詳細メモ' };
+    const label = labelMap[f] || '📝 詳細メモ';
+    richModalCtx = { type: 'todo', todoId, label, field: f };
+    const val = found.todo[f] || '';
     const todoText = found.todo.text || '(未入力)';
-    $('rich-modal-title').textContent = `📝 ${todoText.slice(0, 30)}${todoText.length > 30 ? '…' : ''} - 詳細メモ`;
+    $('rich-modal-title').textContent = `📝 ${todoText.slice(0, 30)}${todoText.length > 30 ? '…' : ''} - ${label}`;
     $('rich-modal-textarea').value = val;
     $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
+    updateFeedbackAddBtn(f);
+    // Initial tab: 内容がある時はプレビュー / 空の時は編集
+    const valToCheck = $('rich-modal-textarea').value || '';
+    setRichModalTab(valToCheck.trim() ? 'preview' : 'edit');
+    updateFeedbackStatusUI();
     $('rich-modal').classList.add('show');
-    setTimeout(() => $('rich-modal-textarea').focus(), 50);
   }
-  // Open modal for a state.goals[goalKey][field] text field (現状 / 課題 / 解決策 etc.)
+  // Open modal for a state.goals[goalKey][field] text field (現状 / 課題 / 解決策 / feedback etc.)
   function openGoalTextModal(goalKey, field, label) {
     const g = state.goals[goalKey] || {};
     richModalCtx = { type: 'goal', goalKey, field, label };
@@ -6521,8 +7926,12 @@ TOP3から最も効果的な1つ＋実行プロンプト全文。
     $('rich-modal-title').textContent = `📝 ${kpiLabel} - ${label}`;
     $('rich-modal-textarea').value = val;
     $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
+    updateFeedbackAddBtn(field);
+    // Initial tab: 内容がある時はプレビュー / 空の時は編集
+    const valToCheck = $('rich-modal-textarea').value || '';
+    setRichModalTab(valToCheck.trim() ? 'preview' : 'edit');
+    updateFeedbackStatusUI();
     $('rich-modal').classList.add('show');
-    setTimeout(() => $('rich-modal-textarea').focus(), 50);
   }
   function closeRichModal() {
     $('rich-modal').classList.remove('show');
@@ -6554,36 +7963,44 @@ TOP3から最も効果的な1つ＋実行プロンプト全文。
     } else if (richModalCtx.type === 'todo') {
       const found = findTodoById(richModalCtx.todoId);
       if (!found) return;
-      found.todo.details = val;
+      const f = richModalCtx.field || 'details';
+      found.todo[f] = val;
       save();
       $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
       // Sync inline display
-      const wrap = document.querySelector(`.rich-field-wrap[data-todoid="${richModalCtx.todoId}"][data-field="details"]`);
+      const wrap = document.querySelector(`.rich-field-wrap[data-todoid="${richModalCtx.todoId}"][data-field="${f}"]`);
       if (wrap) {
         const display = wrap.querySelector('.rich-display');
         const inlineTa = wrap.querySelector('.rich-input');
         if (display) {
-          display.innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">具体的にやることや参考リンクを書く（例: 「○○さんに連絡 - https://example.com の資料を見てから提案」）。**太字** / *斜体* / URL自動リンク 対応</span>';
+          const placeholders = {
+            details: '具体的にやることや参考リンクを書く(例: 「○○さんに連絡 - https://example.com の資料を見てから提案」)。**太字** / *斜体* / URL自動リンク 対応',
+            feedback: 'FB欄(クリックで編集／署名・日時自動付与)',
+            aiHistory: 'AI相談結果を貼り付け(Markdownで自動整形・表/見出し/太字対応)',
+          };
+          const phText = placeholders[f] || 'クリックで全文表示・編集';
+          display.innerHTML = (val ? renderRichText(val) : `<span class="rich-placeholder">${phText}</span>`) + '<span class="rich-expand-hint">クリックで全文＋編集</span>';
         }
         if (inlineTa) inlineTa.value = val;
       }
-      // Update toggle button "has-content" state
-      const itemWrap = document.querySelector(`.todo-item-wrap[data-id="${richModalCtx.todoId}"]`);
-      if (itemWrap) {
-        const btn = itemWrap.querySelector('[data-act="toggle-detail"]');
-        if (btn) {
-          const has = !!(val && val.trim());
-          btn.classList.toggle('has-content', has);
-          const isOpen = itemWrap.classList.contains('open');
-          btn.textContent = (isOpen ? '▼' : '▶') + (has ? '📝' : '＋');
+      // Only details affects the toggle-detail button / chip-detail badge
+      if (f === 'details') {
+        const itemWrap = document.querySelector(`.todo-item-wrap[data-id="${richModalCtx.todoId}"]`);
+        if (itemWrap) {
+          const btn = itemWrap.querySelector('[data-act="toggle-detail"]');
+          if (btn) {
+            const has = !!(val && val.trim());
+            btn.classList.toggle('has-content', has);
+            const isOpen = itemWrap.classList.contains('open');
+            btn.textContent = (isOpen ? '▼' : '▶') + (has ? '📝' : '＋');
+          }
         }
+        const has = !!(val && val.trim());
+        document.querySelectorAll(`.chip-detail[data-todoid="${richModalCtx.todoId}"]`).forEach(btn => {
+          btn.classList.toggle('has-content', has);
+          btn.textContent = has ? '📝' : '＋';
+        });
       }
-      // Sync the chip-detail buttons in week cards too
-      const has = !!(val && val.trim());
-      document.querySelectorAll(`.chip-detail[data-todoid="${richModalCtx.todoId}"]`).forEach(btn => {
-        btn.classList.toggle('has-content', has);
-        btn.textContent = has ? '📝' : '＋';
-      });
     } else if (richModalCtx.type === 'goal') {
       const { goalKey, field } = richModalCtx;
       if (state.goals[goalKey]) {
@@ -6610,10 +8027,59 @@ TOP3から最も効果的な1つ＋実行プロンプト全文。
       }
     }
   });
+  // Rich text modal: switch between preview / edit tab
+  function setRichModalTab(tab) {
+    const ta = $('rich-modal-textarea');
+    const pv = $('rich-modal-preview');
+    const hint = $('rich-modal-edit-hint');
+    const tabPv = $('rich-tab-preview');
+    const tabEd = $('rich-tab-edit');
+    if (tab === 'edit') {
+      ta.style.display = '';
+      pv.style.display = 'none';
+      hint.style.display = '';
+      tabPv?.classList.remove('active');
+      tabEd?.classList.add('active');
+      setTimeout(() => ta.focus(), 30);
+    } else {
+      // preview mode
+      ta.style.display = 'none';
+      pv.style.display = '';
+      hint.style.display = 'none';
+      tabPv?.classList.add('active');
+      tabEd?.classList.remove('active');
+    }
+  }
+  // Default tab on modal open: preview (set via openRichModal etc.)
+  $('rich-tab-preview').addEventListener('click', () => setRichModalTab('preview'));
+  $('rich-tab-edit').addEventListener('click', () => setRichModalTab('edit'));
   $('rich-modal-close').addEventListener('click', closeRichModal);
   $('rich-modal-done').addEventListener('click', closeRichModal);
   $('rich-modal').addEventListener('click', (e) => {
     if (e.target.id === 'rich-modal') closeRichModal();
+  });
+  // 「✍ 新規FBを追記」ボタン: 署名・日時付きの新規ブロックを末尾に追加
+  $('rich-modal-add-feedback').addEventListener('click', () => {
+    const ta = $('rich-modal-textarea');
+    if (!ta) return;
+    // 名前を決定: 表示名 > メール
+    const writerName = (currentDisplayName && currentDisplayName.trim())
+      || (currentEmail || '匿名');
+    const role = (currentEmail === ADMIN_EMAIL) ? '主管理者' : (isAdminUser ? '管理者' : '受講生本人');
+    const ts = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const stamp = `${ts.getFullYear()}/${pad(ts.getMonth()+1)}/${pad(ts.getDate())} ${pad(ts.getHours())}:${pad(ts.getMinutes())}`;
+    const header = `\n\n---\n\n### 💬 ${writerName}（${role}） — ${stamp}\n`;
+    const cur = ta.value || '';
+    // Append at end, position cursor right after header
+    const newVal = cur + header;
+    ta.value = newVal;
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+    // Move cursor to end and focus
+    ta.focus();
+    try { ta.setSelectionRange(ta.value.length, ta.value.length); } catch {}
+    // Scroll textarea to bottom
+    ta.scrollTop = ta.scrollHeight;
   });
   // Calendar modal handlers
   $('cal-close').addEventListener('click', closeCalModal);
@@ -6767,6 +8233,15 @@ TOP3から最も効果的な1つ＋実行プロンプト全文。
       }
     });
   }
+  // 「その他の業務」は基本開いておく（初期表示で展開）
+  if (otherCard && !otherCard.classList.contains('show')) {
+    otherCard.classList.add('show');
+    if (otherCardToggle) otherCardToggle.textContent = '📁 その他の業務 ▲（クリックで閉じる）';
+  }
+  if (otherTodoCol && !otherTodoCol.classList.contains('show')) {
+    otherTodoCol.classList.add('show');
+    if (otherTodoToggle) otherTodoToggle.textContent = '📁 その他の業務のTodo ▲（クリックで閉じる）';
+  }
 
   // ===== 使い方ガイド =====
   $('ub-guide').addEventListener('click', () => $('guide-modal').classList.add('show'));
@@ -6880,7 +8355,7 @@ TOP3から最も効果的な1つ＋実行プロンプト全文。
         archives: Array.isArray(data.archives) ? data.archives : [],
       };
       TODO_KEYS.forEach(k => {
-        state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, details: t.details || '' }));
+        state.todos[k] = (state.todos[k] || []).map(t => ({ id: t.id || newId(), text: t.text || '', done: !!t.done, priority: t.priority || 'none', completedAt: t.completedAt || null, routine: !!t.routine, routineWeeks: (t.routineWeeks === 'first' || t.routineWeeks === 'last' || Array.isArray(t.routineWeeks)) ? t.routineWeeks : null, details: t.details || '', feedback: t.feedback || '', feedbackStatus: t.feedbackStatus || 'unread', aiHistory: t.aiHistory || '' }));
       });
       state.weeks = state.weeks.map((w, i) => ({
         week: w.week || DEFAULT_WEEKS[i] || `週${i+1}`,
@@ -6889,6 +8364,8 @@ TOP3から最も効果的な1つ＋実行プロンプト全文。
         planNote: w.planNote ?? (w.plan || ''),
         done: w.done || '',
         review: w.review || '',
+        feedback: w.feedback || '',
+        feedbackStatus: w.feedbackStatus || 'unread',
       }));
       // Hide login overlay; show a public-view banner
       hideLogin();
