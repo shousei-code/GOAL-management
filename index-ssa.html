@@ -1699,24 +1699,30 @@
     border-color: #fcd34d;
   }
   .rich-field-wrap .rich-expand-btn {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    z-index: 2;
-    border: 1px solid var(--border);
-    background: #f9fafb;
-    color: var(--muted);
-    border-radius: 4px;
-    padding: 3px 8px;
-    font-size: 11px;
+    display: block;
+    width: 100%;
+    border: 1px solid #f59e0b;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+    border-radius: 4px 4px 0 0;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 700;
     cursor: pointer;
     font-family: inherit;
-    line-height: 1.2;
+    line-height: 1.3;
+    box-shadow: 0 1px 3px rgba(245, 158, 11, 0.2);
+    transition: all 0.15s;
+    text-align: center;
   }
   .rich-field-wrap .rich-expand-btn:hover {
-    background: var(--accent);
+    background: linear-gradient(135deg, #f59e0b, #d97706);
     color: #fff;
-    border-color: var(--accent);
+    border-color: #d97706;
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+  }
+  .rich-field-wrap .rich-expand-btn:active {
+    transform: translateY(1px);
   }
   .rich-display {
     min-height: 60px;
@@ -3129,6 +3135,7 @@
         <div class="kgi-feedback-wrap">
           <div class="kgi-feedback-label">💬 FB<span id="kgi-feedback-badge"></span></div>
           <div class="rich-field-wrap goal-rich-field feedback-field" data-goal="kgi" data-field="feedback" data-label="💬 KGIFB" data-act="goal-text-expand">
+            <button class="rich-expand-btn" type="button" title="クリックで編集">📝 編集</button>
             <div class="rich-display collapsed" id="kgi-feedback-display"><span class="rich-placeholder">受講生本人＋管理者の両方が記入できる(クリックで編集)</span><span class="rich-expand-hint">クリックで全文＋編集</span></div>
           </div>
         </div>
@@ -4470,9 +4477,9 @@
     return defaultState();
   }
   function save() {
-    // Don't overwrite local storage when primary admin is editing another user's data
-    const isPrimaryAdminEditingOther = (currentEmail === ADMIN_EMAIL) && viewingDocId && viewingDocId !== currentDocId;
-    if (!isPrimaryAdminEditingOther) {
+    // 管理者(主管理者 or isAdminUser)が他受講生のデータを編集中ならlocalStorageを汚さない
+    const isAdminEditingOther = (currentEmail === ADMIN_EMAIL || isAdminUser) && viewingDocId && viewingDocId !== currentDocId;
+    if (!isAdminEditingOther) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
     saveToCloud();
@@ -4535,6 +4542,7 @@
           <div class="kpi-row feedback-row">
             <div class="lbl">💬 FB${g.feedback ? feedbackStatusBadge(g.feedbackStatus) : ''}</div>
             <div class="rich-field-wrap goal-rich-field feedback-field" data-goal="${k}" data-field="feedback" data-label="💬 FB" data-act="goal-text-expand">
+              <button class="rich-expand-btn" type="button" title="クリックで編集">📝 編集</button>
               <div class="rich-display collapsed">${g.feedback ? renderRichText(g.feedback) : '<span class="rich-placeholder">受講生本人＋管理者の両方が記入できるFB欄（クリックで編集／署名・日時自動付与）</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
             </div>
           </div>
@@ -4885,7 +4893,7 @@
         <textarea class="autosize todo-text" data-id="${t.id}" data-act="text" placeholder="Todoを入力" rows="1">${esc(t.text)}</textarea>
         <button class="todo-detail-toggle ${hasDetails ? 'has-content' : ''}" data-id="${t.id}" data-act="toggle-detail" title="詳細・リンクを${isOpen ? '閉じる' : '開く'}（クリックで何をどうするか書ける）">${isOpen ? '▼' : '▶'}${hasDetails ? '📝' : '＋'}</button>
         <button class="priority-btn ${priClass}" data-id="${t.id}" data-act="cycle-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
-        <button class="routine-btn ${t.routine ? 'active' : ''}" data-id="${t.id}" data-act="cycle-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックで状態切替: OFF→毎週→1週目→2週目→3週目→4週目→OFF）">${routineLabel(t)}</button>
+        <button class="routine-btn ${t.routine ? 'active' : ''}" data-id="${t.id}" data-act="cycle-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックで状態切替: OFF→毎週→第1週→第2週→第3週→第4週→月初→月末→OFF）">${routineLabelLong(t)}</button>
         ${pendingBadge}
         ${completedMeta}
         <button data-id="${t.id}" data-act="del" title="削除"
@@ -4898,6 +4906,7 @@
         </div>
         <div class="todo-detail-label" style="margin-top:10px;">💬 FB（受講生・管理者の双方が記入可）${t.feedback ? feedbackStatusBadge(t.feedbackStatus) : ''}</div>
         <div class="rich-field-wrap todo-detail-field feedback-field" data-todoid="${t.id}" data-field="feedback" data-act="todo-detail-expand">
+          <button class="rich-expand-btn" type="button" title="クリックで編集">📝 編集</button>
           <div class="rich-display todo-detail-display collapsed">${t.feedback ? renderRichText(t.feedback) : '<span class="rich-placeholder">FB欄(クリックで編集／署名・日時自動付与)</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
         </div>
         <div class="todo-detail-label" style="margin-top:10px;">🤖 AI相談履歴（ChatGPT/Claudeの回答を貼り付けて履歴化）</div>
@@ -5122,7 +5131,7 @@
               <span class="chip-text">${esc(todo.text || '(未入力)')}</span>
               <button class="chip-prio ${priClass}" data-todoid="${todo.id}" data-act="cycle-chip-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
               <button class="chip-routine ${todo.routine ? 'active' : ''}" data-todoid="${todo.id}" data-act="cycle-chip-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックで状態切替: OFF→毎週→1週目→2週目→3週目→4週目→月初→月末→OFF）">${routineLabelLong(todo)}</button>
-              <button class="chip-detail ${todo.details && todo.details.trim() ? 'has-content' : ''}" data-todoid="${todo.id}" data-act="chip-detail-open" title="このTodoの詳細メモ・リンクを開く（クリックで全文表示・編集）">${todo.details && todo.details.trim() ? '📝' : '＋'}</button>
+              <button class="chip-detail ${todo.details && todo.details.trim() ? 'has-content' : ''}" data-todoid="${todo.id}" data-act="chip-detail-open" title="このTodoの詳細メモ・リンクを開く（クリックで全文表示・編集）">▶${todo.details && todo.details.trim() ? '📝' : '＋'}</button>
               <button class="chip-cal" data-week="${wi}" data-todoid="${todo.id}" data-act="todo-calendar" title="このTodoをカレンダーに登録（1時間枠）">📅</button>
               <button class="chip-x" data-week="${wi}" data-todoid="${todo.id}" data-act="unpick" title="この週から外す">×</button>
             </div>
@@ -5199,6 +5208,7 @@
             <div class="week-field">
               <div class="week-field-label">💬 FB（受講生・管理者の双方が記入可 — クリックで全文表示・編集）${w.feedback ? feedbackStatusBadge(w.feedbackStatus) : ''}</div>
               <div class="rich-field-wrap feedback-field" data-week="${wi}" data-field="feedback" data-label="💬 FB" data-act="rich-expand">
+                <button class="rich-expand-btn" type="button" title="クリックで編集">📝 編集</button>
                 <div class="rich-display collapsed">${w.feedback ? renderRichText(w.feedback) : '<span class="rich-placeholder">FB欄(クリックで編集／署名・日時自動付与)</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
               </div>
             </div>
@@ -6897,11 +6907,11 @@
 
   function saveToCloud() {
     if (!currentEmail || isReadOnly || suppressCloudSave) return;
-    // Allow primary admin (ADMIN_EMAIL) to save to another user's docId; other accounts only save to their own
-    const isPrimaryAdminEditing = (currentEmail === ADMIN_EMAIL) && viewingDocId && viewingDocId !== currentDocId;
-    if (!viewingDocId || (viewingDocId !== currentDocId && !isPrimaryAdminEditing)) return;
+    // 主管理者 + 管理者(isAdminUser)は他受講生のデータを保存可能。それ以外は自分のみ
+    const isAdminEditingOther = (currentEmail === ADMIN_EMAIL || isAdminUser) && viewingDocId && viewingDocId !== currentDocId;
+    if (!viewingDocId || (viewingDocId !== currentDocId && !isAdminEditingOther)) return;
     const targetDocId = viewingDocId;
-    const isEditingOther = isPrimaryAdminEditing;
+    const isEditingOther = isAdminEditingOther;
     setSyncStatus(isEditingOther ? '💾 受講生データ保存中...' : '💾 保存中...', 'saving');
     if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
     cloudSaveTimer = setTimeout(async () => {
@@ -6928,7 +6938,7 @@
         console.error('saveToCloud error', err);
         setSyncStatus('⚠️ 同期エラー', 'error');
       }
-    }, 800);
+    }, 300);
   }
 
   // ===== Admin =====
@@ -7042,16 +7052,18 @@
   $('admin-done').addEventListener('click', () => $('admin-modal').classList.remove('show'));
 
   async function enterReadOnlyMode(docId, email, displayName) {
-    // Primary admin gets full edit access on other users; regular admin gets read-only + AI
-    const isPrimaryAdminViewing = (currentEmail === ADMIN_EMAIL);
-    isReadOnly = !isPrimaryAdminViewing;
+    // 全管理者(主管理者 + _isAdmin)が他受講生を編集可能（FBや内容を書ける）
+    const canEdit = (currentEmail === ADMIN_EMAIL) || isAdminUser;
+    isReadOnly = !canEdit;
     viewingDocId = docId;
     viewingEmail = email;
-    document.body.classList.toggle('readonly', !isPrimaryAdminViewing);
+    document.body.classList.toggle('readonly', !canEdit);
     const banner = $('ro-banner');
-    banner.classList.toggle('editing', isPrimaryAdminViewing);
-    if (isPrimaryAdminViewing) {
+    banner.classList.toggle('editing', canEdit);
+    if (currentEmail === ADMIN_EMAIL) {
       $('ro-email').innerHTML = `✏️ **${esc(displayName || email)}**（${esc(email)}）の編集モード（主管理者として保存可）`;
+    } else if (isAdminUser) {
+      $('ro-email').innerHTML = `✏️ **${esc(displayName || email)}**（${esc(email)}）の編集モード（管理者として保存可）`;
     } else {
       $('ro-email').innerHTML = `📖 **${esc(displayName || email)}**（${esc(email)}）のデータを閲覧中（読み取り専用・AI分析のみ可）`;
     }
@@ -7936,6 +7948,8 @@ TOP3から最も効果的な1つ＋実行プロンプト全文。
   function closeRichModal() {
     $('rich-modal').classList.remove('show');
     richModalCtx = null;
+    // モーダルを閉じたら確実に保存（debounceを発火させる）
+    save();
   }
   // Live sync: textarea input → state + preview + inline display
   $('rich-modal-textarea').addEventListener('input', (e) => {
