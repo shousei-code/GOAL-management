@@ -5618,14 +5618,10 @@
       state.weeks.push({ week: '', planTodoIds: [], kpiOrder: [1,2,3], planNote: '', done: '', review: '' });
       changed = true;
     }
-    // shrink only if extra rows are empty
+    // shrink: 末尾の余分な週を切り詰める（データ有無に関わらず期間に合わせる）
     if (state.weeks.length > newCount) {
-      const extras = state.weeks.slice(newCount);
-      const hasData = extras.some(w => (w.planTodoIds && w.planTodoIds.length) || w.planNote || w.done || w.review);
-      if (!hasData) {
-        state.weeks = state.weeks.slice(0, newCount);
-        changed = true;
-      }
+      state.weeks = state.weeks.slice(0, newCount);
+      changed = true;
     }
     // relabel within parsed range
     for (let i = 0; i < Math.min(state.weeks.length, newCount); i++) {
@@ -8704,15 +8700,7 @@ ${ctx}
       }
     });
   }
-  // 「その他の業務」は基本開いておく（初期表示で展開）
-  if (otherCard && !otherCard.classList.contains('show')) {
-    otherCard.classList.add('show');
-    if (otherCardToggle) otherCardToggle.textContent = '📁 その他の業務 ▲（クリックで閉じる）';
-  }
-  if (otherTodoCol && !otherTodoCol.classList.contains('show')) {
-    otherTodoCol.classList.add('show');
-    if (otherTodoToggle) otherTodoToggle.textContent = '📁 その他の業務のTodo ▲（クリックで閉じる）';
-  }
+  // 「その他の業務」は基本閉じる（初期表示は折りたたみ）— 必要時のみユーザーが開く
 
   // ===== 使い方ガイド =====
   $('ub-guide').addEventListener('click', () => $('guide-modal').classList.add('show'));
