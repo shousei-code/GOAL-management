@@ -3326,16 +3326,22 @@
           <button class="other-card-close" id="other-card-close" type="button">✕ 閉じる</button>
         </div>
         <div class="other-card-body">
+          <div class="info" style="background:#fffbeb;border:1px solid #fcd34d;color:#92400e;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;line-height:1.6;">
+            💡 <strong>「その他業務」とは？</strong><br>
+            年間ゴール達成のために <strong>必要だけど、今期(四半期)KGIには直結しない業務</strong> を書く欄です。<br>
+            例) 半年後／1年後に向けた仕込み・準備、土台作り、組織・採用、長期R&D、自分自身の学習など。<br>
+            <strong>今期KGIに直結するゴール = KPI①②③</strong>、<strong>長期ゴール準備の業務 = その他業務</strong>、と切り分けてください。
+          </div>
           <div class="kpi-row">
             <div class="lbl">目標</div>
-            <textarea class="autosize" data-goal="other" data-field="target" placeholder="その他の業務の目標（KPI①〜③に該当しない業務、定性的でもOK）" rows="2"></textarea>
+            <textarea class="autosize" data-goal="other" data-field="target" placeholder="年間ゴール達成に必要な「今期KGIに直結しない長期準備業務」の方向性（例: 半年後の○○に向けた仕込み）" rows="2"></textarea>
           </div>
           <div class="kpi-row">
             <div class="lbl">現状</div>
             <textarea class="autosize" data-goal="other" data-field="current" placeholder="現状（数字を入れなくても良い）" rows="2"></textarea>
           </div>
           <div style="text-align:right;margin-top:8px;">
-            <button class="ai-help-btn" data-act="ai-help-other" title="KPI①②③以外で優先してやるべきことをAIに分析依頼">🔬 AI分析</button>
+            <button class="ai-help-btn" data-act="ai-help-other" title="年間ゴール達成のため、今期KGIに直結しないがやるべき長期準備業務をAIに分析依頼">🔬 AI分析</button>
           </div>
         </div>
       </div>
@@ -3388,6 +3394,9 @@
       <!-- その他の業務 Todo（折りたたみ） -->
       <button class="other-todo-toggle" id="other-todo-toggle" type="button">📁 その他の業務のTodo ▼（クリックで開く）</button>
       <div class="other-todo-col" id="other-todo-col">
+        <div class="info" style="background:#fffbeb;border:1px solid #fcd34d;color:#92400e;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;line-height:1.6;">
+          💡 <strong>その他業務のTodo</strong>＝ <strong>年間ゴール達成のために必要だが、今期(四半期)KGIには直結しない長期準備業務のTodo</strong> を書きます。半年後／1年後に向けた仕込み、土台作り、組織・採用、長期学習など。
+        </div>
         <div class="todo-col-head">
           <div><span class="num">その他</span></div>
           <div class="name" id="kpi-other-name">その他の業務</div>
@@ -3629,7 +3638,7 @@
         </div>
 
         <div class="tip" style="margin-top:8px;">
-          🛑 <strong>AI相談には最低限の入力が必要</strong>：「KGIのタイトル+現状」「（個別KPI相談の場合）そのKPIのタイトル+現状」「（Todo相談の場合）Todo1つ以上」が未入力だとAIボタンを押してもアラートで止まります。1文字でも入力されていればOK。まず自分で考えてから相談してください。
+          🛑 <strong>書かないとAIに聞けません</strong>：「ビジネスゴール／年間ゴール（定性or定量）」「KGIタイトル+現状」「（個別KPI相談時）そのKPIのタイトル+現状」「（Todo相談時）Todo1つ以上」が未入力だとAIボタンを押してもアラートで止まります。まず自分で考えてから相談してください。
         </div>
 
         <div class="info" style="margin-top:10px;">
@@ -3705,13 +3714,20 @@
         <div class="tip">💡 円なら入力後「1,000,000円」、人なら「20人」のように<strong>桁区切り＋単位</strong>が自動表示されます。</div>
         <div class="info">📉 <strong>「下げたい指標」</strong> にチェックを入れると、原価率など低い方が良い指標として達成率が逆計算されます。</div>
 
-        <h4>📁 ③ その他の業務（オプション）</h4>
-        <p>KPI①〜③に該当しない業務を別枠で管理したい場合に使います。</p>
+        <h4>📁 ③ その他業務（長期準備業務 — オプション）</h4>
+        <p>その他業務 = <strong>年間ゴール達成のために必要だが、今期(四半期)KGIには直結しない長期準備業務</strong> を扱うエリアです。</p>
+        <ul>
+          <li><strong>今期KGIに直結する目標</strong> → KPI①②③に書く</li>
+          <li><strong>半年後／1年後／数年後に効いてくる仕込み</strong> → ここ「その他業務」に書く</li>
+        </ul>
+        <p>例) 採用・組織作り／長期R&D／システム刷新／自分自身の学習・健康／取引先開拓の種まき／中期計画策定 など。</p>
         <ol>
           <li>KPI③の下の <strong>「📁 その他の業務 ▼」</strong> をクリックして展開</li>
-          <li>目標と現状を文章で入力（数字は不要、定性的でOK）</li>
+          <li>目標欄に「半年後／1年後に効く準備業務の方向性」を文章で入力</li>
+          <li>同様にTodoエリアの <strong>「📁 その他の業務のTodo ▼」</strong> も展開して、長期準備のTodoを追加</li>
         </ol>
-        <div class="info">💡 不要なら閉じたままでOK。表示はされません。</div>
+        <div class="info">💡 <strong>切り分け基準</strong>：「これは今期(四半期)で数値が動くか？」→ Yes なら KPI、No だが年間ゴールに必要 なら その他業務、年間ゴールにも紐づかない なら 不要。</div>
+        <div class="tip">💡 不要なら閉じたままでOK。表示はされません。</div>
 
         <h4>✅ ④ Todo を入力する</h4>
         <p>「KPIをTodoに落とし込む」セクションで、各KPIに必要な行動をリスト化します。</p>
@@ -3805,7 +3821,7 @@
           <li><strong>🌟 AIに年間ゴール相談</strong>（年間ゴール下） → 入力済みのKGI/KPIから年間ゴールの設定を3パターン提案</li>
           <li><strong>🎯 AIにKGI設定+戦略を相談</strong>（年間ゴール下） → 今期KGIの設定と達成戦略を提案</li>
           <li><strong>🔬 AI分析</strong>（KPI①②③カード内 各1個） → そのKPIの課題・解決策・他KPIとの連動性・短期施策を分析</li>
-          <li><strong>🔬 AI分析</strong>（📁 その他の業務カード内） → KPI①②③以外で優先してやるべき業務を分析・Todo提案</li>
+          <li><strong>🔬 AI分析</strong>（📁 その他の業務カード内） → 年間ゴール達成のために今期KGIに直結しないがやるべき長期準備業務を分析・Todo提案（半年〜1年後の仕込み）</li>
           <li><strong>🤖 AIにTodo提案</strong>（Todoエリア下） → 各KPIを実行可能なTodoに分解する案を取得</li>
           <li><strong>🤖 AIに今週の相談（優先順位＋方向性）</strong>（各週カード内） → I×Eスコア順並び替え／追加・削除Todo提案／KGI/KPI方向性チェック／KGI問い直しを一括</li>
           <li><strong>🤖 AIに途中分析を依頼</strong>（月間成果カード内 各月1個） ★期中の修正サイクル用 → 月間成果から期目標とのギャップ判定（🔴/🟡/🟢/🚀）、上方/下方修正提案、差分を埋めるTodo</li>
@@ -7840,7 +7856,7 @@
   function checkAIPrerequisites(mode) {
     const missing = [];
     const kgi = state.goals.kgi || {};
-    // ビジネスゴール相談: 定性 or 定量 のどちらか1文字でも入力されていればOK
+    // ビジネスゴール相談: 定性 or 定量 のどちらかが入力されていれば可
     if (mode === 'business-goal-consult') {
       const bg = state.businessGoal || {};
       if (!(bg.qualitative || '').trim() && !(bg.quantitative || '').trim()) {
@@ -7848,12 +7864,17 @@
       }
       return missing;
     }
-    // KGI: タイトル + 現状 が必須（年間ゴール相談以外）
-    const requireKgi = mode !== 'annual-goal-consult';
-    if (requireKgi) {
-      if (!(kgi.target || '').trim()) missing.push('KGIのタイトル');
-      if (!(kgi.current || '').trim()) missing.push('KGIの現状');
+    // 年間ゴール相談: 年間ゴールの目標 or 現状 のどちらかが入力されていれば可
+    if (mode === 'annual-goal-consult') {
+      const ag = state.annualGoal || {};
+      if (!(ag.target || '').trim() && !(ag.current || '').trim()) {
+        missing.push('年間ゴールの「目標」または「現状」のどちらか');
+      }
+      return missing;
     }
+    // KGI: タイトル + 現状 が必須
+    if (!(kgi.target || '').trim()) missing.push('KGIのタイトル');
+    if (!(kgi.current || '').trim()) missing.push('KGIの現状');
     // KPI個別分析やTodo提案系：そのKPIのタイトル+現状が必須
     if (mode && (mode.startsWith('kpi-analysis-') || mode.startsWith('todo-suggest-kpi-'))) {
       const n = +mode.split('-').pop();
@@ -7875,7 +7896,7 @@
     // 必須入力チェック
     const missing = checkAIPrerequisites(mode);
     if (missing.length > 0) {
-      alert(`🛑 AI相談の前に、最低限以下の入力が必要です（1文字でも入力されていればOK）:\n\n・${missing.join('\n・')}\n\nまず自分で考えて入力してから、AIに相談してください。\n\n💡 運用ルール: ①自分で考える → ②AIに相談する → ③最終的に自分で決める`);
+      alert(`🛑 以下を書かないとAIに聞けません:\n\n・${missing.join('\n・')}\n\nまず自分で考えて入力してから、AIに相談してください。\n\n💡 運用ルール: ①自分で考える → ②AIに相談する → ③最終的に自分で決める`);
       return;
     }
     const titleEl = $('ai-modal-title');
@@ -8199,8 +8220,50 @@ ${ctx}
 
 【重要】精神論NG／入力から具体引用／数値は必ず計算式付き／経営者+店長/マネージャー両視点${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'other-analysis') {
-      title = '🔬 AIに「その他の業務」分析を相談';
-      prompt = `あなたは経営戦略のコンサルタントです。以下のKGI/KPI/その他の業務の入力情報を踏まえて、「KPI①②③以外で優先してやるべきこと」を分析・提案してください。\n\n${ctx}\n\n【分析対象】\n「その他の業務」エリア — KPI①②③に該当しないが、事業継続・成長のために必要な業務領域\n\n【お願い（必ず以下の順序で回答）】\n\n■ Part 1: KPI①②③のスコープ確認\n1. 既に入力されているKPI①②③が「事業の成長ドライバー」として何をカバーしているか整理\n2. 逆に「KPI①②③ではカバーされていない領域」を3〜5領域で具体的に列挙\n   例: バックオフィス／組織づくり／採用／法務・コンプライアンス／資金繰り／長期R&D／自分自身の学習・健康 など\n\n■ Part 2: 「その他の業務」で優先すべきテーマの特定\n1. KGI達成・年間ゴール達成に「間接的だが必要不可欠」な業務テーマを3つ提示\n2. 各テーマについて「なぜ優先すべきか」の根拠（リスク回避／土台作り／レバレッジ など）を必ず添える\n3. 「やらないと半年〜1年後にKGI達成を阻害する」という観点で重要度を判定\n\n■ Part 3: 具体的なTodo提案（5〜8個）\n1. 「その他の業務」エリアに追加すべきTodoを5〜8個、動詞で始まる具体的な行動形式で提案\n2. 各Todoに「優先順位（大/中/小）」と「想定所要時間（週あたり何時間）」を付ける\n3. 「ルーティン化すべきもの」と「スポット対応で良いもの」を分けて明示\n\n■ Part 4: 既に入力されている「その他の業務」内容の評価\n1. 現在入力されている「その他の業務」の目標・現状テキストが妥当か評価\n2. 過剰なら削減、不足なら追加の具体提案\n3. KPI①②③とのバランス（時間配分の目安: 例 KPI:その他 = 7:3 など）を提示\n\n【重要】\n- 「KPI①②③に集中すべき」という結論は避ける（その他の業務にも必ず重要なものがある前提で分析）\n- ユーザーが見落としがちな「土台業務」「リスク管理業務」を特に意識して提案\n- 数値や具体例（時間配分%、頻度、優先順位）を必ず添える${AI_OUTPUT_GUIDE}`;
+      title = '🔬 AIに「その他業務（長期準備業務）」分析を相談';
+      prompt = `あなたは経営戦略のコンサルタントです。「その他業務」は **年間ゴール達成のために必要だが、今期(四半期)KGIには直結しない長期準備業務** を扱うエリアです。今期KGI = KPI①②③ で追う指標、長期準備 = その他業務、と切り分けて分析してください。
+
+${ctx}
+
+【分析対象】
+「その他業務」 — 年間ゴール達成のため、半年後／1年後に効いてくる仕込み・準備・土台作り業務(今期KGIには直結しない)。
+例: 採用・組織作り／長期R&D／システム刷新／自分自身の学習・健康／取引先開拓の種まき／中期計画策定 など。
+
+## 1. 結論(2行)
+今期に「種まき」しておくべき長期準備業務テーマ1つ＋やらないと半年〜1年後に効くリスク1つ。
+
+## 2. 定量で見える化
+  - 今期KGI(KPI①②③)に費やす時間の目安と、「その他業務(長期準備)」に費やす時間の目安を比率で(例: 7:3／8:2)
+  - 「その他業務」を全くやらない場合、半年後・1年後の年間ゴール達成にどう響くか
+
+## 3. KGI(今期)とその他業務(長期)の切り分けチェック ★最重要
+入力済みの「その他業務」テキストが本当に **今期KGIに直結しない長期準備** になっているか評価：
+  - 🟢 適切: 半年〜1年後の年間ゴール達成に効く準備
+  - 🟡 KPI①②③に移動すべき: 今期KGIに直結している
+  - 🔴 不要: 年間ゴールにも紐づかない
+判定とその理由を1行ずつ。
+
+## 4. 長期準備テーマ候補(5〜6個)
+年間ゴール達成のために「今期に種まきしておくべき」テーマを5〜6個提示：
+  - テーマ名(動詞含む)
+  - なぜ今期にやるか(半年〜1年後の年間ゴール達成への効き目)
+  - 期日(半年後 / 1年後 / 数年後)
+
+## 5. Todo提案 5〜8個(I×Eスコア順)
+「その他業務」に追加すべきTodo。各Todoに：
+  - 動詞始まりのTodoタイトル
+  - I×Eスコア(I:1〜5 / E:1〜5 / 合計) + 4象限位置
+  - 週あたり所要時間(今期KGIを邪魔しないボリュームで)
+  - 🔁 ルーティン化 or スポット
+  - 期待効果(半年後〜1年後の数値変化)
+
+## 6. KPI①②③との切り分けバランス
+今期の総時間を100%として、KPI:その他業務 の理想配分(例: 80:20 / 70:30)＋根拠。
+
+## 7. 💡 次の一歩
+今週まず仕込む長期準備1つ(15〜30分でできるレベル)。
+
+【重要】「今期KGIに集中せよ」という結論はNG／長期準備にも必ず重要なものがある前提で分析／数値で語る／受講生のエフィカシーを削がない${AI_OUTPUT_GUIDE}`;
     } else if (mode === 'week-coach' || mode === 'week-priority' || mode === 'week-focus') {
       // 統合プロンプト：優先順位整理 + 何を相談すべきか の壁打ち + KGI/KPI方向性チェック
       title = '🤖 AIに今週の相談（優先順位＋方向性）';
