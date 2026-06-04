@@ -1402,6 +1402,29 @@
   .week-card.open .week-card-body { display: block; }
   .week-field { margin-bottom: 14px; }
   .week-field:last-child { margin-bottom: 0; }
+  /* Good / More / Next 3カラムグリッド */
+  .gmn-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  @media (max-width: 760px) {
+    .gmn-grid { grid-template-columns: 1fr; }
+  }
+  .gmn-cell { display: flex; flex-direction: column; gap: 4px; }
+  .gmn-label {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .gmn-good .gmn-label { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .gmn-more .gmn-label { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+  .gmn-next .gmn-label { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+  .gmn-good .rich-field-wrap { border-color: #86efac; background: #f0fdf4; }
+  .gmn-more .rich-field-wrap { border-color: #fcd34d; background: #fffbeb; }
+  .gmn-next .rich-field-wrap { border-color: #93c5fd; background: #eff6ff; }
   .week-field-label {
     font-size: 12px;
     font-weight: 700;
@@ -3622,6 +3645,7 @@
           <li>📊 3つのKPIに分解する（必要なら「その他の業務」も）</li>
           <li>✅ 各KPIをTodoに落とし込む</li>
           <li>🗓 週ごとにTodoを設定して実行</li>
+          <li>🌟 <strong>週末に「Good / More / Next」を記入</strong>（毎週の学びを言語化）</li>
           <li>📊 <strong>月末に「月間成果」を直接記入</strong>（途中報告）</li>
           <li>🤖 <strong>「AIに途中分析を依頼」</strong>で月単位の差分を分析・修正提案</li>
           <li>📈 結果を振り返る</li>
@@ -3749,10 +3773,18 @@
           <li>選んだTodoは <strong>KPIごとにグループ化</strong> されて表示</li>
           <li>KPIヘッダー（色付き帯）を <strong>ドラッグ</strong> で、その週のKPI優先順位を変更可能</li>
           <li>週中に <strong>Todoのチェックボックス</strong> をONにすると、自動で「✅ 実際実行できたこと」欄に表示</li>
-          <li>週末に <strong>「💭 振り返り」</strong> 欄に「何を消し込めたか／なぜできなかったか／改善案」を記入（手入力）</li>
+          <li>週末に <strong>「🌟 Good / More / Next」</strong> 欄に学びと次週アクションを記入（手入力）</li>
         </ol>
         <div class="info">✅ <strong>「実際実行できたこと」は完全自動表示</strong>：その週のチェック済みTodoがKPIタグ＋日付付きで自動リスト化されます。手で書き起こす必要なし。</div>
-        <div class="info">💭 <strong>振り返り欄は引き続き手入力</strong>：「何を実行したか」は自動で見えるので、その上で<strong>「なぜそれをやったか／なぜできなかったか／次にどう活かすか」</strong> を考えて書きます。思考と気付きはここに残してください。</div>
+        <div class="info">🌟 <strong>Good / More / Next で振り返る</strong>：
+          <ul style="margin-top:6px;">
+            <li><strong>✅ Good</strong> — 今週うまくいったこと・成果・継続したいこと</li>
+            <li><strong>🔧 More</strong> — もっと良くできたこと・改善余地・気づき（自己否定にならない表現）</li>
+            <li><strong>🚀 Next</strong> — Good/Moreを踏まえて、来週実行する具体的アクション</li>
+          </ul>
+          <strong>単なるToDo消化の確認ではなく、毎週の行動から学びを抽出し、次週の改善につなげる</strong> ための欄です。
+        </div>
+        <div class="tip">💡 <strong>AI分析にも連動</strong>：書いたGood/More/Nextは、年間ゴール相談・KGI/KPI相談・Todo提案・週次AI相談・月間途中分析・期末結果分析、すべてのAIプロンプトの判断材料として自動で使われます。</div>
         <div class="info">📋 <strong>「先週分を引き継ぐ」</strong>：前の週のTodoをそのままこの週にコピー。継続案件に便利。</div>
         <div class="info">📋 <strong>「前期の同じ週分を復元」</strong>：直近の過去の期から、同じインデックスの週のTodoを復元します（例：今期の「4月1週」⇐ 前期の「1月1週」）。前期のリズムを再現したい時に。</div>
         <div class="info">☐ <strong>「レ点を外す」</strong> ボタンでその週のTodoのチェックを一括で外せます。</div>
@@ -3832,7 +3864,7 @@
             <li>店長育成OS <strong>9ステップ</strong>（ボトルネック→センターピン→定量化→計画→タスク分解→スケジューリング→振り返りMTG→実行→改善）に沿って回答</li>
             <li>Todo提案には必ず <strong>I（インパクト）×E（簡単さ）スコア</strong> と <strong>4象限位置</strong>、<strong>いつやる</strong>（曜日・時間帯）を添付</li>
             <li>各回答に必ず <strong>「👏 ここを褒める」</strong> 一言が入り、受講生のエフィカシー（自信）を高める</li>
-            <li>記入済みの <strong>月間成果メモ</strong> は全AIプロンプトに自動で渡され、判断材料に</li>
+            <li>記入済みの <strong>月間成果メモ</strong> および <strong>週次 Good/More/Next 履歴</strong> は全AIプロンプトに自動で渡され、判断材料に</li>
           </ul>
         </div>
 
@@ -3840,11 +3872,11 @@
         <p>📊 結果テーブルの各行（KGI / KPI① / KPI② / KPI③）に <strong>「🔬 AI分析」</strong> ボタンを配置。期が終わって実績を入力したあと、これをクリックすると：</p>
         <ol>
           <li><strong>Part 1</strong>: 数値ギャップを定量整理（達成率・成長率・絶対値・割合）</li>
-          <li><strong>Part 2</strong>: ギャップが生まれた "なぜ" を分析（入力した課題・解決策・週次のTodo完了状況・振り返りメモを全部読み取って原因抽出）</li>
+          <li><strong>Part 2</strong>: ギャップが生まれた "なぜ" を分析（入力した課題・解決策・週次のTodo完了状況・<strong>Good/More/Next履歴</strong>・月間成果メモを全部読み取って原因抽出）</li>
           <li><strong>Part 3</strong>: 期の途中で気付けていれば取れた代替シナリオを3パターン提示</li>
           <li><strong>Part 4</strong>: 次の期に向けた具体改善案（目標値見直し／課題・解決策修正／追加Todo／削除Todo／週次運用の改善／早期警告サイン）</li>
         </ol>
-        <div class="info">📈 <strong>結果分析AIの特徴</strong>：受講生が入力した<strong>すべての情報</strong>（数値・文章・Todo・週次の実行状況・振り返りメモ）を読み取って分析。「なんとなく頑張りましょう」のような精神論は禁止し、必ず数値計算式と具体引用で論理展開する設計。</div>
+        <div class="info">📈 <strong>結果分析AIの特徴</strong>：受講生が入力した<strong>すべての情報</strong>（数値・文章・Todo・週次の実行状況・Good/More/Next履歴・月間成果メモ）を読み取って分析。「なんとなく頑張りましょう」のような精神論は禁止し、必ず数値計算式と具体引用で論理展開する設計。</div>
 
         <h5>🛠 共通の使い方</h5>
         <ol>
@@ -3919,7 +3951,7 @@
         <div class="info">💡 ラベル横にステータスバッジが表示されるので、未確認のFBが一目で分かります。</div>
 
         <h4>📝 リッチテキスト編集（Markdown対応）</h4>
-        <p>「自由メモ」「振り返り」「FB」「Todo詳細」「AI相談履歴」など、すべての長文入力欄でMarkdownが使えます。</p>
+        <p>「自由メモ」「Good / More / Next」「月間成果」「FB」「Todo詳細」「AI相談履歴」など、すべての長文入力欄でMarkdownが使えます。</p>
         <h5>🎨 使える書式</h5>
         <ul>
           <li><strong>見出し</strong>： <code># H1</code> ／ <code>## H2</code> ／ <code>### H3</code> 〜 <code>###### H6</code></li>
@@ -4604,7 +4636,7 @@
       other: { target: '', current: '' },  // simpler: text only
     },
     todos: { 1: [], 2: [], 3: [], other: [] },
-    weeks: DEFAULT_WEEKS.map(w => ({ week: w, planTodoIds: [], kpiOrder: [1,2,3], planNote: '', done: '', review: '' })),
+    weeks: DEFAULT_WEEKS.map(w => ({ week: w, planTodoIds: [], kpiOrder: [1,2,3], planNote: '', done: '', review: '', good: '', more: '', next: '' })),
     results: {
       kgi:  { actual: '' },
       kpi1: { actual: '' },
@@ -4729,6 +4761,9 @@
           planNote: w.planNote ?? (w.plan || ''),
           done: w.done || '',
           review: w.review || '',
+          good: w.good || '',
+          more: w.more || '',
+          next: w.next || '',
           feedback: w.feedback || '',
         }));
         return merged;
@@ -5338,7 +5373,8 @@
       return f && f.todo.done;
     });
     return (w.planTodoIds && w.planTodoIds.length > 0) ||
-           !!w.planNote || hasDoneAuto || !!w.review;
+           !!w.planNote || hasDoneAuto || !!w.review ||
+           !!w.good || !!w.more || !!w.next;
   }
 
   function getDoneTodosForWeek(w) {
@@ -5461,9 +5497,26 @@
               ${doneListHTML}
             </div>
             <div class="week-field">
-              <div class="week-field-label">💭 振り返り（理由・改善案・気付き — クリックで全文表示・編集）</div>
-              <div class="rich-field-wrap" data-week="${wi}" data-field="review" data-label="振り返り" data-act="rich-expand">
-                <div class="rich-display collapsed">${w.review ? renderRichText(w.review) : '<span class="rich-placeholder">振り返り — クリックして全文表示・編集。**太字** / # 見出し / URL自動リンクなど対応</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+              <div class="week-field-label">🌟 Good / More / Next — 今週の学びを次週へ</div>
+              <div class="gmn-grid">
+                <div class="gmn-cell gmn-good">
+                  <div class="gmn-label">✅ Good</div>
+                  <div class="rich-field-wrap" data-week="${wi}" data-field="good" data-label="Good" data-act="rich-expand">
+                    <div class="rich-display collapsed">${w.good ? renderRichText(w.good) : '<span class="rich-placeholder">今週うまくいったこと・成果・継続したいこと</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+                  </div>
+                </div>
+                <div class="gmn-cell gmn-more">
+                  <div class="gmn-label">🔧 More</div>
+                  <div class="rich-field-wrap" data-week="${wi}" data-field="more" data-label="More" data-act="rich-expand">
+                    <div class="rich-display collapsed">${w.more ? renderRichText(w.more) : '<span class="rich-placeholder">もっと良くできたこと・改善余地・気づき</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+                  </div>
+                </div>
+                <div class="gmn-cell gmn-next">
+                  <div class="gmn-label">🚀 Next</div>
+                  <div class="rich-field-wrap" data-week="${wi}" data-field="next" data-label="Next" data-act="rich-expand">
+                    <div class="rich-display collapsed">${w.next ? renderRichText(w.next) : '<span class="rich-placeholder">来週実行する具体的アクション</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="week-field">
@@ -6784,6 +6837,9 @@
     state.weeks.forEach((w, wi) => {
       w.done = '';
       w.review = '';
+      w.good = '';
+      w.more = '';
+      w.next = '';
       w.planNote = '';
       w.feedback = '';
       const planIds = [];
@@ -7142,6 +7198,9 @@
           planNote: w.planNote ?? (w.plan || ''),
           done: w.done || '',
           review: w.review || '',
+          good: w.good || '',
+          more: w.more || '',
+          next: w.next || '',
           feedback: w.feedback || '',
         }));
         suppressCloudSave = true;
@@ -7197,6 +7256,9 @@
         planNote: w.planNote ?? (w.plan || ''),
         done: w.done || '',
         review: w.review || '',
+        good: w.good || '',
+        more: w.more || '',
+        next: w.next || '',
         feedback: w.feedback || '',
         feedbackStatus: w.feedbackStatus || 'unread',
       }));
@@ -7402,6 +7464,9 @@
           planNote: w.planNote ?? (w.plan || ''),
           done: w.done || '',
           review: w.review || '',
+          good: w.good || '',
+          more: w.more || '',
+          next: w.next || '',
           feedback: w.feedback || '',
         }));
         renderAll();
@@ -7580,6 +7645,13 @@
         lines.push(`**💭 振り返り:**`);
         lines.push(w.review);
       }
+      if (w.good || w.more || w.next) {
+        lines.push(``);
+        lines.push(`**🌟 Good / More / Next:**`);
+        if (w.good) { lines.push(`- ✅ Good: ${w.good}`); }
+        if (w.more) { lines.push(`- 🔧 More: ${w.more}`); }
+        if (w.next) { lines.push(`- 🚀 Next: ${w.next}`); }
+      }
       if (w.feedback && w.feedback.trim()) {
         lines.push(``);
         lines.push(`**💬 FB:**`);
@@ -7695,6 +7767,21 @@
       lines.push(`\n【その他の業務】${og.target || ''}`);
       if (og.current) lines.push(`  現状: ${og.current}`);
     }
+    // 全週のGood/More/Next（学びを次週改善へ → 全AI分析の素材）
+    const gmnEntries = [];
+    (state.weeks || []).forEach((w) => {
+      if (w && (w.good || w.more || w.next)) {
+        const block = [`  ${w.week || ''}:`];
+        if (w.good) block.push(`    ✅ Good: ${w.good}`);
+        if (w.more) block.push(`    🔧 More: ${w.more}`);
+        if (w.next) block.push(`    🚀 Next: ${w.next}`);
+        gmnEntries.push(block.join('\n'));
+      }
+    });
+    if (gmnEntries.length > 0) {
+      lines.push(`\n【🌟 週次 Good / More / Next 履歴】`);
+      lines.push(gmnEntries.join('\n'));
+    }
     // 月間成果メモ
     const mb = buildMonthlyResultsBlock();
     if (mb) lines.push(mb);
@@ -7793,6 +7880,9 @@
         });
       }
       if (w.review) block.push(`    振り返り: ${w.review}`);
+      if (w.good) block.push(`    ✅ Good: ${w.good}`);
+      if (w.more) block.push(`    🔧 More: ${w.more}`);
+      if (w.next) block.push(`    🚀 Next: ${w.next}`);
       weekEntries.push(block.join('\n'));
     });
     if (weekEntries.length > 0) {
@@ -7810,6 +7900,13 @@
     if (!w) return '';
     const lines = [];
     lines.push(`【対象週】${w.week || ''}`);
+    // 当該週の Good/More/Next（次週改善の重要材料）
+    if (w.good || w.more || w.next) {
+      lines.push(`【🌟 Good/More/Next（${w.week || '対象週'}の振り返り）】`);
+      if (w.good) lines.push(`  ✅ Good: ${w.good}`);
+      if (w.more) lines.push(`  🔧 More: ${w.more}`);
+      if (w.next) lines.push(`  🚀 Next: ${w.next}`);
+    }
     const ids = w.planTodoIds || [];
     if (ids.length === 0) {
       lines.push('（この週にはまだTodoが登録されていません）');
@@ -8480,9 +8577,14 @@ ${ctx}
         const display = wrap.querySelector('.rich-display');
         const inlineTa = wrap.querySelector('.rich-input');
         if (display) {
-          const placeholder = field === 'planNote'
-            ? '自由メモ（任意） — クリックして入力。**太字** / *斜体* / URLが使えます'
-            : '振り返り — クリックして入力。**太字** / *斜体* / URLが使えます';
+          const placeholderMap = {
+            planNote: '自由メモ（任意） — クリックして入力。**太字** / *斜体* / URLが使えます',
+            review: '振り返り — クリックして入力。**太字** / *斜体* / URLが使えます',
+            good: '今週うまくいったこと・成果・継続したいこと',
+            more: 'もっと良くできたこと・改善余地・気づき',
+            next: '来週実行する具体的アクション',
+          };
+          const placeholder = placeholderMap[field] || 'クリックして入力';
           display.innerHTML = val ? renderRichText(val) : `<span class="rich-placeholder">${placeholder}</span>`;
         }
         if (inlineTa) inlineTa.value = val;
@@ -8886,6 +8988,9 @@ ${ctx}
         planNote: w.planNote ?? (w.plan || ''),
         done: w.done || '',
         review: w.review || '',
+        good: w.good || '',
+        more: w.more || '',
+        next: w.next || '',
         feedback: w.feedback || '',
         feedbackStatus: w.feedbackStatus || 'unread',
       }));
