@@ -2073,32 +2073,6 @@
     font-size: 11px;
   }
   /* リッチテキスト モーダル: プレビュー/編集 タブ */
-  .rich-modal-tabs {
-    display: flex;
-    gap: 2px;
-    margin-bottom: 10px;
-    border-bottom: 2px solid #e5e7eb;
-  }
-  .rich-tab {
-    background: transparent;
-    border: none;
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--muted);
-    cursor: pointer;
-    font-family: inherit;
-    border-bottom: 3px solid transparent;
-    margin-bottom: -2px;
-    transition: all 0.15s;
-  }
-  .rich-tab:hover { color: var(--accent); }
-  .rich-tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-    background: rgba(59, 130, 246, 0.05);
-  }
-
   /* ===== 期限内Todo 進捗統計 ===== */
   .overdue-stats {
     display: flex;
@@ -3495,21 +3469,16 @@
       <button class="modal-close" id="rich-modal-close">×</button>
     </div>
     <div class="modal-body">
-      <div class="rich-modal-tabs">
-        <button type="button" class="rich-tab active" data-rich-tab="preview" id="rich-tab-preview">📖 プレビュー</button>
-        <button type="button" class="rich-tab" data-rich-tab="edit" id="rich-tab-edit">✏️ 編集</button>
-      </div>
       <div class="feedback-status-selector" id="rich-modal-status-selector">
         <label>📌 確認状態：</label>
         <button type="button" class="status-btn unread" data-status="unread">未確認</button>
         <button type="button" class="status-btn confirmed" data-status="confirmed">確認済</button>
         <button type="button" class="status-btn resolved" data-status="resolved">解決済</button>
       </div>
-      <div class="rich-modal-hint" id="rich-modal-edit-hint" style="display:none;">
+      <div class="rich-modal-hint" id="rich-modal-edit-hint">
         💡 <strong>使える書式</strong>： <code>**太字**</code> ／ <code>*斜体*</code> ／ <code>- 箇条書き</code> ／ <code>`コード`</code> ／ <code># 見出し</code> ／ <code>&gt; 引用</code> ／ <code>| 表 |</code> ／ URL自動リンク
       </div>
-      <textarea id="rich-modal-textarea" rows="14" style="display:none;width:100%;resize:vertical;font-size:14px;padding:12px;border:1.5px solid var(--accent);border-radius:6px;font-family:inherit;box-sizing:border-box;line-height:1.6;min-height:300px;"></textarea>
-      <div id="rich-modal-preview" class="rich-preview"></div>
+      <textarea id="rich-modal-textarea" rows="14" style="width:100%;resize:vertical;font-size:14px;padding:12px;border:1.5px solid var(--accent);border-radius:6px;font-family:inherit;box-sizing:border-box;line-height:1.6;min-height:300px;"></textarea>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px;flex-wrap:wrap;">
         <button id="rich-modal-add-feedback" style="display:none;background:linear-gradient(135deg,#16a34a,#059669);color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">✍ 新規FBを追記（署名・日時付き）</button>
         <button id="rich-modal-done" style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-left:auto;">閉じる（自動保存済み）</button>
@@ -4688,17 +4657,25 @@
   function normalizeGoal(g, isKgi) {
     g = g || {};
     const base = isKgi ? defaultGoal() : defaultGoal({ issue: '', solution: '' });
+    // KPI(非KGI): 旧データの current を issue に統合（「現状・課題」一本化）
+    let issueVal = g.issue || '';
+    if (!isKgi && (g.current || '').trim() && !issueVal.trim()) {
+      issueVal = g.current;
+    } else if (!isKgi && (g.current || '').trim() && issueVal.trim() && !issueVal.includes(g.current)) {
+      // 両方ある場合は連結（重複は避ける）
+      issueVal = `${g.current}\n\n${issueVal}`;
+    }
     return {
       ...base,
       target: g.target || '',
-      current: g.current || '',
+      current: isKgi ? (g.current || '') : '',  // KPIではcurrentを使わない
       unit: g.unit || 'none',
       targetValue: g.targetValue ?? '',
       currentValue: g.currentValue ?? '',
       lowerIsBetter: !!g.lowerIsBetter,
       feedback: g.feedback || '',
       feedbackStatus: g.feedbackStatus || 'unread',
-      ...(isKgi ? {} : { issue: g.issue || '', solution: g.solution || '' }),
+      ...(isKgi ? {} : { issue: issueVal, solution: g.solution || '' }),
     };
   }
   function normalizeAllGoals(goals) {
@@ -4819,15 +4796,9 @@
         </div>
         <div class="kpi-card-body">
           <div class="kpi-row">
-            <div class="lbl">現状</div>
-            <div class="rich-field-wrap goal-rich-field" data-goal="${k}" data-field="current" data-label="現状" data-act="goal-text-expand">
-              <div class="rich-display collapsed">${g.current ? renderRichText(g.current) : '<span class="rich-placeholder">今の状態を入力（クリックで全文表示・編集）。**太字** / # 見出し / URL自動リンクなど対応</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
-            </div>
-          </div>
-          <div class="kpi-row">
-            <div class="lbl">課題</div>
-            <div class="rich-field-wrap goal-rich-field" data-goal="${k}" data-field="issue" data-label="課題" data-act="goal-text-expand">
-              <div class="rich-display collapsed">${g.issue ? renderRichText(g.issue) : '<span class="rich-placeholder">目標達成を阻む課題を入力（クリックで全文表示・編集）</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
+            <div class="lbl">現状・課題</div>
+            <div class="rich-field-wrap goal-rich-field" data-goal="${k}" data-field="issue" data-label="現状・課題" data-act="goal-text-expand">
+              <div class="rich-display collapsed">${g.issue ? renderRichText(g.issue) : '<span class="rich-placeholder">今の状態 + 目標達成を阻む課題をまとめて入力（クリックで全文表示・編集）</span>'}<span class="rich-expand-hint">クリックで全文＋編集</span></div>
             </div>
           </div>
           <div class="kpi-row">
@@ -7545,8 +7516,7 @@
       const label = ['①', '②', '③'][n - 1];
       lines.push(`## 📊 KPI${label}`);
       lines.push(`- **目標**: ${g.target || '(未入力)'}`);
-      lines.push(`- **現状**: ${g.current || '(未入力)'}`);
-      lines.push(`- **課題**: ${g.issue || '(未入力)'}`);
+      lines.push(`- **現状・課題**: ${g.issue || '(未入力)'}`);
       lines.push(`- **解決策**: ${g.solution || '(未入力)'}`);
       if (g.targetValue || g.currentValue) {
         lines.push(`- **数値**: 現状 ${formatLiveValue(g.currentValue || '', g.unit)} / 目標 ${formatLiveValue(g.targetValue || '', g.unit)}${g.lowerIsBetter ? ' (↓低い方が良い)' : ''}`);
@@ -7753,8 +7723,7 @@
       const label = ['①','②','③'][n-1];
       const block = [];
       if (k.target) block.push(`【KPI${label}】${k.target}`);
-      if (k.current) block.push(`  現状(文章): ${k.current}`);
-      if (k.issue) block.push(`  課題: ${k.issue}`);
+      if (k.issue) block.push(`  現状・課題: ${k.issue}`);
       if (k.solution) block.push(`  解決策: ${k.solution}`);
       if (k.targetValue || k.currentValue) {
         block.push(`  数値: 目標 ${formatLiveValue(k.targetValue || '', k.unit)} / 現状 ${formatLiveValue(k.currentValue || '', k.unit)}${k.lowerIsBetter ? ' (↓低い方が良い指標)' : ''}`);
@@ -7807,9 +7776,10 @@
     // 分析対象の詳細
     lines.push(`\n【分析対象】${KPI_LABELS[k]}`);
     if (goal.target) lines.push(`  目標(文章): ${goal.target}`);
-    if (goal.current) lines.push(`  現状(文章): ${goal.current}`);
-    if (k !== 'kgi') {
-      if (goal.issue) lines.push(`  課題: ${goal.issue}`);
+    if (k === 'kgi') {
+      if (goal.current) lines.push(`  現状(文章): ${goal.current}`);
+    } else {
+      if (goal.issue) lines.push(`  現状・課題: ${goal.issue}`);
       if (goal.solution) lines.push(`  解決策: ${goal.solution}`);
     }
     // 数値
@@ -7972,12 +7942,12 @@
     // KGI: タイトル + 現状 が必須
     if (!(kgi.target || '').trim()) missing.push('KGIのタイトル');
     if (!(kgi.current || '').trim()) missing.push('KGIの現状');
-    // KPI個別分析やTodo提案系：そのKPIのタイトル+現状が必須
+    // KPI個別分析やTodo提案系：そのKPIのタイトル+現状・課題が必須
     if (mode && (mode.startsWith('kpi-analysis-') || mode.startsWith('todo-suggest-kpi-'))) {
       const n = +mode.split('-').pop();
       const kpi = state.goals['kpi' + n] || {};
       if (!(kpi.target || '').trim()) missing.push(`KPI${['①','②','③'][n-1]}のタイトル`);
-      if (!(kpi.current || '').trim()) missing.push(`KPI${['①','②','③'][n-1]}の現状`);
+      if (!(kpi.issue || '').trim()) missing.push(`KPI${['①','②','③'][n-1]}の現状・課題`);
     }
     // Todo提案・週次相談系：Todoが1つ以上必要
     const requireTodo = (mode === 'todo-suggest') || (mode && mode.startsWith('todo-suggest-kpi-')) || (mode === 'week-coach') || (mode === 'week-priority') || (mode === 'week-focus') || (mode === 'monthly-review');
@@ -8243,7 +8213,7 @@ A(効果大)/B(普通)/C(外す)で1行ずつ。
       const kpiNum = +mode.split('-').pop();
       const kpiLabel = ['①','②','③'][kpiNum - 1];
       title = `🔬 AIにKPI${kpiLabel}分析を相談`;
-      prompt = `あなたは経営戦略のコンサルタント＋店長/マネージャーです。KPI${kpiLabel}の **方向性を決める** ためのアドバイスを。受講生が「現状・課題・解決策」を書き込めるようサポートします。**月間成果メモ(途中報告)** があれば、そこから読み取れる傾向を踏まえて分析してください。
+      prompt = `あなたは経営戦略のコンサルタント＋店長/マネージャーです。KPI${kpiLabel}の **方向性を決める** ためのアドバイスを。受講生が「現状・課題」「解決策」を書き込めるようサポートします。**月間成果メモ(途中報告)** があれば、そこから読み取れる傾向を踏まえて分析してください。
 
 ${ctx}
 
@@ -8253,32 +8223,29 @@ ${ctx}
 ## 2. 定量で見える化
 現状値・目標値・ギャップを計算式で。「KGIに○%寄与」も明示。
 
-## 3. 現状の書き方ヒント
-受講生が「現状」欄に書くべき内容(1〜2行で十分)の具体例3つ：
-  例) 「現状○○件/月。前期比+/-N%。クレーム原因はAが主」
-事実ベースで **短く** 書く形を提示。
-
-## 4. 課題の書き方ヒント★最重要
-達成を阻む **課題候補を5〜6個** 提示。各課題に：
+## 3. 現状・課題の書き方ヒント★最重要
+受講生が「現状・課題」欄(1欄に統合)に書くべき内容の具体例：
+  例) 「現状○○件/月。前期比+/-N%。達成を阻む課題: A原因が主、B原因が次点」
+事実(現状の数値・状況)と、それを阻む課題(5〜6個候補)をセットで提示。各課題に：
   - 課題タイトル(1行)
   - なぜ課題か(数値や状況で)
   - 深刻度(大/中/小)
 受講生が選んで書き込めるレベルで。
 
-## 5. 解決策の書き方ヒント★最重要
+## 4. 解決策の書き方ヒント★最重要
 上記課題に対する **解決策候補を5〜6個**：
   - 解決策タイトル(動詞始まり)
   - 想定効果(数値で)
   - 実行難易度(難/中/易)
 経営者+店長/マネージャー両視点。
 
-## 6. 他KPIとの連動
+## 5. 他KPIとの連動
 KPI${kpiLabel}が他KPIとどう連動するか1行。
 
-## 7. 💡 次の一歩
+## 6. 💡 次の一歩
 今日決めること1つ。
 
-【重要】現状は1〜2行で十分／課題・解決策は **選択肢から選んで書き込める** 粒度／数値は必ず計算式付き${AI_OUTPUT_GUIDE}`;
+【重要】現状と課題は1欄に統合／解決策は **選択肢から選んで書き込める** 粒度／数値は必ず計算式付き${AI_OUTPUT_GUIDE}`;
     } else if (mode && mode.startsWith('result-analysis-')) {
       const key = mode.split('result-analysis-')[1];  // 'kgi'|'kpi1'|'kpi2'|'kpi3'
       const label = (key === 'kgi') ? 'KGI' : (key === 'kpi1' ? 'KPI①' : key === 'kpi2' ? 'KPI②' : 'KPI③');
@@ -8512,13 +8479,10 @@ ${ctx}
     const val = (w && w[field]) || '';
     $('rich-modal-title').textContent = `📝 ${label} - 拡大表示（${w?.week || ''}）`;
     $('rich-modal-textarea').value = val;
-    $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
     updateFeedbackAddBtn(field);
-    // Initial tab: 内容がある時はプレビュー / 空の時は編集
-    const valToCheck = $('rich-modal-textarea').value || '';
-    setRichModalTab(valToCheck.trim() ? 'preview' : 'edit');
     updateFeedbackStatusUI();
     $('rich-modal').classList.add('show');
+    setTimeout(() => $('rich-modal-textarea').focus(), 0);
   }
   function openTodoDetailModal(todoId, field) {
     const found = findTodoById(todoId);
@@ -8531,13 +8495,10 @@ ${ctx}
     const todoText = found.todo.text || '(未入力)';
     $('rich-modal-title').textContent = `📝 ${todoText.slice(0, 30)}${todoText.length > 30 ? '…' : ''} - ${label}`;
     $('rich-modal-textarea').value = val;
-    $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
     updateFeedbackAddBtn(f);
-    // Initial tab: 内容がある時はプレビュー / 空の時は編集
-    const valToCheck = $('rich-modal-textarea').value || '';
-    setRichModalTab(valToCheck.trim() ? 'preview' : 'edit');
     updateFeedbackStatusUI();
     $('rich-modal').classList.add('show');
+    setTimeout(() => $('rich-modal-textarea').focus(), 0);
   }
   // Open modal for a state.goals[goalKey][field] text field (現状 / 課題 / 解決策 / feedback etc.)
   function openGoalTextModal(goalKey, field, label) {
@@ -8547,13 +8508,10 @@ ${ctx}
     const kpiLabel = goalKey === 'kgi' ? 'KGI' : goalKey === 'kpi1' ? 'KPI①' : goalKey === 'kpi2' ? 'KPI②' : goalKey === 'kpi3' ? 'KPI③' : goalKey;
     $('rich-modal-title').textContent = `📝 ${kpiLabel} - ${label}`;
     $('rich-modal-textarea').value = val;
-    $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
     updateFeedbackAddBtn(field);
-    // Initial tab: 内容がある時はプレビュー / 空の時は編集
-    const valToCheck = $('rich-modal-textarea').value || '';
-    setRichModalTab(valToCheck.trim() ? 'preview' : 'edit');
     updateFeedbackStatusUI();
     $('rich-modal').classList.add('show');
+    setTimeout(() => $('rich-modal-textarea').focus(), 0);
   }
   function closeRichModal() {
     $('rich-modal').classList.remove('show');
@@ -8571,7 +8529,6 @@ ${ctx}
         state.weeks[wi][field] = val;
         save();
       }
-      $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
       const wrap = document.querySelector(`.rich-field-wrap[data-week="${wi}"][data-field="${field}"]`);
       if (wrap) {
         const display = wrap.querySelector('.rich-display');
@@ -8595,7 +8552,6 @@ ${ctx}
       const f = richModalCtx.field || 'details';
       found.todo[f] = val;
       save();
-      $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
       // Sync inline display
       const wrap = document.querySelector(`.rich-field-wrap[data-todoid="${richModalCtx.todoId}"][data-field="${f}"]`);
       if (wrap) {
@@ -8641,7 +8597,6 @@ ${ctx}
           if (typeof renderResults === 'function') renderResults();
         }
       }
-      $('rich-modal-preview').innerHTML = val ? renderRichText(val) : '<span class="rich-placeholder">プレビューはここに表示されます</span>';
       // Sync inline display
       const wrap = document.querySelector(`.rich-field-wrap[data-goal="${goalKey}"][data-field="${field}"]`);
       if (wrap) {
@@ -8656,32 +8611,6 @@ ${ctx}
       }
     }
   });
-  // Rich text modal: switch between preview / edit tab
-  function setRichModalTab(tab) {
-    const ta = $('rich-modal-textarea');
-    const pv = $('rich-modal-preview');
-    const hint = $('rich-modal-edit-hint');
-    const tabPv = $('rich-tab-preview');
-    const tabEd = $('rich-tab-edit');
-    if (tab === 'edit') {
-      ta.style.display = '';
-      pv.style.display = 'none';
-      hint.style.display = '';
-      tabPv?.classList.remove('active');
-      tabEd?.classList.add('active');
-      setTimeout(() => ta.focus(), 30);
-    } else {
-      // preview mode
-      ta.style.display = 'none';
-      pv.style.display = '';
-      hint.style.display = 'none';
-      tabPv?.classList.add('active');
-      tabEd?.classList.remove('active');
-    }
-  }
-  // Default tab on modal open: preview (set via openRichModal etc.)
-  $('rich-tab-preview').addEventListener('click', () => setRichModalTab('preview'));
-  $('rich-tab-edit').addEventListener('click', () => setRichModalTab('edit'));
   $('rich-modal-close').addEventListener('click', closeRichModal);
   $('rich-modal-done').addEventListener('click', closeRichModal);
   $('rich-modal').addEventListener('click', (e) => {
