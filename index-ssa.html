@@ -96,7 +96,15 @@
     font-weight: 700;
     color: #1e40af;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid #93c5fd;
   }
+  .section-nav-label strong { color: #0f172a; }
   .section-nav button {
     background: #fff;
     border: 1.5px solid #93c5fd;
@@ -2222,32 +2230,35 @@
     line-height: 1.2;
   }
   .result-ai-wrap {
-    margin-top: 10px;
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: middle;
   }
   .result-ai-btn-big {
     display: inline-flex;
-    flex-direction: column;
     align-items: center;
-    gap: 1px;
-    width: 100%;
+    gap: 4px;
     background: linear-gradient(135deg, #ec4899, #8b5cf6);
     color: #fff;
     border: none;
-    border-radius: 8px;
-    padding: 10px 14px;
+    border-radius: 999px;
+    padding: 4px 10px;
     font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.35);
+    box-shadow: 0 1px 3px rgba(139, 92, 246, 0.3);
     transition: transform 0.15s, box-shadow 0.15s;
+    white-space: nowrap;
   }
   .result-ai-btn-big:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 2px 6px rgba(139, 92, 246, 0.45);
   }
   .result-ai-btn-big:active { transform: translateY(0); }
-  .result-ai-btn-big .ai-icon { font-size: 16px; }
-  .result-ai-btn-big .ai-main { font-size: 13px; font-weight: 700; }
-  .result-ai-btn-big .ai-sub { font-size: 10px; opacity: 0.9; font-weight: 500; }
+  .result-ai-btn-big .ai-icon { font-size: 12px; }
+  .result-ai-btn-big .ai-main { font-size: 11px; font-weight: 700; }
+  .result-ai-btn-big .ai-sub { display: none; }
   .calc { font-weight: 700; }
   .calc-good { color: var(--success); }
   .calc-mid { color: var(--warn); }
@@ -2793,12 +2804,14 @@
     pointer-events: auto;
     cursor: default;
   }
-  body.readonly button:not(#ro-banner button):not(.modal-close):not(#picker-done):not(.ai-help-btn):not(.result-ai-btn-big):not([data-act^="ai-help"]):not(#ai-copy-btn):not(#ai-done):not([data-ai-service]):not(#ub-copy-gm):not(#ub-copy-link):not(.ub-name):not(#ub-name):not(#ub-guide):not([data-act="toggle-week"]):not([data-act="toggle-history"]):not([data-act="toggle-detail"]) { pointer-events: none; opacity: 0.5; }
+  body.readonly button:not(#ro-banner button):not(#archive-banner button):not(.modal-close):not(#picker-done):not(.ai-help-btn):not(.result-ai-btn-big):not([data-act^="ai-help"]):not(#ai-copy-btn):not(#ai-done):not([data-ai-service]):not(#ub-copy-gm):not(#ub-copy-link):not(.ub-name):not(#ub-name):not(#ub-guide):not([data-act="toggle-week"]):not([data-act="toggle-history"]):not([data-act="toggle-detail"]) { pointer-events: none; opacity: 0.5; }
   body.readonly .ai-help-btn,
   body.readonly .result-ai-btn-big,
   body.readonly [data-act^="ai-help"],
   body.readonly #ub-copy-gm,
-  body.readonly #ub-copy-link { pointer-events: auto !important; opacity: 1 !important; }
+  body.readonly #ub-copy-link,
+  body.readonly #archive-banner button,
+  body.readonly #archive-exit { pointer-events: auto !important; opacity: 1 !important; cursor: pointer !important; }
   /* 講師権限（FBのみ編集可）: FB欄関連は触れるようにする */
   body.feedback-editor .rich-field-wrap.feedback-field,
   body.feedback-editor .rich-field-wrap.feedback-field *,
@@ -3243,7 +3256,7 @@
 <main>
   <!-- セクション間ジャンプナビゲーション（スクロールで上部に貼り付く） -->
   <nav class="section-nav" id="section-nav">
-    <span class="section-nav-label">📍 セクションに移動：</span>
+    <span class="section-nav-label" id="section-nav-owner" title="現在閲覧中のシート">👤 —</span>
     <button type="button" data-jump="sec-annual">🎯 年間ゴール</button>
     <button type="button" data-jump="sec-kgi">⭐ KGI/KPI</button>
     <button type="button" data-jump="sec-todo">✅ Todo</button>
@@ -5307,7 +5320,12 @@
     if (!el) return;
     const today = new Date();
     today.setHours(23, 59, 59, 999);
-    const year = state.periodYear || today.getFullYear();
+    // periodYear が未定義のケース対策: state.period の先頭4桁から取得
+    let year = state.periodYear;
+    if (!year) {
+      const m = String(state.period || '').match(/(\d{4})/);
+      year = m ? +m[1] : today.getFullYear();
+    }
     // Cumulative stats (today まで全週合算)
     let total = 0, done = 0, weekCount = 0;
     // Recent 2 weeks stats: weeks whose start is within the last 14 days (and <= today)
@@ -5338,7 +5356,15 @@
       });
     });
     if (total === 0) {
-      el.style.display = 'none';
+      // ゼロ件でもガイド表示（消えたように見えるのを防止）
+      el.style.display = 'flex';
+      el.className = 'overdue-stats';
+      el.innerHTML = `
+        <div class="overdue-stat-card" style="flex:1;text-align:center;color:var(--muted);padding:14px;">
+          <div style="font-size:13px;font-weight:600;">📊 完了率ゲージ — 集計対象なし</div>
+          <div style="font-size:11px;margin-top:4px;">各週カードを開いて「➕ Todoから選ぶ」でTodoを設定すると、ここに完了率・直近2週・未完了率が自動表示されます</div>
+        </div>
+      `;
       return;
     }
     const remaining = total - done;
@@ -7076,6 +7102,20 @@
         ? '毎週日曜に応援メール配信中（クリックで停止）'
         : 'メール配信停止中（クリックで再開）';
     }
+    updateSectionNavOwner();
+  }
+  // セクションナビ左端の閲覧中シート名を更新
+  function updateSectionNavOwner() {
+    const el = document.getElementById('section-nav-owner');
+    if (!el) return;
+    // 他受講生閲覧中なら viewingEmail を、それ以外は自分
+    const isOther = viewingDocId && viewingDocId !== currentDocId;
+    const target = isOther ? (viewingEmail || '(他ユーザー)') : (currentDisplayName || currentEmail || '—');
+    const prefix = isOther ? '👀 閲覧中: ' : '👤 ';
+    el.innerHTML = `${prefix}<strong style="margin-left:2px;">${esc(target)}</strong>`;
+    el.title = isOther
+      ? `他受講生「${target}」のシートを閲覧中`
+      : `自分のシート: ${target}`;
   }
 
   async function toggleEmailNotifications() {
@@ -7494,6 +7534,7 @@
       $('ro-email').innerHTML = `📖 **${esc(displayName || email)}**（${esc(email)}）のデータを閲覧中（読み取り専用・AI分析のみ可）`;
     }
     $('ro-banner').classList.add('show');
+    updateSectionNavOwner();
     if (firestoreUnsub) { firestoreUnsub(); firestoreUnsub = null; }
     try {
       const snap = await getDoc(doc(db, 'users', docId));
@@ -7537,12 +7578,14 @@
     viewingDocId = currentDocId;
     viewingEmail = currentEmail;
     document.body.classList.remove('readonly');
+    document.body.classList.remove('feedback-editor');
     $('ro-banner').classList.remove('show', 'editing');
     // Reload own data
     state = load();
     renderAll();
     setupCloudSubscription(currentDocId);
     loadFromCloud(currentDocId);
+    updateSectionNavOwner();
   }
 
   $('ro-back').addEventListener('click', enterOwnMode);
