@@ -1084,6 +1084,33 @@
     border-color: #3b82f6;
     color: #2563eb;
   }
+  .routine-btn.pending {
+    background: linear-gradient(90deg, #fef3c7, #fde68a);
+    border-color: #f59e0b;
+    color: #92400e;
+    animation: routinePulse 1s ease-in-out infinite;
+  }
+  @keyframes routinePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+    50% { box-shadow: 0 0 0 4px rgba(245, 158, 11, 0); }
+  }
+  .routine-cancel-btn {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #b91c1c;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    margin-left: 4px;
+  }
+  .routine-cancel-btn:hover {
+    background: #fca5a5;
+    color: #fff;
+  }
   .routine-btn:hover { filter: brightness(0.95); opacity: 1; }
   .done-auto-list {
     background: #f9fafb;
@@ -1100,6 +1127,22 @@
   .done-auto-item .label { flex: 1; min-width: 0; word-break: break-word; }
   .done-auto-item .ts { font-size: 11px; color: var(--muted); flex-shrink: 0; }
   .done-auto-item .kpi-tag { font-size: 10px; padding: 1px 6px; border-radius: 4px; background: var(--panel-2); color: var(--muted); flex-shrink: 0; }
+  .done-undo-btn {
+    background: #fff;
+    border: 1px solid #fcd34d;
+    color: #92400e;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .done-undo-btn:hover {
+    background: #fde68a;
+  }
   .week-restore-btn {
     border: 1px solid var(--border);
     background: var(--panel-2);
@@ -2229,6 +2272,27 @@
     margin-top: 4px;
     line-height: 1.2;
   }
+  .result-ai-all-btn {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(139, 92, 246, 0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .result-ai-all-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 14px rgba(139, 92, 246, 0.5);
+  }
+  .result-ai-all-btn:active { transform: translateY(0); }
   .result-ai-wrap {
     display: inline-block;
     margin-left: 8px;
@@ -3485,8 +3549,9 @@
         <div class="result-cta-title">🎯 期末はここで「次期改善案」をAI分析！</div>
         <div class="result-cta-body">
           <strong>① まず各行の「実績」欄に数字を入力</strong> → 達成率・成長率が自動計算<br>
-          <strong>② 各行の <span style="color:#ec4899;font-weight:700;">🔬 期末AI分析</span> ボタン</strong>で、ギャップの原因と次期の具体改善案を全データから分析
+          <strong>② 下の <span style="color:#ec4899;font-weight:700;">🔬 期末AI分析</span> ボタン</strong>で、KGI/KPI①/KPI②/KPI③を一括で分析（ギャップ原因と次期改善案を全データから提示）
         </div>
+        <button id="result-ai-all-btn" class="result-ai-all-btn" data-act="ai-help-result-all" title="KGI/KPI①/KPI②/KPI③ すべてを一括でAI分析（次期改善案）">🔬 期末AI分析（KGI＋KPI①②③ 一括）</button>
       </div>
       <table class="result-table">
         <thead>
@@ -5232,7 +5297,8 @@
         <textarea class="autosize todo-text" data-id="${t.id}" data-act="text" placeholder="Todoを入力" rows="1">${esc(t.text)}</textarea>
         <button class="todo-detail-toggle ${hasDetails ? 'has-content' : ''}" data-id="${t.id}" data-act="toggle-detail" title="詳細・リンクを${isOpen ? '閉じる' : '開く'}（クリックで何をどうするか書ける）">${isOpen ? '▼' : '▶'}${hasDetails ? '📝' : '＋'}</button>
         <button class="priority-btn ${priClass}" data-id="${t.id}" data-act="cycle-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
-        <button class="routine-btn ${t.routine ? 'active' : ''}" data-id="${t.id}" data-act="cycle-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックで状態切替: OFF→毎週→第1週→第2週→第3週→第4週→隔週A(第1・3週)→隔週B(第2・4週)→月初→月末→OFF）">${routineLabelLong(t)}</button>
+        <button class="routine-btn ${t.routine ? 'active' : ''} ${_pendingRoutine && _pendingRoutine.has(t.id) ? 'pending' : ''}" data-id="${t.id}" data-act="cycle-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックで状態切替: OFF→毎週→第1週→第2週→第3週→第4週→隔週A(第1・3週)→隔週B(第2・4週)→月初→月末→OFF）／5秒以内に「×解除」で取消可">${routineLabelLong(t)}${_pendingRoutine && _pendingRoutine.has(t.id) ? ' ⏳' : ''}</button>
+        ${t.routine || (_pendingRoutine && _pendingRoutine.has(t.id)) ? `<button class="routine-cancel-btn" data-id="${t.id}" data-act="cancel-routine" title="このTodoのルーティン設定を解除（5秒以内なら誤クリック取消にも使えます）">×解除</button>` : ''}
         ${pendingBadge}
         ${completedMeta}
         <button data-id="${t.id}" data-act="del" title="削除"
@@ -5276,6 +5342,32 @@
     if (_pendingComplete.has(id)) {
       clearTimeout(_pendingComplete.get(id));
       _pendingComplete.delete(id);
+    }
+  }
+
+  // ===== ルーティン切替の5秒猶予 =====
+  // ルーティンボタンを押した瞬間に週へ反映してしまうと、誤クリックで他週へ飛んで戻れない
+  // → 5秒間は反映を遅延し、その間に「×解除」を押せば現在の変更を取消可能
+  const _pendingRoutine = new Map(); // id → timeoutId
+  const PENDING_ROUTINE_MS = 5000;
+  function startPendingRoutine(id) {
+    if (_pendingRoutine.has(id)) clearTimeout(_pendingRoutine.get(id));
+    const tid = setTimeout(() => {
+      _pendingRoutine.delete(id);
+      const found = findTodoById(id);
+      if (found) {
+        applyRoutineToCurrentPeriod(found.todo);
+        save();
+        renderTodos();
+        renderWeeks();
+      }
+    }, PENDING_ROUTINE_MS);
+    _pendingRoutine.set(id, tid);
+  }
+  function cancelPendingRoutine(id) {
+    if (_pendingRoutine.has(id)) {
+      clearTimeout(_pendingRoutine.get(id));
+      _pendingRoutine.delete(id);
     }
   }
 
@@ -5355,17 +5447,38 @@
         }
       });
     });
+    // 今日まで到来した週にTodoが無くても、期全体でTodoが設定されていれば「期全体予定」として表示
+    let useFuturePreview = false;
     if (total === 0) {
-      // ゼロ件でもガイド表示（消えたように見えるのを防止）
-      el.style.display = 'flex';
-      el.className = 'overdue-stats';
-      el.innerHTML = `
-        <div class="overdue-stat-card" style="flex:1;text-align:center;color:var(--muted);padding:14px;">
-          <div style="font-size:13px;font-weight:600;">📊 完了率ゲージ — 集計対象なし</div>
-          <div style="font-size:11px;margin-top:4px;">各週カードを開いて「➕ Todoから選ぶ」でTodoを設定すると、ここに完了率・直近2週・未完了率が自動表示されます</div>
-        </div>
-      `;
-      return;
+      let allTotal = 0, allDone = 0, allWeekCount = 0;
+      (state.weeks || []).forEach((w) => {
+        const ids = w.planTodoIds || [];
+        if (ids.length === 0) return;
+        allWeekCount++;
+        ids.forEach(id => {
+          const f = findTodoById(id);
+          if (!f) return;
+          allTotal++;
+          if (f.todo.done) allDone++;
+        });
+      });
+      if (allTotal === 0) {
+        // 本当にTodoゼロ → ガイド表示
+        el.style.display = 'flex';
+        el.className = 'overdue-stats';
+        el.innerHTML = `
+          <div class="overdue-stat-card" style="flex:1;text-align:center;color:var(--muted);padding:14px;">
+            <div style="font-size:13px;font-weight:600;">📊 完了率ゲージ — 集計対象なし</div>
+            <div style="font-size:11px;margin-top:4px;">各週カードを開いて「➕ Todoから選ぶ」でTodoを設定すると、ここに完了率・直近2週・未完了率が自動表示されます</div>
+          </div>
+        `;
+        return;
+      }
+      // 期がまだ始まっていない場合: 期全体の予定として表示
+      total = allTotal;
+      done = allDone;
+      weekCount = allWeekCount;
+      useFuturePreview = true;
     }
     const remaining = total - done;
     const completionRate = total > 0 ? (done / total * 100) : 0;
@@ -5397,9 +5510,11 @@
            <div class="overdue-stat-value" style="font-size:18px;color:var(--muted);">—</div>
            <div class="overdue-stat-sub">対象なし</div>
          </div>`;
+    const labelMain = useFuturePreview ? '📊 完了率（期全体予定）' : '📊 完了率（今日まで）';
+    const labelTarget = useFuturePreview ? '期全体（未到来含む）' : '今日までに到来した週';
     el.innerHTML = `
       <div class="overdue-stat-card">
-        <div class="overdue-stat-label">📊 完了率（今日まで）</div>
+        <div class="overdue-stat-label">${labelMain}</div>
         <div class="overdue-stat-value ${valueCls}">${completionRate.toFixed(0)}%</div>
         <div class="overdue-stat-sub">${done} / ${total} 完了</div>
       </div>
@@ -5412,7 +5527,7 @@
       <div class="overdue-stat-card">
         <div class="overdue-stat-label">🗓 対象</div>
         <div class="overdue-stat-value" style="font-size:18px;">${weekCount}週</div>
-        <div class="overdue-stat-sub">今日までに到来した週</div>
+        <div class="overdue-stat-sub">${labelTarget}</div>
       </div>
       <div class="overdue-bar"><div class="overdue-bar-fill" style="width:${completionRate.toFixed(1)}%;"></div></div>
     `;
@@ -5457,6 +5572,8 @@
       (w.planTodoIds || []).forEach(id => {
         const found = findTodoById(id);
         if (!found) return;
+        // doneかつpending外なら「実際できたこと」に移動済み扱い → アクションプランから非表示
+        if (found.todo.done && !_pendingComplete.has(found.todo.id)) return;
         groupedByKpi[found.kpi].push(found.todo);
       });
       // Sort within each KPI group by priority (大→中→小→なし), stable
@@ -5517,9 +5634,10 @@
         ? `<div class="done-auto-list">${doneTodosForWeek.map(({todo, kpi}) => {
             const kpiLabel = kpi === 'other' ? 'その他' : `KPI${['①','②','③'][kpi-1]}`;
             const ts = todo.completedAt ? `<span class="ts">${fmtCompletedDate(todo.completedAt)}</span>` : '';
-            return `<div class="done-auto-item"><span class="check">✓</span><span class="kpi-tag">${kpiLabel}</span><span class="label">${esc(todo.text || '(未入力)')}</span>${ts}</div>`;
+            const undoBtn = `<button class="done-undo-btn" data-todoid="${todo.id}" data-act="undo-done" title="もう一度やり直す（チェックを外してアクションプランに戻す）">↩ 元に戻す</button>`;
+            return `<div class="done-auto-item"><span class="check">✓</span><span class="kpi-tag">${kpiLabel}</span><span class="label">${esc(todo.text || '(未入力)')}</span>${ts}${undoBtn}</div>`;
           }).join('')}</div>`
-        : `<div class="done-auto-list empty">この週でチェックを入れたTodoがあると、ここに自動表示されます</div>`;
+        : `<div class="done-auto-list empty">この週でチェックを入れたTodoがあると、ここに自動表示されます（完了したTodoは5秒後に「アクションプラン」から消えて「実際できたこと」に移動）</div>`;
       const hasArchives = (state.archives || []).length > 0;
       const summary = summaryParts.length ? summaryParts.join(' · ') : '未記入';
       const dot = weekHasContent(w) ? '<span class="week-dot"></span>' : '';
@@ -5705,11 +5823,10 @@
       const showWarn = actualEmpty && periodEnded;
       const actualClass = showWarn ? 'actual-empty' : '';
       const actualHint = showWarn ? '<div class="actual-hint">⚠️ 期末です。実績を入力してください</div>' : '';
-      const aiBtn = `<button class="result-ai-btn-big" data-act="ai-help-result" data-result-k="${k}" title="この${KPI_LABELS[k]}の数値ギャップ・原因・次期改善案をAIに分析依頼"><span class="ai-icon">🔬</span><span class="ai-main">期末AI分析</span><span class="ai-sub">（次期の改善点を全データから分析）</span></button>`;
       return `
         <tr class="result-row-${k}">
           <td class="label-cell" style="color:var(--${k});">${KPI_LABELS[k]}${lowerTag}</td>
-          <td class="content-cell" data-label="📌 内容" style="text-align:left;">${contentDisplay}<div class="result-ai-wrap">${aiBtn}</div></td>
+          <td class="content-cell" data-label="📌 内容" style="text-align:left;">${contentDisplay}</td>
           <td data-label="現状" style="font-weight:600;">${curDisp}</td>
           <td data-label="目標" style="font-weight:600;">${tgtDisp}</td>
           <td data-label="実績"><input type="text" inputmode="decimal" class="${actualClass}" data-result="${k}" data-field="actual" value="${escAttr(formatLiveValue(r.actual, r.unit))}" placeholder="ここに数字を入力" />${actualHint}</td>
@@ -6154,6 +6271,18 @@
       if (t.checked && !list.includes(id)) list.push(id);
       else if (!t.checked) state.weeks[wi].planTodoIds = list.filter(x => x !== id);
       save();
+    } else if (t.dataset.act === 'undo-done' && t.dataset.todoid) {
+      e.stopPropagation();
+      const f = findTodoById(t.dataset.todoid);
+      if (f) {
+        // チェックを外してアクションプランに戻す（再実行可）
+        f.todo.done = false;
+        f.todo.completedAt = null;
+        cancelPendingComplete(f.todo.id);
+        save();
+        renderTodos();
+        renderWeeks();
+      }
     }
   });
 
@@ -6335,8 +6464,24 @@
       const found = findTodoById(t.dataset.id);
       if (found) {
         cycleRoutineState(found.todo);
-        // 自動: ルーティン設定に従って現在期間の週に反映
-        applyRoutineToCurrentPeriod(found.todo);
+        // 5秒の猶予期間を設けてから applyRoutineToCurrentPeriod を実行（誤クリック取消可）
+        startPendingRoutine(found.todo.id);
+        save(); renderTodos();
+      }
+    } else if (t.dataset.act === 'cancel-routine' && t.dataset.id) {
+      e.stopPropagation();
+      const found = findTodoById(t.dataset.id);
+      if (found) {
+        cancelPendingRoutine(found.todo.id);
+        // ルーティン解除（OFF）
+        found.todo.routine = false;
+        found.todo.routineWeeks = null;
+        // 該当Todoを全週から外す（routine設定で追加されたものを撤去）
+        (state.weeks || []).forEach(w => {
+          if (Array.isArray(w.planTodoIds)) {
+            w.planTodoIds = w.planTodoIds.filter(x => x !== found.todo.id);
+          }
+        });
         save(); renderTodos(); renderWeeks();
       }
     } else if (t.dataset.act === 'toggle-detail' && t.dataset.id) {
@@ -6382,9 +6527,9 @@
       const found = findTodoById(t.dataset.todoid);
       if (found) {
         cycleRoutineState(found.todo);
-        // 自動: ルーティン設定に従って現在期間の週に反映
-        applyRoutineToCurrentPeriod(found.todo);
-        save(); renderTodos(); renderWeeks();
+        // 5秒の猶予期間
+        startPendingRoutine(found.todo.id);
+        save(); renderTodos();
       }
     } else if (t.dataset.act === 'pick') {
       openPicker(+t.dataset.week);
@@ -8371,6 +8516,40 @@ KPI${kpiLabel}が他KPIとどう連動するか1行。
 今日決めること1つ。
 
 【重要】現状と課題は1欄に統合／解決策は **選択肢から選んで書き込める** 粒度／数値は必ず計算式付き${AI_OUTPUT_GUIDE}`;
+    } else if (mode === 'result-analysis-all') {
+      title = '🔬 AIに「KGI＋KPI①②③ 一括」結果分析を相談';
+      prompt = `あなたは経営戦略のコンサルタント＋店長/マネージャー育成コーチです。今期の **KGI / KPI① / KPI② / KPI③ すべて** の今期全入力(数値・テキスト・Todo・週次振り返り・Good/More/Next履歴・**月間成果メモ**)を総合的に読み取り、**今期総括と次期の約束**を整理してください。月間成果メモは「途中の生の振り返り」として最重視してください。
+
+${ctx}
+
+## 🎯 全体総括(KGI＋KPI①②③ 横断)
+最重要なポイントだけを5行以内で。
+
+## 各KPIの分析(KGI／KPI①／KPI②／KPI③ それぞれ)
+各項目について、以下の形式でまとめてください：
+
+### {KGI／KPI①／KPI②／KPI③}
+1. **数値ギャップ**：現状値／目標値／実績値／達成率／成長率を計算式付きで再掲。絶対値ギャップと割合ギャップを併記。
+2. **未達 or 達成の主因**(3つ)：どの週・どのTodo・どの振り返りから読み取れるかを引用。
+3. **次期の約束**：
+   - 目標値の見直し(据置/上方/下方 計算式付き)
+   - 課題・解決策テキストの修正案(コピペ可)
+   - 追加Todo(3〜5個、動詞始まり、インパクト×実行しやすさスコア＋4象限位置＋いつやる)
+   - 削除Todo(貢献しなかったものを名指し)
+4. **早期警告サイン**：次期で兆候察知のためのチェックポイント1〜2個。
+
+## 🔗 KGI←KPI 整合性チェック(横断分析・最重要)
+- KPI①②③をすべて達成するとKGIが達成される計算式が成立しているか
+- ズレがある場合、どのKPIを優先強化すべきか／どのKPIを再設計すべきか
+- 「優先度の高いKPI1つ」と「外していいKPI」をハッキリ提示
+
+## 👏 ここを褒める
+全体を見て「ここはすでにできている／この判断は良かった」と認められる具体的な部分を1〜2行。
+
+## 💡 次期初日に決めて実行する1つ
+最も効果的な1アクション。
+
+【重要】KGIとKPI①②③を**横断的に**分析／精神論NG／入力から具体引用／数値は必ず計算式付き／受講生のエフィカシーを削がない${AI_OUTPUT_GUIDE}`;
     } else if (mode && mode.startsWith('result-analysis-')) {
       const key = mode.split('result-analysis-')[1];  // 'kgi'|'kpi1'|'kpi2'|'kpi3'
       const label = (key === 'kgi') ? 'KGI' : (key === 'kpi1' ? 'KPI①' : key === 'kpi2' ? 'KPI②' : 'KPI③');
@@ -8865,6 +9044,25 @@ ${ctx}
         }
       }
       openAIModal('result-analysis-' + k, buildResultAnalysisContext(k));
+    } else if (t.dataset.act === 'ai-help-result-all') {
+      e.stopPropagation();
+      // 全KPI実績の未入力チェック
+      const missing = KPI_KEYS.filter(k => {
+        const v = state.results[k] && state.results[k].actual;
+        return !v && v !== 0 && v !== '0';
+      });
+      if (missing.length > 0) {
+        const labels = missing.map(k => KPI_LABELS[k]).join(' / ');
+        const ok = confirm(`⚠️ 以下の実績がまだ未入力です: ${labels}\n\n実績未入力のままだとAI分析の精度が下がります。\nこのまま全項目分析を続けますか？\n（OK: そのまま続行 / キャンセル: 戻って入力）`);
+        if (!ok) {
+          const firstInp = document.querySelector(`.result-table input[data-result="${missing[0]}"][data-field="actual"]`);
+          if (firstInp) { firstInp.focus(); firstInp.scrollIntoView({block:'center', behavior:'smooth'}); }
+          return;
+        }
+      }
+      // 全体ctxを構築
+      const allCtx = ['kgi','kpi1','kpi2','kpi3'].map(k => `\n\n========= ${KPI_LABELS[k]} =========\n` + buildResultAnalysisContext(k)).join('\n');
+      openAIModal('result-analysis-all', allCtx);
     } else if (t.dataset.act === 'ai-help-other') {
       e.stopPropagation();
       // Append current "Other" Todo list to the context for analysis
