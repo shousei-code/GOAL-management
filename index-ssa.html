@@ -71,8 +71,8 @@
   .toolbar button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   main { max-width: 1100px; margin: 0 auto; padding: 20px; scroll-behavior: smooth; }
   html { scroll-behavior: smooth; }
-  /* Section anchor offset (so sticky banners don't cover headings) */
-  section[id^="sec-"], #sec-kgi { scroll-margin-top: 72px; }
+  /* Section anchor offset (so sticky banners don't cover headings) — sticky navの高さ＋少し余裕 */
+  section[id^="sec-"], #sec-kgi { scroll-margin-top: 90px; }
   /* セクションジャンプナビゲーション */
   .section-nav {
     display: flex;
@@ -85,11 +85,12 @@
     border: 1.5px solid #93c5fd;
     border-radius: 10px;
     position: sticky;
-    top: 8px;
-    z-index: 20;
+    top: 0;
+    z-index: 50;
     backdrop-filter: blur(8px);
-    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
   }
+  .section-nav-spacer { display: none; }
   .section-nav-label {
     font-size: 12px;
     font-weight: 700;
@@ -119,14 +120,14 @@
   .section-nav button:active { transform: translateY(0); }
   /* セクションナビからのジャンプ時、sticky navの高さ分オフセットしてアンカーがちょうどタイトル先頭に来るようにする */
   #sec-business, #sec-annual, #sec-kgi, #sec-todo, #sec-weekly, #sec-results {
-    scroll-margin-top: 80px;
+    scroll-margin-top: 90px;
   }
   @media (max-width: 720px) {
-    .section-nav { padding: 8px 10px; gap: 6px; top: 4px; }
+    .section-nav { padding: 8px 10px; gap: 6px; }
     .section-nav-label { font-size: 11px; }
     .section-nav button { padding: 5px 10px; font-size: 11px; }
     #sec-business, #sec-annual, #sec-kgi, #sec-todo, #sec-weekly, #sec-results {
-      scroll-margin-top: 70px;
+      scroll-margin-top: 100px;
     }
   }
   section {
@@ -2798,6 +2799,26 @@
   body.readonly [data-act^="ai-help"],
   body.readonly #ub-copy-gm,
   body.readonly #ub-copy-link { pointer-events: auto !important; opacity: 1 !important; }
+  /* 講師権限（FBのみ編集可）: FB欄関連は触れるようにする */
+  body.feedback-editor .rich-field-wrap.feedback-field,
+  body.feedback-editor .rich-field-wrap.feedback-field *,
+  body.feedback-editor .rich-field-wrap.feedback-field .rich-expand-btn,
+  body.feedback-editor .feedback-status-selector,
+  body.feedback-editor .feedback-status-selector button,
+  body.feedback-editor #rich-modal,
+  body.feedback-editor #rich-modal *,
+  body.feedback-editor [data-act="goal-text-expand"][data-field="feedback"],
+  body.feedback-editor [data-act="rich-expand"][data-field="feedback"],
+  body.feedback-editor [data-act="todo-detail-expand"][data-field="feedback"],
+  body.feedback-editor #rich-modal-add-feedback {
+    pointer-events: auto !important;
+    opacity: 1 !important;
+    cursor: pointer;
+  }
+  body.feedback-editor #rich-modal-textarea {
+    background: #fff !important;
+    color: var(--text) !important;
+  }
 
   /* Primary admin editing another user — different banner color */
   #ro-banner.editing {
@@ -3212,7 +3233,7 @@
     <input type="text" id="period-end" class="period-input period-input-mo" inputmode="numeric" maxlength="2" placeholder="月" />
     <span class="period-sep">月</span>
   </div>
-  <button id="archive-save" title="現在の期のデータをスナップショット保存">📦 今期を保存して新期へ</button>
+  <button id="archive-save" title="現在の期のデータをスナップショット保存">📦 今期を保存して次の期を作成</button>
   <button id="reset-btn">🗑 全リセット</button>
   <button id="routine-list-btn" title="ルーティン化されたTodoの一覧を見る">🔁 ルーティン一覧</button>
   <select id="archive-select" class="archive-select" title="過去の期を選んで閲覧"><option value="">📂 過去の期を見る…</option></select>
@@ -3220,7 +3241,7 @@
 </div>
 
 <main>
-  <!-- セクション間ジャンプナビゲーション -->
+  <!-- セクション間ジャンプナビゲーション（スクロールで上部に貼り付く） -->
   <nav class="section-nav" id="section-nav">
     <span class="section-nav-label">📍 セクションに移動：</span>
     <button type="button" data-jump="sec-annual">🎯 年間ゴール</button>
@@ -3427,7 +3448,7 @@
       <h2>🗓 週次行動目標</h2>
       <span class="sub">「+ Todoから選ぶ」でTodoを紐付け／自由メモも追加可能</span>
       <div style="font-size:11px;color:#92400e;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;padding:6px 10px;margin-top:6px;line-height:1.5;">
-        💡 各Todoチップの <strong>🔁ボタン</strong> をクリックすると、ここからもルーティン設定を切替できます（毎週／第1〜4週／月初／月末／OFF）。変更内容は今期の各週に自動反映されます。
+        💡 各Todoチップの <strong>🔁ボタン</strong> をクリックすると、ここからもルーティン設定を切替できます（毎週／第1〜4週／隔週A(第1・3週)／隔週B(第2・4週)／月初／月末／OFF）。変更内容は今期の各週に自動反映されます。
       </div>
     </div>
     <div class="sec-body">
@@ -3512,6 +3533,8 @@
         <button class="routine-filter-btn" data-filter="w2">第2週</button>
         <button class="routine-filter-btn" data-filter="w3">第3週</button>
         <button class="routine-filter-btn" data-filter="w4">第4週</button>
+        <button class="routine-filter-btn" data-filter="biA">隔週A(1・3)</button>
+        <button class="routine-filter-btn" data-filter="biB">隔週B(2・4)</button>
         <button class="routine-filter-btn" data-filter="first">月初</button>
         <button class="routine-filter-btn" data-filter="last">月末</button>
         <button class="routine-filter-btn" data-filter="kpi1">KPI①</button>
@@ -3803,7 +3826,7 @@
           <li><strong>成長率</strong>：実績÷現状 ×100</li>
         </ul>
         <div class="info">⚠️ <strong>期末になると実績欄が黄色く点滅</strong>：設定した期末日（期間フィールドの最終月の最終日）に到達すると、未入力の実績欄が <strong>黄色い太枠＋パルスアニメーション</strong> で目立ちます。「⚠️ 期末です。実績を入力してください」のヒントも自動表示。期間中は何も警告が出ないので、入力を急かされません。</div>
-        <div class="info">📦 <strong>「📦 今期を保存して新期へ」を押した時</strong>：実績未入力のKPIがあれば、保存前に確認ダイアログが出ます。「実績を入力しに戻る」を選ぶと、未入力の項目に自動でフォーカス＆スクロールします。</div>
+        <div class="info">📦 <strong>「📦 今期を保存して次の期を作成」を押した時</strong>：実績未入力のKPIがあれば、保存前に確認ダイアログが出ます。「実績を入力しに戻る」を選ぶと、未入力の項目に自動でフォーカス＆スクロールします。</div>
 
         <h4>📧 メール通知について</h4>
         <p>毎週木曜の朝と日曜の夜（または設定された曜日）に、応援メールが届きます。</p>
@@ -3811,7 +3834,7 @@
 
         <h4>📦 期が終わったら（自動継続モード）</h4>
         <ol>
-          <li>ヘッダーの <strong>「📦 今期を保存して新期へ」</strong> をクリック</li>
+          <li>ヘッダーの <strong>「📦 今期を保存して次の期を作成」</strong> をクリック</li>
           <li>現在の期のデータがアーカイブとして保存されます</li>
           <li><strong>KGI/KPI/Todoはそのまま引き継がれます</strong>（ゼロから入力し直す必要なし）</li>
           <li>実績・週次の振り返り・Todoのチェックはリセット</li>
@@ -3831,14 +3854,14 @@
           <li><strong>🔬 AI分析</strong>（KPI①②③カード内 各1個） → そのKPIの課題・解決策・他KPIとの連動性・短期施策を分析</li>
           <li><strong>🔬 AI分析</strong>（📁 その他の業務カード内） → 年間ゴール達成のために今期KGIに直結しないがやるべき長期準備業務を分析・Todo提案（半年〜1年後の仕込み）</li>
           <li><strong>🤖 AIにTodo提案</strong>（Todoエリア下） → 各KPIを実行可能なTodoに分解する案を取得</li>
-          <li><strong>🤖 AIに今週の相談（優先順位＋方向性）</strong>（各週カード内） → インパクト×簡単さスコア順に並び替え／追加・削除Todo提案／KGI/KPI方向性チェック／KGI問い直しを一括</li>
+          <li><strong>🤖 AIに今週の相談（優先順位＋方向性）</strong>（各週カード内） → インパクト×実行しやすさスコア順に並び替え／追加・削除Todo提案／KGI/KPI方向性チェック／KGI問い直しを一括</li>
           <li><strong>🤖 AIに途中分析を依頼</strong>（月間成果カード内 各月1個） ★期中の修正サイクル用 → 月間成果から期目標とのギャップ判定（🔴/🟡/🟢/🚀）、上方/下方修正提案、差分を埋めるTodo</li>
           <li><strong>🔬 AI分析</strong>（📊 結果テーブル KGI/KPI①/KPI②/KPI③ 各1個） → 数値ギャップの原因・次期改善案を全データ＋月間成果から分析（最重要・期末用）</li>
         </ul>
         <div class="info">🧠 <strong>全AIプロンプトに共通の仕組み</strong>：
           <ul style="margin-top:6px;">
             <li>店長育成OS <strong>9ステップ</strong>（ボトルネック→センターピン→定量化→計画→タスク分解→スケジューリング→振り返りMTG→実行→改善）に沿って回答</li>
-            <li>Todo提案には必ず <strong>インパクト×簡単さスコア</strong> と <strong>4象限位置</strong>、<strong>いつやる</strong>（曜日・時間帯）を添付</li>
+            <li>Todo提案には必ず <strong>インパクト×実行しやすさスコア</strong> と <strong>4象限位置</strong>、<strong>いつやる</strong>（曜日・時間帯）を添付</li>
             <li>各回答に必ず <strong>「👏 ここを褒める」</strong> 一言が入り、受講生のエフィカシー（自信）を高める</li>
             <li>記入済みの <strong>月間成果メモ</strong> および <strong>週次 Good/More/Next 履歴</strong> は全AIプロンプトに自動で渡され、判断材料に</li>
           </ul>
@@ -3882,7 +3905,7 @@
         <div class="tip">💡 <strong>1個ずつの登録</strong>：今までの「週単位で一括」ではなく、Todo毎に個別登録できるようになったので、優先順位の高いものだけカレンダーに入れたり、1日に複数のTodoを別時間で予定したりできます。</div>
 
         <h4>🔁 ルーティンTodo＋週指定</h4>
-        <p>毎週／月初／月末／第N週など、繰り返しやる業務を簡単に管理。</p>
+        <p>毎週／第1〜4週／隔週A(第1・3週)／隔週B(第2・4週)／月初／月末など、繰り返しやる業務を簡単に管理。</p>
         <h5>🎯 設定方法</h5>
         <ol>
           <li>各Todoの右側にある <strong>「🔁」ボタン</strong> を押して状態を切り替え</li>
@@ -3890,7 +3913,7 @@
           <li>設定した瞬間、<strong>現在の期間内の該当週へ自動的にTodoがセット</strong> されます</li>
         </ol>
         <div class="info">⚡ <strong>例: 「🔁3」(第3週) に設定すると</strong>：3か月期間(4-6月)の場合、4月3週・5月3週・6月3週の3つの週に自動でTodoが追加されます。</div>
-        <div class="info">📅 <strong>期切替時の挙動</strong>：「📦 今期を保存して新期へ」を押すと、新期でも同じ設定で自動的に該当週にセットされるので、毎月作り直す必要なし。</div>
+        <div class="info">📅 <strong>期切替時の挙動</strong>：「📦 今期を保存して次の期を作成」を押すと、新期でも同じ設定で自動的に該当週にセットされるので、毎月作り直す必要なし。</div>
 
         <h4>🔁 ルーティン一覧（オレンジバナー）</h4>
         <p>「その他の業務のTodo」の下、または ツールバーの「🔁 ルーティン一覧」ボタンから開けます。</p>
@@ -4107,7 +4130,7 @@
         <p>A. 必ず <strong>「⋮⋮」アイコン</strong> またはKPIの色付き帯を掴んでください。テキスト部分だと選択モードになります。</p>
 
         <h5>Q. 過去の期が見えなくなった</h5>
-        <p>A. 「📦 今期を保存して新期へ」をクリックしないと過去期として保存されません。アーカイブ済みの期は「📂 過去の期を見る」プルダウンに表示されます。</p>
+        <p>A. 「📦 今期を保存して次の期を作成」をクリックしないと過去期として保存されません。アーカイブ済みの期は「📂 過去の期を見る」プルダウンに表示されます。</p>
 
         <h5>Q. PDFで保存できますか？</h5>
         <p>A. はい。ヘッダーの <strong>「📄 PDFで保存」</strong> をクリックすると、すべての週カードが展開された状態でPDF印刷できます。</p>
@@ -4759,9 +4782,20 @@
   }
   function save() {
     // 管理者(主管理者 or isAdminUser)が他受講生のデータを編集中ならlocalStorageを汚さない
-    const isAdminEditingOther = (currentEmail === ADMIN_EMAIL || isAdminUser) && viewingDocId && viewingDocId !== currentDocId;
+    const isPrimary = (currentEmail === ADMIN_EMAIL);
+    const isFeedbackEditor = document.body.classList.contains('feedback-editor');
+    const isAdminEditingOther = (isPrimary || isAdminUser) && viewingDocId && viewingDocId !== currentDocId;
     if (!isAdminEditingOther) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    // FB編集者(講師)はFB欄経由のsave以外はクラウド保存しない
+    // → 各input handlerでFB欄外の編集をブロックするのが理想だが、簡易対応として
+    //    FB編集者で readonly のときは saveToCloud をスキップ（FB編集モーダルからの保存だけ通す: そちらは別ルート確認）
+    if (isFeedbackEditor && isReadOnly) {
+      // FB編集中ならsaveToCloudを呼ぶ（rich-modal経由のFB保存だけ通る想定）
+      // FB欄以外の手入力はそもそも document.body.readonly のCSSで pointer-events:none で防がれる
+      saveToCloud();
+      return;
     }
     saveToCloud();
   }
@@ -4856,11 +4890,20 @@
   //  - [0..3] → 第N週のみ ("🔁1" "🔁2" "🔁3" "🔁4")
   //  - 'first' → 月初(第1週) ("🔁初") — alias to [0] but visually distinct
   //  - 'last' → 月末(第4週) ("🔁末") — alias to [3] but visually distinct
+  // 配列同値判定 (順序考慮)
+  function _rwEq(a, b) {
+    if (!Array.isArray(a) || !Array.isArray(b)) return false;
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+    return true;
+  }
   function routineLabel(t) {
     if (!t.routine) return '🔁';
     const rw = t.routineWeeks;
     if (rw === 'first') return '🔁初';
     if (rw === 'last') return '🔁末';
+    if (_rwEq(rw, [0, 2])) return '🔁隔A';
+    if (_rwEq(rw, [1, 3])) return '🔁隔B';
     if (!Array.isArray(rw) || rw.length === 0) return '🔁毎';
     if (rw.length === 1) return `🔁${rw[0] + 1}`;
     return '🔁' + rw.map(i => i + 1).join(',');
@@ -4871,11 +4914,13 @@
     const rw = t.routineWeeks;
     if (rw === 'first') return '🔁月初';
     if (rw === 'last') return '🔁月末';
+    if (_rwEq(rw, [0, 2])) return '🔁第1・3週(隔週)';
+    if (_rwEq(rw, [1, 3])) return '🔁第2・4週(隔週)';
     if (!Array.isArray(rw) || rw.length === 0) return '🔁毎週';
     if (rw.length === 1) return `🔁第${rw[0] + 1}週`;
     return '🔁' + rw.map(i => `第${i + 1}週`).join('・');
   }
-  // Cycle: off → 毎週 → 第1週 → 第2週 → 第3週 → 第4週 → 月初 → 月末 → off
+  // Cycle: off → 毎週 → 第1週 → 第2週 → 第3週 → 第4週 → 第1・3週(隔週A) → 第2・4週(隔週B) → 月初 → 月末 → off
   function cycleRoutineState(t) {
     if (!t.routine) {
       t.routine = true; t.routineWeeks = null; // 毎週
@@ -4888,8 +4933,14 @@
     if (Array.isArray(rw) && rw.length === 1) {
       const wi = rw[0];
       if (wi < 3) { t.routineWeeks = [wi + 1]; return; } // 第2/3/4週
-      // 第4週 → 月初
-      t.routineWeeks = 'first'; return;
+      // 第4週 → 第1・3週(隔週A)
+      t.routineWeeks = [0, 2]; return;
+    }
+    if (_rwEq(rw, [0, 2])) {
+      t.routineWeeks = [1, 3]; return; // 隔週A → 隔週B
+    }
+    if (_rwEq(rw, [1, 3])) {
+      t.routineWeeks = 'first'; return; // 隔週B → 月初
     }
     if (rw === 'first') {
       t.routineWeeks = 'last'; return; // 月初 → 月末
@@ -5168,7 +5219,7 @@
         <textarea class="autosize todo-text" data-id="${t.id}" data-act="text" placeholder="Todoを入力" rows="1">${esc(t.text)}</textarea>
         <button class="todo-detail-toggle ${hasDetails ? 'has-content' : ''}" data-id="${t.id}" data-act="toggle-detail" title="詳細・リンクを${isOpen ? '閉じる' : '開く'}（クリックで何をどうするか書ける）">${isOpen ? '▼' : '▶'}${hasDetails ? '📝' : '＋'}</button>
         <button class="priority-btn ${priClass}" data-id="${t.id}" data-act="cycle-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
-        <button class="routine-btn ${t.routine ? 'active' : ''}" data-id="${t.id}" data-act="cycle-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックで状態切替: OFF→毎週→第1週→第2週→第3週→第4週→月初→月末→OFF）">${routineLabelLong(t)}</button>
+        <button class="routine-btn ${t.routine ? 'active' : ''}" data-id="${t.id}" data-act="cycle-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックで状態切替: OFF→毎週→第1週→第2週→第3週→第4週→隔週A(第1・3週)→隔週B(第2・4週)→月初→月末→OFF）">${routineLabelLong(t)}</button>
         ${pendingBadge}
         ${completedMeta}
         <button data-id="${t.id}" data-act="del" title="削除"
@@ -5406,7 +5457,7 @@
               <input type="checkbox" class="chip-check" data-todoid="${todo.id}" data-act="chip-check" ${todo.done ? 'checked' : ''} title="完了/未完了を切り替え" />
               <span class="chip-text">${esc(todo.text || '(未入力)')}</span>
               <button class="chip-prio ${priClass}" data-todoid="${todo.id}" data-act="cycle-chip-priority" title="優先順位を切り替え（大/中/小/なし）">${PRIORITY_LABELS[p]}</button>
-              <button class="chip-routine ${todo.routine ? 'active' : ''}" data-todoid="${todo.id}" data-act="cycle-chip-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックで状態切替: OFF→毎週→1週目→2週目→3週目→4週目→月初→月末→OFF）">${routineLabelLong(todo)}</button>
+              <button class="chip-routine ${todo.routine ? 'active' : ''}" data-todoid="${todo.id}" data-act="cycle-chip-routine" title="ルーティン: 期切替時に自動で次期へ復元される（クリックで状態切替: OFF→毎週→第1週→第2週→第3週→第4週→隔週A(第1・3週)→隔週B(第2・4週)→月初→月末→OFF）">${routineLabelLong(todo)}</button>
               <button class="chip-detail ${todo.details && todo.details.trim() ? 'has-content' : ''}" data-todoid="${todo.id}" data-act="chip-detail-open" title="このTodoの詳細メモ・リンクを開く（クリックで全文表示・編集）">▶${todo.details && todo.details.trim() ? '📝' : '＋'}</button>
               <button class="chip-cal" data-week="${wi}" data-todoid="${todo.id}" data-act="todo-calendar" title="このTodoをカレンダーに登録（1時間枠）">📅</button>
               <button class="chip-x" data-week="${wi}" data-todoid="${todo.id}" data-act="unpick" title="この週から外す">×</button>
@@ -5431,9 +5482,11 @@
       const todoCount = (w.planTodoIds || []).length;
       const doneTodosForWeek = getDoneTodosForWeek(w);
       const summaryParts = [];
-      if (todoCount) summaryParts.push(`Todo ${todoCount}`);
-      if (doneTodosForWeek.length) summaryParts.push(`${doneTodosForWeek.length}件実行済`);
-      if (w.review) summaryParts.push('振り返り済');
+      if (todoCount) {
+        const pct = Math.round((doneTodosForWeek.length / todoCount) * 100);
+        summaryParts.push(`Todo ${doneTodosForWeek.length}/${todoCount}（完了率 ${pct}%）`);
+      }
+      if (w.review || w.good || w.more || w.next) summaryParts.push('振り返り済');
       const doneListHTML = doneTodosForWeek.length
         ? `<div class="done-auto-list">${doneTodosForWeek.map(({todo, kpi}) => {
             const kpiLabel = kpi === 'other' ? 'その他' : `KPI${['①','②','③'][kpi-1]}`;
@@ -5457,7 +5510,7 @@
               <div class="week-field-label" style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
                 <span>📋 アクションプラン（計画）</span>
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                  <button class="ai-help-btn" data-act="ai-help-week" data-ai-mode="week-coach" data-week="${wi}" title="この週のAI相談 — 優先順位(インパクト×簡単さ)整理＋追加/削除Todo提案＋KGI/KPI見直しチェック＋相談テーマ提案を一括">🤖 AIに今週の相談（優先順位＋方向性）</button>
+                  <button class="ai-help-btn" data-act="ai-help-week" data-ai-mode="week-coach" data-week="${wi}" title="この週のAI相談 — 優先順位(インパクト×実行しやすさ)整理＋追加/削除Todo提案＋KGI/KPI見直しチェック＋相談テーマ提案を一括">🤖 AIに今週の相談（優先順位＋方向性）</button>
                   ${wi > 0 ? `<button class="week-carry-btn" data-week="${wi}" data-act="carry-over" title="前の週のTodoをこの週にコピー">📋 先週分を引き継ぐ</button>` : ''}
                   ${hasArchives ? `<button class="week-restore-btn" data-week="${wi}" data-act="restore-prev-period" title="直近の過去の期から、同じ週のTodoを復元（前期の同じ週のリズムを再現）">📋 前期の同じ週分を復元</button>` : ''}
                   ${todoCount ? `<button class="week-uncheck-btn" data-week="${wi}" data-act="uncheck-week" title="この週のTodoのチェックを外す">☐ レ点を外す</button>` : ''}
@@ -6528,6 +6581,10 @@
         else if (Array.isArray(rw) && rw.length === 1) {
           freqLabel = `第${rw[0]+1}週`;
           freqKey = `w${rw[0]+1}`;
+        } else if (_rwEq(rw, [0, 2])) {
+          freqLabel = '第1・3週(隔週)'; freqKey = 'biA';
+        } else if (_rwEq(rw, [1, 3])) {
+          freqLabel = '第2・4週(隔週)'; freqKey = 'biB';
         } else if (Array.isArray(rw) && rw.length > 1) {
           freqLabel = rw.map(i => i+1).join('・') + '週';
           freqKey = 'multi';
@@ -6546,6 +6603,8 @@
       if (routineFilterMode.startsWith('w')) return it.freqKey === routineFilterMode;
       if (routineFilterMode === 'first') return it.freqKey === 'first';
       if (routineFilterMode === 'last') return it.freqKey === 'last';
+      if (routineFilterMode === 'biA') return it.freqKey === 'biA';
+      if (routineFilterMode === 'biB') return it.freqKey === 'biB';
       if (routineFilterMode === 'kpi1') return it.kpiKey === 1;
       if (routineFilterMode === 'kpi2') return it.kpiKey === 2;
       if (routineFilterMode === 'kpi3') return it.kpiKey === 3;
@@ -6747,8 +6806,8 @@
       return !v && v !== 0 && v !== '0';
     });
     if (emptyResults.length > 0) {
-      const labels = emptyResults.map(k => KPI_LABELS[k]).join(' / ');
-      const okEmpty = confirm(`⚠️ 「実績」がまだ未入力の項目があります：\n  ${labels}\n\n新期に進む前に実績を入力すると、過去の期として正確に保存されます。\n（保存後は「📂 過去の期を見る」で実績付きの記録として確認できる）\n\n実績を入力しに戻りますか？\n（OK: 実績を入力しに戻る / キャンセル: このまま保存する）`);
+      const labels = emptyResults.map(k => `${KPI_LABELS[k]}の実績`).join('\n  ・');
+      const okEmpty = confirm(`⚠️ 以下の実績がまだ未入力です：\n  ・${labels}\n\n次の期に進む前に、KGI・KPI①〜③それぞれの実績値を入力してください。\n実績付きで保存すると、過去の期として正確に振り返れます。\n\n実績を入力しに戻りますか？\n（OK: 実績を入力しに戻る / キャンセル: このまま保存する）`);
       if (okEmpty) {
         // Highlight all empty inputs and scroll to the first
         const firstK = emptyResults[0];
@@ -6872,10 +6931,21 @@
     if (savedStateBeforeArchive) {
       state = savedStateBeforeArchive;
       savedStateBeforeArchive = null;
+    } else {
+      // savedStateBeforeArchive が消えてしまっていた場合の保険: localStorage から復元
+      const ls = load();
+      if (ls) state = ls;
     }
     document.body.classList.remove('readonly');
     $('archive-banner').classList.remove('show');
     renderAll();
+    // クラウドから最新の現在期データを取り直す（管理者代理表示で揺れたケースのリカバリ）
+    if (currentDocId && !viewingDocId) {
+      loadFromCloud(currentDocId);
+    } else if (viewingDocId && viewingDocId !== currentDocId) {
+      // 他受講生編集中なら再取得
+      enterReadOnlyMode(viewingDocId, viewingEmail || '', '');
+    }
   }
   $('archive-exit').addEventListener('click', exitArchiveView);
 
@@ -7256,9 +7326,13 @@
   }
 
   function saveToCloud() {
-    if (!currentEmail || isReadOnly || suppressCloudSave) return;
-    // 主管理者 + 管理者(isAdminUser)は他受講生のデータを保存可能。それ以外は自分のみ
-    const isAdminEditingOther = (currentEmail === ADMIN_EMAIL || isAdminUser) && viewingDocId && viewingDocId !== currentDocId;
+    if (!currentEmail || suppressCloudSave) return;
+    const isPrimary = (currentEmail === ADMIN_EMAIL);
+    const isFeedbackEditor = document.body.classList.contains('feedback-editor');
+    // isReadOnly でも 主管理者 or FB編集者 はOK（後者はFB欄しか書けない仕様）
+    if (isReadOnly && !isPrimary && !isFeedbackEditor) return;
+    // 主管理者 + 管理者(isAdminUser)は他受講生のデータを保存可能
+    const isAdminEditingOther = (isPrimary || isAdminUser) && viewingDocId && viewingDocId !== currentDocId;
     if (!viewingDocId || (viewingDocId !== currentDocId && !isAdminEditingOther)) return;
     const targetDocId = viewingDocId;
     const isEditingOther = isAdminEditingOther;
@@ -7402,18 +7476,20 @@
   $('admin-done').addEventListener('click', () => $('admin-modal').classList.remove('show'));
 
   async function enterReadOnlyMode(docId, email, displayName) {
-    // 全管理者(主管理者 + _isAdmin)が他受講生を編集可能（FBや内容を書ける）
-    const canEdit = (currentEmail === ADMIN_EMAIL) || isAdminUser;
-    isReadOnly = !canEdit;
+    // 主管理者(ADMIN_EMAIL)は全編集可。それ以外の管理者(_isAdmin=true)はFB欄のみ編集可（その他は読み取り専用）
+    const isPrimary = (currentEmail === ADMIN_EMAIL);
+    const isFeedbackOnlyAdmin = !isPrimary && isAdminUser;
+    isReadOnly = !isPrimary;  // 主管理者以外は基本的に読み取り専用(FB欄だけはCSSで pointer-events:auto)
     viewingDocId = docId;
     viewingEmail = email;
-    document.body.classList.toggle('readonly', !canEdit);
+    document.body.classList.toggle('readonly', !isPrimary);
+    document.body.classList.toggle('feedback-editor', isFeedbackOnlyAdmin);
     const banner = $('ro-banner');
-    banner.classList.toggle('editing', canEdit);
-    if (currentEmail === ADMIN_EMAIL) {
-      $('ro-email').innerHTML = `✏️ **${esc(displayName || email)}**（${esc(email)}）の編集モード（主管理者として保存可）`;
+    banner.classList.toggle('editing', isPrimary);
+    if (isPrimary) {
+      $('ro-email').innerHTML = `✏️ **${esc(displayName || email)}**（${esc(email)}）の編集モード（主管理者として全項目保存可）`;
     } else if (isAdminUser) {
-      $('ro-email').innerHTML = `✏️ **${esc(displayName || email)}**（${esc(email)}）の編集モード（管理者として保存可）`;
+      $('ro-email').innerHTML = `📝 **${esc(displayName || email)}**（${esc(email)}）を閲覧中（講師権限：💬 FB欄のみ編集・保存可／他項目は読み取り専用）`;
     } else {
       $('ro-email').innerHTML = `📖 **${esc(displayName || email)}**（${esc(email)}）のデータを閲覧中（読み取り専用・AI分析のみ可）`;
     }
@@ -7924,7 +8000,7 @@
   const GM_FRAMEWORK = `\n\n【🏔️ シート思想 — 上から下への一貫した流れ】\n  ビジネスゴール(基本固定／人生・事業の方向性)\n    ↓\n  年間ゴール(1年間で達成すべき状態)\n    ↓\n  四半期KGI(今期の最重要目標)\n    ↓\n  KPI①②③(KGIを達成する3つの行動軸)\n    ↓\n  Todo(KPIを達成する具体的行動)\n    ↓\n  AIチェック(整合性・抜け漏れ・壁打ち)\n\n【🎯 店長育成OS — ゴールマネジメントの9ステップ(回答時に該当ステップを明示)】\n  ① ボトルネック発見：成長を止めている原因は何か(数値・症状で示す)\n  ② センターピン設定：ボトルネック解消の「最も効くピン」を1つ定める→目標に\n  ③ 定量化：目標・課題・現状をすべて数字で表す(計算式付き)\n  ④ 計画立案：その数字になる行動計画を立てる\n     → **しっかり計画を立てるから自信がつく(エフィカシー)**\n  ⑤ タスク分解：細かい単位のTodoにブレイクダウン\n  ⑥ スケジューリング：いつ・誰が・何時間でやるかカレンダー化\n  ⑦ 振り返りMTG(外圧)：締切と公開でやらざるを得ない環境を作る\n  ⑧ 実行→課題抽出：やって出た課題を観察・記録\n  ⑨ 改善ループ：課題に対する改善策を次サイクルに反映\n\n【⚠️ 受講生の典型的な壁(意識して言葉を選ぶ)】\n  - 「ゴールが描けない」→ ②センターピン提示で代替\n  - 「定量化が苦手」→ ③計算式テンプレを必ず示す\n  - 「因数分解できない」→ ④KGI=A×B×C 形式で分解例を示す\n  - 「タスクが思いつかない」→ ⑤Todo候補5〜10個を選択肢化\n\n【🧠 エフィカシー(自己効力感)を高める4ルート — 回答に意識的に織り込む】\n  (a) 成功体験 → 小さくても「これならできた」を積める粒度の提案\n  (b) 代理経験 → 同業/同役職の成功パターンを例示\n  (c) 言語的説得 → 「あなたならできる」「ここまで来てる」と励ます一言\n  (d) 情動的喚起 → ストレス低減/落ち着いて取り組む工夫を1行添える\n\n【🤝 AIの役割定義(超重要)】\n  AIは「意思決定」ではなく「整合性チェック・壁打ち・言語化」として活用される存在。\n  ✅ AIがやること：KGI/KPI/Todo整合性確認／ボトルネック分析／行動量確認／抜け漏れ確認／提案／フィードバック文章化\n  ❌ AIがやらないこと：ビジネスゴール変更／人生目的変更／最終意思決定\n  運用ルール：①自分で考える → ②AIに相談する → ③最終的に自分で決める\n  → 回答末尾に必ず「**最終的にこの判断は自分でしてください**」のような一言を添え、AIへの依存を防ぐ。`;
 
   // Common output instruction template (structured + step-by-step + concrete examples + grounded reasoning)
-  const AI_OUTPUT_GUIDE = GM_FRAMEWORK + `\n\n【回答スタイル — 短く・定量で・コピペしやすく】\n\n■ 全体ボリューム：**長すぎNG**。読み返すのに30秒で済む量で。各項目は **2〜3文(合計100〜150字程度)** で十分。\n\n■ 構成(この順番で)：\n  1. **結論**(2行以内) — 何をすべきか1文で。\n  2. **定量(数字で見える化)** — 現状値／目標値／ギャップ／件数／時間配分などを **必ず計算式付き**で。\n  3. **観点・選択肢リスト** — ユーザーが自分で判断できる観点／選択肢を提示。各項目に「何を選ぶ・書くか／数値の目安／短い例」をセット。\n  4. **👏 ここを褒める**(必須・1行) — 入力内容から「ここまでできてる」「この判断が良い」と承認できる具体的な部分を1行で明示。受講生が自分の進捗を認知し、承認されたと感じられる粒度で。例: 「KPI①の課題を数値で書けてる時点で、半分は前進してます」「客数の現状を把握できてる店長は意外と少ない、ここはすでに強み」\n  5. **💡 次の一歩**(1行) — 今日／今週やる1つの行動。\n\n■ Todo提案・優先順位に関する出力ルール(必須)：\n  - 各Todoに「インパクト(1〜5) / 簡単さ(1〜5) / 合計スコア」を必ず併記\n  - 4象限のどこに位置するか(大×簡単=最優先 / 大×難=計画的 / 小×簡単=スキマ / 小×難=やらない判断もアリ)を明示\n  - スコア順に並び替えて提示\n\n■ 表現：\n  - **太字**や絵文字で強調、マークダウン見出し(##・###)で階層化\n  - 数値は **必ず計算式付き**(例: 「100万 ÷ 4週 = 25万/週」「達成率 70/100 = 70%」)\n  - 専門用語は括弧で平易注釈\n\n■ 視点(重要)：\n  - **経営者視点だけでなく、店長／マネージャー視点も含める**。現場スタッフが「ああなるほど」と思えるレベルの具体性で。\n  - 回答冒頭または該当箇所で「これは 9ステップの ①〜⑨ のどこにあたる話か」を明示する。\n\n【NG事項】\n× 1項目で400字超えるような長文／定性的・抽象的な断言／数字なしで語る／一般論で終わる／「👏 ここを褒める」を省略する／Todo提案でインパクト×簡単さスコアを省略する`;
+  const AI_OUTPUT_GUIDE = GM_FRAMEWORK + `\n\n【回答スタイル — 短く・定量で・コピペしやすく】\n\n■ 全体ボリューム：**長すぎNG**。読み返すのに30秒で済む量で。各項目は **2〜3文(合計100〜150字程度)** で十分。\n\n■ 構成(この順番で)：\n  1. **結論**(2行以内) — 何をすべきか1文で。\n  2. **定量(数字で見える化)** — 現状値／目標値／ギャップ／件数／時間配分などを **必ず計算式付き**で。\n  3. **観点・選択肢リスト** — ユーザーが自分で判断できる観点／選択肢を提示。各項目に「何を選ぶ・書くか／数値の目安／短い例」をセット。\n  4. **👏 ここを褒める**(必須・1行) — 入力内容から「ここまでできてる」「この判断が良い」と承認できる具体的な部分を1行で明示。受講生が自分の進捗を認知し、承認されたと感じられる粒度で。例: 「KPI①の課題を数値で書けてる時点で、半分は前進してます」「客数の現状を把握できてる店長は意外と少ない、ここはすでに強み」\n  5. **💡 次の一歩**(1行) — 今日／今週やる1つの行動。\n\n■ Todo提案・優先順位に関する出力ルール(必須)：\n  - 各Todoに「インパクト(1〜5) / 実行しやすさ(1〜5) / 合計スコア」を必ず併記\n  - 4象限のどこに位置するか(大×やりやすい=最優先 / 大×難=計画的 / 小×やりやすい=スキマ / 小×難=やらない判断もアリ)を明示\n  - スコア順に並び替えて提示\n\n■ 表現：\n  - **太字**や絵文字で強調、マークダウン見出し(##・###)で階層化\n  - 数値は **必ず計算式付き**(例: 「100万 ÷ 4週 = 25万/週」「達成率 70/100 = 70%」)\n  - 専門用語は括弧で平易注釈\n\n■ 視点(重要)：\n  - **経営者視点だけでなく、店長／マネージャー視点も含める**。現場スタッフが「ああなるほど」と思えるレベルの具体性で。\n  - 回答冒頭または該当箇所で「これは 9ステップの ①〜⑨ のどこにあたる話か」を明示する。\n\n【NG事項】\n× 1項目で400字超えるような長文／定性的・抽象的な断言／数字なしで語る／一般論で終わる／「👏 ここを褒める」を省略する／Todo提案でインパクト×実行しやすさスコアを省略する`;
 
   // AI相談前の必須入力チェック（最低限の入力がないと相談不可）
   function checkAIPrerequisites(mode) {
@@ -7970,7 +8046,7 @@
     // 必須入力チェック
     const missing = checkAIPrerequisites(mode);
     if (missing.length > 0) {
-      alert(`🛑 以下を書かないとAIに聞けません:\n\n・${missing.join('\n・')}\n\nまず自分で考えて入力してから、AIに相談してください。\n\n💡 運用ルール: ①自分で考える → ②AIに相談する → ③最終的に自分で決める`);
+      alert(`🛑 AIに相談する前に、まずは自分でゴールと現状を入力してください。\n\n【未入力の項目】\n・${missing.join('\n・')}\n\n💡 運用ルール: ①自分で考える → ②AIに相談する → ③最終的に自分で決める`);
       return;
     }
     const titleEl = $('ai-modal-title');
@@ -8008,7 +8084,7 @@ ${monthLabel}時点の達成見込みと、最重要の打ち手1つ。
 判定根拠を「月間成果メモのどの記述／どの数値から読み取ったか」で必ず引用。
 
 ## 4. 差分を埋めるアドバイス
-  - 残月でやるべき追加Todo(3〜5個、動詞始まり、インパクト×簡単さスコア＋4象限位置＋いつやる)
+  - 残月でやるべき追加Todo(3〜5個、動詞始まり、インパクト×実行しやすさスコア＋4象限位置＋いつやる)
   - 削るべきTodo(貢献低・着手難)
   - 週次運用の改善(締切設定・振り返り粒度 等)
 
@@ -8158,8 +8234,8 @@ ${ctx}
 
 各KPI(①②③)それぞれに：
   - 動詞始まりの具体行動(5〜10個)
-  - 各Todoに「なぜ必要か／実行結果どう良くなるか／**インパクト×簡単さスコア(インパクト(1〜5)×簡単さ(1〜5)＋合計)**／4象限位置／週時間／いつやる(スケジューリング)」セット
-  - インパクト×簡単さスコアの**合計が高い順**に並び替えて提示
+  - 各Todoに「なぜ必要か／実行結果どう良くなるか／**インパクト×実行しやすさスコア(インパクト(1〜5)×実行しやすさ(1〜5)＋合計)**／4象限位置／週時間／いつやる(スケジューリング)」セット
+  - インパクト×実行しやすさスコアの**合計が高い順**に並び替えて提示
   - 営業／マーケ／業務改善／学習／分析／人材／CRM／仕組み化など多角的に
   - 経営者+店長/マネージャー両視点${AI_OUTPUT_GUIDE}`;
     } else if (mode && mode.startsWith('todo-suggest-kpi-')) {
@@ -8188,14 +8264,14 @@ ${existing}
 ## 2. 定量で見える化
 KPI${label}の現状値→目標値ギャップを計算式で。「ギャップを埋めるには週○件のTodo必要」など。
 
-## 3. Todo提案 ★ **5〜10個**(種類豊富に・インパクト×簡単さスコア順に並び替え)
+## 3. Todo提案 ★ **5〜10個**(種類豊富に・インパクト×実行しやすさスコア順に並び替え)
 各Todoに以下セット：
 
   📌 **Todoタイトル**(動詞始まり)
   💡 **なぜ必要か**(1行・KPIへの効き目)
   📈 **実行結果どう良くなるか**(数値で示せると◎)
-  📊 **インパクト×簡単さスコア** — インパクト(1〜5) / 簡単さ(1〜5) / 合計
-  🎯 **4象限位置** — 大×簡単=最優先 / 大×難=計画的 / 小×簡単=スキマ / 小×難=やらない判断
+  📊 **インパクト×実行しやすさスコア** — インパクト(1〜5) / 実行しやすさ(1〜5) / 合計
+  🎯 **4象限位置** — 大×やりやすい=最優先 / 大×難=計画的 / 小×やりやすい=スキマ / 小×難=やらない判断
   ⏱️ 週あたり所要時間(例: 週2h)
   🔁 ルーティン化推奨かスポット対応か
   📅 いつやる(曜日・時間帯の目安 → スケジューリング)
@@ -8319,10 +8395,10 @@ ${ctx}
   - なぜ今期にやるか(半年〜1年後の年間ゴール達成への効き目)
   - 期日(半年後 / 1年後 / 数年後)
 
-## 5. Todo提案 5〜8個(インパクト×簡単さスコア順)
+## 5. Todo提案 5〜8個(インパクト×実行しやすさスコア順)
 「その他業務」に追加すべきTodo。各Todoに：
   - 動詞始まりのTodoタイトル
-  - インパクト×簡単さスコア(インパクト(1〜5) / 簡単さ(1〜5) / 合計) + 4象限位置
+  - インパクト×実行しやすさスコア(インパクト(1〜5) / 実行しやすさ(1〜5) / 合計) + 4象限位置
   - 週あたり所要時間(今期KGIを邪魔しないボリュームで)
   - 🔁 ルーティン化 or スポット
   - 期待効果(半年後〜1年後の数値変化)
@@ -8337,12 +8413,12 @@ ${ctx}
     } else if (mode === 'week-coach' || mode === 'week-priority' || mode === 'week-focus') {
       // 統合プロンプト：優先順位整理 + 何を相談すべきか の壁打ち + KGI/KPI方向性チェック
       title = '🤖 AIに今週の相談（優先順位＋方向性）';
-      prompt = `あなたは目標達成の伴走コーチ＋店長/マネージャーです。今週Todoの優先順位を **インパクト×簡単さ** で整理しつつ、必要に応じて **KGIの問い直し／KGI・KPI自体の見直し** も提案する **総合コーチング** を提供してください。
+      prompt = `あなたは目標達成の伴走コーチ＋店長/マネージャーです。今週Todoの優先順位を **インパクト×実行しやすさ** で整理しつつ、必要に応じて **KGIの問い直し／KGI・KPI自体の見直し** も提案する **総合コーチング** を提供してください。
 
 ${ctx}
 
-【判断基準】インパクト×簡単さ 4象限：
-  - 大×簡単=最優先  - 大×難=計画的  - 小×簡単=スキマ時間  - 小×難=やらない判断もアリ
+【判断基準】インパクト×実行しやすさ 4象限：
+  - 大×やりやすい=最優先  - 大×難=計画的  - 小×やりやすい=スキマ時間  - 小×難=やらない判断もアリ
 
 ## 1. 結論(2行)
 今週やるべきこと1文＋方向性に違和感があれば1文。
@@ -8352,11 +8428,11 @@ ${ctx}
   - 残時間(週単位)とTodo所要時間合計を比較
   - KGIの現状値・目標値・今期残り時間を計算式で再掲
 
-## 3. 優先順位の並べ替え(インパクト(1〜5)/簡単さ(1〜5))
-各Todoを2軸スコア化、**合計の高い順**に並び替え。各Todoに4象限位置（大×簡単=最優先 等）と「いつやる」(曜日/時間帯)を明示。
+## 3. 優先順位の並べ替え(インパクト(1〜5)/実行しやすさ(1〜5))
+各Todoを2軸スコア化、**合計の高い順**に並び替え。各Todoに4象限位置（大×やりやすい=最優先 等）と「いつやる」(曜日/時間帯)を明示。
 
 ## 4. 追加すべきTodo(3〜5個)
-動詞始まり・インパクト×簡単さスコア・4象限位置・所要時間・「いつやる」付き。
+動詞始まり・インパクト×実行しやすさスコア・4象限位置・所要時間・「いつやる」付き。
 
 ## 5. 外していいTodo
 貢献度の低いものを理由付きで。
