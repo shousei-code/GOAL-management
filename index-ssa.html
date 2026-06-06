@@ -6271,19 +6271,22 @@
       if (t.checked && !list.includes(id)) list.push(id);
       else if (!t.checked) state.weeks[wi].planTodoIds = list.filter(x => x !== id);
       save();
-    } else if (t.dataset.act === 'undo-done' && t.dataset.todoid) {
-      e.stopPropagation();
-      const f = findTodoById(t.dataset.todoid);
-      if (f) {
-        // チェックを外してアクションプランに戻す（再実行可）
-        f.todo.done = false;
-        f.todo.completedAt = null;
-        cancelPendingComplete(f.todo.id);
-        save();
-        renderTodos();
-        renderWeeks();
-      }
     }
+  });
+  // 「↩ 元に戻す」ボタンは click イベント
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-act="undo-done"]');
+    if (!btn) return;
+    e.stopPropagation();
+    const id = btn.dataset.todoid;
+    const f = findTodoById(id);
+    if (!f) return;
+    f.todo.done = false;
+    f.todo.completedAt = null;
+    cancelPendingComplete(f.todo.id);
+    save();
+    renderTodos();
+    renderWeeks();
   });
 
   // ===== Drag & Drop =====
