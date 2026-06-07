@@ -1381,21 +1381,6 @@
     justify-content: flex-end;
     margin-bottom: 8px;
   }
-  .monthly-result-tpl-btn {
-    border: 1px solid #fcd34d;
-    background: #fffbeb;
-    color: #92400e;
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    white-space: nowrap;
-  }
-  .monthly-result-tpl-btn:hover {
-    background: #fef3c7;
-  }
   .monthly-result-hint {
     font-size: 11px;
     color: #92400e;
@@ -5796,11 +5781,23 @@
       if (isLastOfMonth) {
         const p = parseWeekLabel(w.week);
         const monthLabel = p ? `${p.month}月` : '';
-        const val = state.monthlyResults[curKey] || '';
+        // 初期テンプレ（見出しのみ・空欄）— 未入力時に自動で埋める
+        const initialTpl = `# 📊 ${monthLabel}の月間成果\n\n## ✅ Good\n\n\n## 🔧 More\n\n\n## 🚀 Next\n`;
+        let val = state.monthlyResults[curKey];
+        if (val === undefined || val === null || !String(val).trim()) {
+          // 初期化: state にもテンプレを保存（永続化）
+          if (!state.monthlyResults) state.monthlyResults = {};
+          state.monthlyResults[curKey] = initialTpl;
+          val = initialTpl;
+        } else {
+          val = String(val);
+        }
         const isOpenMonthly = openMonthlyResults.has(curKey);
-        const hasContent = val.trim().length > 0;
+        // 「記入済」判定: テンプレ以上に何か書かれているか
+        const trimmed = val.replace(/^# 📊 .+の月間成果\s*/m, '').replace(/##\s*[✅🔧🚀]\s*\w+/g, '').replace(/\s+/g, '');
+        const hasContent = trimmed.length > 0;
         const summaryBadge = hasContent ? '<span class="monthly-result-badge filled">記入済</span>' : '<span class="monthly-result-badge empty">未記入</span>';
-        // Good / More / Next のテンプレート（プレースホルダー）
+        // プレースホルダー用（実際の中身がある場合は使われない）
         const placeholderTpl = `# 📊 ${monthLabel}の月間成果\n\n## ✅ Good\n（今月うまくいったこと・成果・継続したいこと）\n\n## 🔧 More\n（もっと良くできたこと・改善余地・気づき）\n\n## 🚀 Next\n（来月実行する具体的アクション）`;
         parts.push(`
           <div class="monthly-result-card ${isOpenMonthly ? 'open' : ''}" data-month-key="${esc(curKey)}">
@@ -5814,9 +5811,8 @@
             <div class="monthly-result-body ${isOpenMonthly ? 'show' : ''}">
               <div class="monthly-result-actions">
                 <button class="monthly-result-ai-btn" data-act="ai-monthly-review" data-month-key="${esc(curKey)}" title="${esc(monthLabel)}の成果と、KGI/KPI/Todo/週次振り返りを総合してAIに分析依頼">🤖 AIに途中分析を依頼</button>
-                ${!hasContent ? `<button class="monthly-result-tpl-btn" data-act="monthly-result-template" data-month-key="${esc(curKey)}" title="Good / More / Next のテンプレートを挿入">📋 テンプレート挿入</button>` : ''}
               </div>
-              <div class="monthly-result-hint">💡 1つの欄の中に <strong>✅ Good</strong> / <strong>🔧 More</strong> / <strong>🚀 Next</strong> を見出し付きで書くと、Markdownで自動整形されます。「📋 テンプレート挿入」ボタンで雛形を入れられます。</div>
+              <div class="monthly-result-hint">💡 <strong>✅ Good</strong> / <strong>🔧 More</strong> / <strong>🚀 Next</strong> の見出し付きで初期表示されます。それぞれの下に内容を書き込んでください（Markdownで自動整形）。</div>
               <textarea
                 class="monthly-result-input autosize"
                 data-month-key="${esc(curKey)}"
@@ -9118,28 +9114,6 @@ ${ctx}
         if (toggle) toggle.textContent = willOpen ? '▼' : '▶';
         if (willOpen) card.querySelectorAll('textarea').forEach(autoResize);
       }
-    } else if (t.dataset.act === 'monthly-result-template' && t.dataset.monthKey) {
-      // テンプレート挿入
-      e.stopPropagation();
-      const key = t.dataset.monthKey;
-      // monthKey の形式は "YYYY-M"
-      const monthNum = key.split('-')[1] || '';
-      const monthLabel = monthNum ? `${monthNum}月` : '';
-      const tpl = `# 📊 ${monthLabel}の月間成果\n\n## ✅ Good\n\n\n## 🔧 More\n\n\n## 🚀 Next\n\n`;
-      if (!state.monthlyResults) state.monthlyResults = {};
-      state.monthlyResults[key] = tpl;
-      save();
-      renderWeeks();
-      // テンプレ挿入後にフォーカス
-      setTimeout(() => {
-        const ta = document.querySelector(`.monthly-result-input[data-month-key="${key}"]`);
-        if (ta) {
-          ta.focus();
-          // 「## ✅ Good」直後にカーソル
-          const pos = tpl.indexOf('## ✅ Good\n') + '## ✅ Good\n'.length;
-          ta.setSelectionRange(pos, pos);
-        }
-      }, 100);
     } else if (t.dataset.act === 'ai-help-kpi' && t.dataset.kpiNum) {
       e.stopPropagation();
       const n = t.dataset.kpiNum;
