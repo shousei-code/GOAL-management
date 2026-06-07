@@ -1345,7 +1345,65 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+    padding: 4px 0;
+  }
+  .monthly-result-head:hover { background: rgba(255,255,255,0.3); border-radius: 6px; }
+  .monthly-result-toggle {
+    font-size: 12px;
+    color: #92400e;
+    width: 14px;
+    text-align: center;
+    transition: transform 0.15s;
+  }
+  .monthly-result-card.open .monthly-result-toggle { transform: rotate(0deg); }
+  .monthly-result-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 4px;
+  }
+  .monthly-result-badge.filled { background: #fef3c7; color: #b45309; border: 1px solid #f59e0b; }
+  .monthly-result-badge.empty { background: #fff; color: #92400e; border: 1px solid #fcd34d; }
+  .monthly-result-body {
+    display: none;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #fcd34d;
+  }
+  .monthly-result-body.show { display: block; }
+  .monthly-result-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+  .monthly-result-tpl-btn {
+    border: 1px solid #fcd34d;
+    background: #fffbeb;
+    color: #92400e;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .monthly-result-tpl-btn:hover {
+    background: #fef3c7;
+  }
+  .monthly-result-hint {
+    font-size: 11px;
+    color: #92400e;
+    background: rgba(255,255,255,0.6);
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    line-height: 1.5;
   }
   .monthly-result-icon { font-size: 20px; }
   .monthly-result-title {
@@ -1359,7 +1417,6 @@
     font-weight: 500;
   }
   .monthly-result-ai-btn {
-    margin-left: auto;
     border: 1px solid #6366f1;
     background: linear-gradient(135deg, #818cf8, #6366f1);
     color: #fff;
@@ -4766,12 +4823,24 @@
     g = g || {};
     const base = isKgi ? defaultGoal() : defaultGoal({ issue: '', solution: '' });
     // KPI(非KGI): 旧データの current を issue に統合（「現状・課題」一本化）
+    // 解決策(solution)はそのまま維持。旧データ保護を最優先。
     let issueVal = g.issue || '';
-    if (!isKgi && (g.current || '').trim() && !issueVal.trim()) {
-      issueVal = g.current;
-    } else if (!isKgi && (g.current || '').trim() && issueVal.trim() && !issueVal.includes(g.current)) {
-      // 両方ある場合は連結（重複は避ける）
-      issueVal = `${g.current}\n\n${issueVal}`;
+    const curText = (g.current || '').trim();
+    const issueText = (g.issue || '').trim();
+    if (!isKgi) {
+      if (curText && issueText && !issueText.includes(curText) && !curText.includes(issueText)) {
+        // 両方に文章あり: 「## 現状（旧データ）」「## 課題（旧データ）」のセクション見出し付き連結
+        issueVal = `## 📌 現状\n${curText}\n\n## ⚠️ 課題\n${issueText}`;
+      } else if (curText && !issueText) {
+        // currentのみ → 現状見出し付きでissueに入れる
+        issueVal = `## 📌 現状\n${curText}`;
+      } else if (!curText && issueText) {
+        // issueのみ → そのまま
+        issueVal = issueText;
+      } else if (curText && issueText && (issueText.includes(curText) || curText.includes(issueText))) {
+        // 片方が片方を含む → 元のissueを優先
+        issueVal = issueText || curText;
+      }
     }
     return {
       ...base,
@@ -5536,6 +5605,7 @@
   // ===== Weeks =====
   // Track which weeks are open (in-memory only)
   const openWeeks = new Set();
+  const openMonthlyResults = new Set();  // year-monthキー → 開いている月の集計
 
   function weekHasContent(w) {
     const hasDoneAuto = (w.planTodoIds || []).some(id => {
@@ -5727,20 +5797,33 @@
         const p = parseWeekLabel(w.week);
         const monthLabel = p ? `${p.month}月` : '';
         const val = state.monthlyResults[curKey] || '';
+        const isOpenMonthly = openMonthlyResults.has(curKey);
+        const hasContent = val.trim().length > 0;
+        const summaryBadge = hasContent ? '<span class="monthly-result-badge filled">記入済</span>' : '<span class="monthly-result-badge empty">未記入</span>';
+        // Good / More / Next のテンプレート（プレースホルダー）
+        const placeholderTpl = `# 📊 ${monthLabel}の月間成果\n\n## ✅ Good\n（今月うまくいったこと・成果・継続したいこと）\n\n## 🔧 More\n（もっと良くできたこと・改善余地・気づき）\n\n## 🚀 Next\n（来月実行する具体的アクション）`;
         parts.push(`
-          <div class="monthly-result-card" data-month-key="${esc(curKey)}">
-            <div class="monthly-result-head">
+          <div class="monthly-result-card ${isOpenMonthly ? 'open' : ''}" data-month-key="${esc(curKey)}">
+            <div class="monthly-result-head" data-act="toggle-monthly" data-month-key="${esc(curKey)}">
+              <span class="monthly-result-toggle">${isOpenMonthly ? '▼' : '▶'}</span>
               <span class="monthly-result-icon">📊</span>
               <span class="monthly-result-title">${esc(monthLabel)}の月間成果</span>
-              <span class="monthly-result-sub">${esc(monthLabel)}4週が終わったら、直接記入（自由メモ）</span>
-              <button class="monthly-result-ai-btn" data-act="ai-monthly-review" data-month-key="${esc(curKey)}" title="${esc(monthLabel)}の成果と、KGI/KPI/Todo/週次振り返りを総合してAIに分析依頼 — 期目標との差分／達成見込み／修正案／上方or下方修正提案">🤖 AIに途中分析を依頼</button>
+              ${summaryBadge}
+              <span class="monthly-result-sub">${esc(monthLabel)}4週が終わったら、Good / More / Next を1欄にまとめて記入</span>
             </div>
-            <textarea
-              class="monthly-result-input autosize"
-              data-month-key="${esc(curKey)}"
-              data-act="monthly-result-input"
-              placeholder="${esc(monthLabel)}の成果を自由に記入（数値・気づき・課題・次月への申し送りなど）"
-              rows="3">${esc(val)}</textarea>
+            <div class="monthly-result-body ${isOpenMonthly ? 'show' : ''}">
+              <div class="monthly-result-actions">
+                <button class="monthly-result-ai-btn" data-act="ai-monthly-review" data-month-key="${esc(curKey)}" title="${esc(monthLabel)}の成果と、KGI/KPI/Todo/週次振り返りを総合してAIに分析依頼">🤖 AIに途中分析を依頼</button>
+                ${!hasContent ? `<button class="monthly-result-tpl-btn" data-act="monthly-result-template" data-month-key="${esc(curKey)}" title="Good / More / Next のテンプレートを挿入">📋 テンプレート挿入</button>` : ''}
+              </div>
+              <div class="monthly-result-hint">💡 1つの欄の中に <strong>✅ Good</strong> / <strong>🔧 More</strong> / <strong>🚀 Next</strong> を見出し付きで書くと、Markdownで自動整形されます。「📋 テンプレート挿入」ボタンで雛形を入れられます。</div>
+              <textarea
+                class="monthly-result-input autosize"
+                data-month-key="${esc(curKey)}"
+                data-act="monthly-result-input"
+                placeholder="${esc(placeholderTpl)}"
+                rows="10">${esc(val)}</textarea>
+            </div>
           </div>
         `);
       }
@@ -9020,6 +9103,43 @@ ${ctx}
     } else if (t.dataset.act === 'ai-monthly-review' && t.dataset.monthKey) {
       e.stopPropagation();
       openAIModal('monthly-review', buildKgiKpiContext(), { monthKey: t.dataset.monthKey });
+    } else if (t.dataset.act === 'toggle-monthly' && t.dataset.monthKey) {
+      // 月間成果アコーディオン開閉
+      const key = t.dataset.monthKey;
+      if (openMonthlyResults.has(key)) openMonthlyResults.delete(key);
+      else openMonthlyResults.add(key);
+      const card = document.querySelector(`.monthly-result-card[data-month-key="${key}"]`);
+      if (card) {
+        const willOpen = openMonthlyResults.has(key);
+        card.classList.toggle('open', willOpen);
+        const body = card.querySelector('.monthly-result-body');
+        const toggle = card.querySelector('.monthly-result-toggle');
+        if (body) body.classList.toggle('show', willOpen);
+        if (toggle) toggle.textContent = willOpen ? '▼' : '▶';
+        if (willOpen) card.querySelectorAll('textarea').forEach(autoResize);
+      }
+    } else if (t.dataset.act === 'monthly-result-template' && t.dataset.monthKey) {
+      // テンプレート挿入
+      e.stopPropagation();
+      const key = t.dataset.monthKey;
+      // monthKey の形式は "YYYY-M"
+      const monthNum = key.split('-')[1] || '';
+      const monthLabel = monthNum ? `${monthNum}月` : '';
+      const tpl = `# 📊 ${monthLabel}の月間成果\n\n## ✅ Good\n\n\n## 🔧 More\n\n\n## 🚀 Next\n\n`;
+      if (!state.monthlyResults) state.monthlyResults = {};
+      state.monthlyResults[key] = tpl;
+      save();
+      renderWeeks();
+      // テンプレ挿入後にフォーカス
+      setTimeout(() => {
+        const ta = document.querySelector(`.monthly-result-input[data-month-key="${key}"]`);
+        if (ta) {
+          ta.focus();
+          // 「## ✅ Good」直後にカーソル
+          const pos = tpl.indexOf('## ✅ Good\n') + '## ✅ Good\n'.length;
+          ta.setSelectionRange(pos, pos);
+        }
+      }, 100);
     } else if (t.dataset.act === 'ai-help-kpi' && t.dataset.kpiNum) {
       e.stopPropagation();
       const n = t.dataset.kpiNum;
